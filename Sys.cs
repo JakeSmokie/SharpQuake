@@ -120,12 +120,17 @@ namespace SharpQuake
         public static DateTime GetFileTime(string path)
         {
             if (String.IsNullOrEmpty(path) || path.LastIndexOf('*') != -1)
+            {
                 return DateTime.MinValue;
+            }
+
             try
             {
                 DateTime result = File.GetLastWriteTimeUtc(path);
                 if (result.Year == 1601)
+                {
                     return DateTime.MinValue; // file does not exists
+                }
 
                 return result.ToLocalTime();
             }

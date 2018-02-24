@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.IO;
 using OpenTK;
@@ -147,14 +146,18 @@ namespace SharpQuake
             foreach (DisplayResolution res in dev.AvailableResolutions)
             {
                 if (res.BitsPerPixel <= 8)
+                {
                     continue;
-                
+                }
+
                 Predicate<mode_t> SameMode = delegate(mode_t m)
                 {
                     return (m.width == res.Width && m.height == res.Height && m.bpp == res.BitsPerPixel);
                 };
                 if (tmp.Exists(SameMode))
+                {
                     continue;
+                }
 
                 mode_t mode = new mode_t();
                 mode.width = res.Width;
@@ -190,7 +193,9 @@ namespace SharpQuake
 
             i = Common.CheckParm("-height");
             if (i > 0 && i < Common.Argc - 1)
+            {
                 height = Common.atoi(Common.Argv(i + 1));
+            }
 
             mode1.width = width;
             mode1.height = height;
@@ -224,23 +229,34 @@ namespace SharpQuake
 
             int i2 = Common.CheckParm("-conwidth");
             if (i2 > 0)
+            {
                 Scr.vid.conwidth = Common.atoi(Common.Argv(i2 + 1));
+            }
             else
+            {
                 Scr.vid.conwidth = 640;
+            }
 
             Scr.vid.conwidth &= 0xfff8; // make it a multiple of eight
 
             if (Scr.vid.conwidth < 320)
+            {
                 Scr.vid.conwidth = 320;
+            }
 
             // pick a conheight that matches with correct aspect
             Scr.vid.conheight = Scr.vid.conwidth * 3 / 4;
 
             i2 = Common.CheckParm("-conheight");
             if (i2 > 0)
+            {
                 Scr.vid.conheight = Common.atoi(Common.Argv(i2 + 1));
+            }
+
             if (Scr.vid.conheight < 200)
+            {
                 Scr.vid.conheight = 200;
+            }
 
             Scr.vid.maxwarpwidth = WARP_WIDTH;
             Scr.vid.maxwarpheight = WARP_HEIGHT;
@@ -258,16 +274,22 @@ namespace SharpQuake
             {
                 mode_t m = _Modes[i];
                 if (m.width != mode1.width || m.height != mode1.height)
+                {
                     continue;
+                }
 
                 _DefModeNum = i;
 
                 if (m.bpp == mode1.bpp && m.refreshRate == mode1.refreshRate)
+                {
                     break;
+                }
             }
             if (_DefModeNum == -1)
+            {
                 _DefModeNum = 0;
-            
+            }
+
             SetMode(_DefModeNum, palette);
 
             InitOpenGL();
@@ -291,10 +313,14 @@ namespace SharpQuake
             Con.Print("GL_EXTENSIONS: {0}\n", _glExtensions);
 
             if (_glRenderer.StartsWith("PowerVR", StringComparison.InvariantCultureIgnoreCase))
+            {
                 Scr.FullSbarDraw = true;
+            }
 
             if (_glRenderer.StartsWith("Permedia", StringComparison.InvariantCultureIgnoreCase))
+            {
                 Scr.IsPermedia = true;
+            }
 
             CheckTextureExtensions();
             CheckMultiTextureExtensions();
@@ -378,10 +404,15 @@ namespace SharpQuake
 
             viddef_t vid = Scr.vid;
             if (vid.conheight > dev.Height)
+            {
                 vid.conheight = dev.Height;
+            }
+
             if (vid.conwidth > dev.Width)
+            {
                 vid.conwidth = dev.Width;
-            
+            }
+
             vid.width = vid.conwidth;
             vid.height = vid.conheight;
 
@@ -408,9 +439,13 @@ namespace SharpQuake
         {
             int nummodes = _Modes.Length;
 	        if (nummodes == 1)
-		        Con.Print("{0} video mode is available\n", nummodes);
-	        else
-		        Con.Print("{0} video modes are available\n", nummodes);
+            {
+                Con.Print("{0} video mode is available\n", nummodes);
+            }
+            else
+            {
+                Con.Print("{0} video modes are available\n", nummodes);
+            }
         }
 
         // VID_DescribeCurrentMode_f
@@ -445,7 +480,9 @@ namespace SharpQuake
         public static string GetModeDescription(int mode)
         {
 	        if (mode < 0 || mode >= _Modes.Length)
-		        return String.Empty;
+            {
+                return String.Empty;
+            }
 
             mode_t m = _Modes[mode];
             return String.Format("{0}x{1}x{2} {3}", m.width, m.height, m.bpp, _Windowed ? "windowed" : "fullscreen");
@@ -465,21 +502,33 @@ namespace SharpQuake
                 string renderer = GL.GetString(StringName.Renderer);
                 string vendor = GL.GetString(StringName.Vendor);
                 if (renderer.Contains("Voodoo") || vendor.Contains("3Dfx"))
+                {
                     _Gamma = 1;
+                }
                 else
+                {
                     _Gamma = 0.7f; // default to 0.7 on non-3dfx hardware
+                }
             }
             else
+            {
                 _Gamma = float.Parse(Common.Argv(i + 1));
+            }
 
             for (i = 0; i < pal.Length; i++)
             {
                 double f = Math.Pow((pal[i] + 1) / 256.0, _Gamma);
                 double inf = f * 255 + 0.5;
                 if (inf < 0)
+                {
                     inf = 0;
+                }
+
                 if (inf > 255)
+                {
                     inf = 255;
+                }
+
                 pal[i] = (byte)inf;
             }
         }

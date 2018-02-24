@@ -21,7 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
@@ -36,7 +35,9 @@ namespace SharpQuake
         static void Record_f()
         {
             if (Cmd.Source != cmd_source_t.src_command)
+            {
                 return;
+            }
 
             int c = Cmd.Argc;
             if (c != 2 && c != 3 && c != 4)
@@ -65,7 +66,9 @@ namespace SharpQuake
                 Con.Print("Forcing CD track to {0}\n", track);
             }
             else
+            {
                 track = -1;
+            }
 
             string name = Path.Combine(Common.GameDir, Cmd.Argv(1));
 
@@ -73,7 +76,9 @@ namespace SharpQuake
             // start the map up
             //
             if (c > 2)
+            {
                 Cmd.ExecuteString(String.Format("map {0}", Cmd.Argv(2)), cmd_source_t.src_command);
+            }
 
             //
             // open the demo file
@@ -104,7 +109,9 @@ namespace SharpQuake
         static void Stop_f()
         {
             if (Cmd.Source != cmd_source_t.src_command)
+            {
                 return;
+            }
 
             if (!cls.demorecording)
             {
@@ -134,7 +141,9 @@ namespace SharpQuake
         static void PlayDemo_f()
         {
             if (Cmd.Source != cmd_source_t.src_command)
+            {
                 return;
+            }
 
             if (Cmd.Argc != 2)
             {
@@ -178,16 +187,24 @@ namespace SharpQuake
             {
                 c = s.ReadByte();
                 if (c == '\n')
+                {
                     break;
+                }
 
                 if (c == '-')
+                {
                     neg = true;
+                }
                 else
+                {
                     cls.forcetrack = cls.forcetrack * 10 + (c - '0');
+                }
             }
 
             if (neg)
+            {
                 cls.forcetrack = -cls.forcetrack;
+            }
             // ZOID, fscanf is evil
             //	fscanf (cls.demofile, "%i\n", &cls.forcetrack);
         }
@@ -199,9 +216,11 @@ namespace SharpQuake
         static void TimeDemo_f()
         {
 	        if (Cmd.Source != cmd_source_t.src_command)
-		        return;
+            {
+                return;
+            }
 
-	        if (Cmd.Argc != 2)
+            if (Cmd.Argc != 2)
 	        {
 		        Con.Print("timedemo <demoname> : gets demo speeds\n");
 		        return;
@@ -232,12 +251,17 @@ namespace SharpQuake
                     if (cls.timedemo)
                     {
                         if (Host.FrameCount == cls.td_lastframe)
-                            return 0;		// allready read this frame's message
+                        {
+                            return 0;      // allready read this frame's message
+                        }
+
                         cls.td_lastframe = Host.FrameCount;
                         // if this is the second frame, grab the real td_starttime
                         // so the bogus time on the first frame doesn't count
                         if (Host.FrameCount == cls.td_startframe + 1)
+                        {
                             cls.td_starttime = (float)Host.RealTime;
+                        }
                     }
                     else if (cl.time <= cl.mtime[0])
                     {
@@ -249,7 +273,9 @@ namespace SharpQuake
                 BinaryReader reader = ((DisposableWrapper<BinaryReader>)cls.demofile).Object;
                 int size = Common.LittleLong(reader.ReadInt32());
                 if (size > QDef.MAX_MSGLEN)
+                {
                     Sys.Error("Demo message > MAX_MSGLEN");
+                }
 
                 cl.mviewangles[1] = cl.mviewangles[0];
                 cl.mviewangles[0].X = Common.LittleFloat(reader.ReadSingle());
@@ -271,17 +297,25 @@ namespace SharpQuake
                 r = Net.GetMessage(cls.netcon);
 
                 if (r != 1 && r != 2)
+                {
                     return r;
+                }
 
                 // discard nop keepalive message
                 if (Net.Message.Length == 1 && Net.Message.Data[0] == Protocol.svc_nop)
+                {
                     Con.Print("<-- server to client keepalive\n");
+                }
                 else
+                {
                     break;
+                }
             }
 
             if (cls.demorecording)
+            {
                 WriteDemoMessage();
+            }
 
             return r;
         }
@@ -294,7 +328,9 @@ namespace SharpQuake
         public static void StopPlayback()
         {
             if (!cls.demoplayback)
+            {
                 return;
+            }
 
             if (cls.demofile != null)
             {
@@ -305,7 +341,9 @@ namespace SharpQuake
             cls.state = cactive_t.ca_disconnected;
 
             if (cls.timedemo)
+            {
                 FinishTimeDemo();
+            }
         }
 
         /// <summary>
@@ -319,7 +357,10 @@ namespace SharpQuake
             int frames = (Host.FrameCount - cls.td_startframe) - 1;
             float time = (float)Host.RealTime - cls.td_starttime;
             if (time == 0)
+            {
                 time = 1;
+            }
+
             Con.Print("{0} frames {1:F5} seconds {2:F2} fps\n", frames, time, frames / time);
         }
 

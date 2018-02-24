@@ -21,9 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
 using OpenTK;
 
 // client.h
@@ -177,7 +174,7 @@ namespace SharpQuake
 
         public scoreboard_t()
         {
-            this.translations = new byte[Vid.VID_GRADES * 256];
+            translations = new byte[Vid.VID_GRADES * 256];
         }
     } // scoreboard_t;
 
@@ -197,16 +194,16 @@ namespace SharpQuake
             {
                 throw new ArgumentException("destColor must have length of 3 elements!");
             }
-            this.destcolor = destColor;
+            destcolor = destColor;
             this.percent = percent;
         }
 
         public void Clear()
         {
-            this.destcolor[0] = 0;
-            this.destcolor[1] = 0;
-            this.destcolor[2] = 0;
-            this.percent = 0;
+            destcolor[0] = 0;
+            destcolor[1] = 0;
+            destcolor[2] = 0;
+            percent = 0;
         }
     } // cshift_t;
 
@@ -230,12 +227,12 @@ namespace SharpQuake
 
         public void Clear()
         {
-            this.origin = Vector3.Zero;
-            this.radius = 0;
-            this.die = 0;
-            this.decay = 0;
-            this.minlight = 0;
-            this.key = 0;
+            origin = Vector3.Zero;
+            radius = 0;
+            die = 0;
+            decay = 0;
+            minlight = 0;
+            key = 0;
         }
     } //dlight_t;
 
@@ -248,11 +245,11 @@ namespace SharpQuake
 
         public void Clear()
         {
-            this.entity = 0;
-            this.model = null;
-            this.endtime = 0;
-            this.start = Vector3.Zero;
-            this.end = Vector3.Zero;
+            entity = 0;
+            model = null;
+            endtime = 0;
+            start = Vector3.Zero;
+            end = Vector3.Zero;
         }
     } // beam_t;
 
@@ -298,8 +295,8 @@ namespace SharpQuake
 
         public client_static_t()
         {
-            this.demos = new string[Client.MAX_DEMOS];
-            this.message = new MsgWriter(1024); // like in Client_Init()
+            demos = new string[Client.MAX_DEMOS];
+            message = new MsgWriter(1024); // like in Client_Init()
         }
     } // client_static_t;
     
@@ -389,92 +386,101 @@ namespace SharpQuake
 
         public client_state_t()
         {
-            this.stats = new int[QStats.MAX_CL_STATS];
-            this.item_gettime = new float[32]; // ???????????
+            stats = new int[QStats.MAX_CL_STATS];
+            item_gettime = new float[32]; // ???????????
 
-            this.cshifts = new cshift_t[ColorShift.NUM_CSHIFTS];
+            cshifts = new cshift_t[ColorShift.NUM_CSHIFTS];
             for (int i = 0; i < ColorShift.NUM_CSHIFTS; i++)
-                this.cshifts[i] = new cshift_t();
+            {
+                cshifts[i] = new cshift_t();
+            }
 
-            this.prev_cshifts = new cshift_t[ColorShift.NUM_CSHIFTS];
+            prev_cshifts = new cshift_t[ColorShift.NUM_CSHIFTS];
             for (int i = 0; i < ColorShift.NUM_CSHIFTS; i++)
-                this.prev_cshifts[i] = new cshift_t();
+            {
+                prev_cshifts[i] = new cshift_t();
+            }
 
-            this.mviewangles = new Vector3[2]; //??????
-            this.mvelocity = new Vector3[2];
-            this.mtime = new double[2];
-            this.model_precache = new model_t[QDef.MAX_MODELS];
-            this.sound_precache = new sfx_t[QDef.MAX_SOUNDS];
-            this.viewent = new entity_t();
+            mviewangles = new Vector3[2]; //??????
+            mvelocity = new Vector3[2];
+            mtime = new double[2];
+            model_precache = new model_t[QDef.MAX_MODELS];
+            sound_precache = new sfx_t[QDef.MAX_SOUNDS];
+            viewent = new entity_t();
         }
 
         public bool HasItems(int item)
         {
-            return (this.items & item) == item;
+            return (items & item) == item;
         }
 
         public void Clear()
         {
-            this.movemessages = 0;
-            this.cmd.Clear();
-            Array.Clear(this.stats, 0, this.stats.Length);
-            this.items = 0;
-            Array.Clear(this.item_gettime, 0, this.item_gettime.Length);
-            this.faceanimtime = 0;
+            movemessages = 0;
+            cmd.Clear();
+            Array.Clear(stats, 0, stats.Length);
+            items = 0;
+            Array.Clear(item_gettime, 0, item_gettime.Length);
+            faceanimtime = 0;
             
-            foreach (cshift_t cs in this.cshifts)
+            foreach (cshift_t cs in cshifts)
+            {
                 cs.Clear();
-            foreach (cshift_t cs in this.prev_cshifts)
+            }
+
+            foreach (cshift_t cs in prev_cshifts)
+            {
                 cs.Clear();
-            
-            this.mviewangles[0] = Vector3.Zero;
-            this.mviewangles[1] = Vector3.Zero;
-            this.viewangles = Vector3.Zero;
-            this.mvelocity[0] = Vector3.Zero;
-            this.mvelocity[1] = Vector3.Zero;
-            this.velocity = Vector3.Zero;
-            this.punchangle = Vector3.Zero;
+            }
 
-            this.idealpitch = 0;
-            this.pitchvel = 0;
-            this.nodrift = false;
-            this.driftmove = 0;
-            this.laststop = 0;
+            mviewangles[0] = Vector3.Zero;
+            mviewangles[1] = Vector3.Zero;
+            viewangles = Vector3.Zero;
+            mvelocity[0] = Vector3.Zero;
+            mvelocity[1] = Vector3.Zero;
+            velocity = Vector3.Zero;
+            punchangle = Vector3.Zero;
 
-            this.viewheight = 0;
-            this.crouch = 0;
+            idealpitch = 0;
+            pitchvel = 0;
+            nodrift = false;
+            driftmove = 0;
+            laststop = 0;
 
-            this.paused = false;
-            this.onground = false;
-            this.inwater = false;
+            viewheight = 0;
+            crouch = 0;
 
-            this.intermission = 0;
-            this.completed_time = 0;
+            paused = false;
+            onground = false;
+            inwater = false;
 
-            this.mtime[0] = 0;
-            this.mtime[1] = 0;
-            this.time = 0;
-            this.oldtime = 0;
-            this.last_received_message = 0;
+            intermission = 0;
+            completed_time = 0;
 
-            Array.Clear(this.model_precache, 0, this.model_precache.Length);
-            Array.Clear(this.sound_precache, 0, this.sound_precache.Length);
+            mtime[0] = 0;
+            mtime[1] = 0;
+            time = 0;
+            oldtime = 0;
+            last_received_message = 0;
 
-            this.levelname = null;
-            this.viewentity = 0;
-            this.maxclients = 0;
-            this.gametype = 0;
+            Array.Clear(model_precache, 0, model_precache.Length);
+            Array.Clear(sound_precache, 0, sound_precache.Length);
 
-            this.worldmodel = null;
-            this.free_efrags = null;
-            this.num_entities = 0;
-            this.num_statics = 0;
-            this.viewent.Clear();
+            levelname = null;
+            viewentity = 0;
+            maxclients = 0;
+            gametype = 0;
 
-            this.cdtrack = 0;
-            this.looptrack = 0;
+            worldmodel = null;
+            free_efrags = null;
+            num_entities = 0;
+            num_statics = 0;
+            viewent.Clear();
 
-            this.scores = null;
+            cdtrack = 0;
+            looptrack = 0;
+
+            scores = null;
         }
     } //client_state_t;
 
@@ -489,10 +495,10 @@ namespace SharpQuake
 
         public void Clear()
         {
-            this.viewangles = Vector3.Zero;
-            this.forwardmove = 0;
-            this.sidemove = 0;
-            this.upmove = 0;
+            viewangles = Vector3.Zero;
+            forwardmove = 0;
+            sidemove = 0;
+            upmove = 0;
         }
     }// usercmd_t;
 
@@ -506,7 +512,7 @@ namespace SharpQuake
 
         public bool IsDown
         {
-            get { return (this.state & 1) != 0; }
+            get { return (state & 1) != 0; }
         }
     } // kbutton_t;
 }

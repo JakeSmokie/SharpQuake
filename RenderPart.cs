@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -89,14 +87,20 @@ namespace SharpQuake
 	        {
                 _NumParticles = int.Parse(Common.Argv(i + 1));
 		        if (_NumParticles < ABSOLUTE_MIN_PARTICLES)
-			        _NumParticles = ABSOLUTE_MIN_PARTICLES;
-	        }
+                {
+                    _NumParticles = ABSOLUTE_MIN_PARTICLES;
+                }
+            }
 	        else
-		        _NumParticles = MAX_PARTICLES;
+            {
+                _NumParticles = MAX_PARTICLES;
+            }
 
             _Particles = new particle_t[_NumParticles];
             for (i = 0; i < _NumParticles; i++)
+            {
                 _Particles[i] = new particle_t();
+            }
         }
 
         
@@ -131,7 +135,10 @@ namespace SharpQuake
             _ActiveParticles = null;
 
             for (int i = 0; i < _NumParticles - 1; i++)
+            {
                 _Particles[i].next = _Particles[i + 1];
+            }
+
             _Particles[_NumParticles - 1].next = null;
         }
 
@@ -144,7 +151,9 @@ namespace SharpQuake
             float len = Mathlib.Normalize(ref vec);
             int dec;
             if (type < 128)
+            {
                 dec = 3;
+            }
             else
             {
                 dec = 1;
@@ -157,7 +166,9 @@ namespace SharpQuake
 
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 p.vel = Vector3.Zero;
                 p.die = (float)Client.cl.time + 2;
@@ -192,9 +203,13 @@ namespace SharpQuake
                         p.die = (float)Client.cl.time + 0.5f;
                         p.type = ptype_t.pt_static;
                         if (type == 3)
+                        {
                             p.color = 52 + ((_TracerCount & 4) << 1);
+                        }
                         else
+                        {
                             p.color = 230 + ((_TracerCount & 4) << 1);
+                        }
 
                         _TracerCount++;
 
@@ -282,9 +297,13 @@ namespace SharpQuake
                 // hack a scale up to keep particles from disapearing
                 float scale = Vector3.Dot((p.org - Render.Origin), Render.ViewPn);
                 if (scale < 20)
+                {
                     scale = 1;
+                }
                 else
+                {
                     scale = 1 + scale * 0.004f;
+                }
 
                 // Uze todo: check if this is correct
                 uint color = Vid.Table8to24[(byte)p.color];
@@ -308,18 +327,28 @@ namespace SharpQuake
                     case ptype_t.pt_fire:
                         p.ramp += time1;
                         if (p.ramp >= 6)
+                        {
                             p.die = -1;
+                        }
                         else
+                        {
                             p.color = _Ramp3[(int)p.ramp];
+                        }
+
                         p.vel.Z += grav;
                         break;
 
                     case ptype_t.pt_explode:
                         p.ramp += time2;
                         if (p.ramp >= 8)
+                        {
                             p.die = -1;
+                        }
                         else
+                        {
                             p.color = _Ramp1[(int)p.ramp];
+                        }
+
                         p.vel += p.vel * dvel;
                         p.vel.Z -= grav;
                         break;
@@ -327,9 +356,14 @@ namespace SharpQuake
                     case ptype_t.pt_explode2:
                         p.ramp += time3;
                         if (p.ramp >= 8)
+                        {
                             p.die = -1;
+                        }
                         else
+                        {
                             p.color = _Ramp2[(int)p.ramp];
+                        }
+
                         p.vel -= p.vel * frametime;
                         p.vel.Z -= grav;
                         break;
@@ -364,15 +398,22 @@ namespace SharpQuake
             {
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 p.die = (float)Client.cl.time + 5;
                 p.color = _Ramp1[0];
                 p.ramp = Sys.Random() & 3;
                 if ((i & 1) != 0)
+                {
                     p.type = ptype_t.pt_explode;
+                }
                 else
+                {
                     p.type = ptype_t.pt_explode2;
+                }
+
                 p.org = org + new Vector3((Sys.Random() % 32) - 16, (Sys.Random() % 32) - 16, (Sys.Random() % 32) - 16);
                 p.vel = new Vector3((Sys.Random() % 512) - 256, (Sys.Random() % 512) - 256, (Sys.Random() % 512) - 256);
             }
@@ -387,7 +428,9 @@ namespace SharpQuake
             {
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 if (count == 1024)
                 {	// rocket explosion
@@ -395,9 +438,14 @@ namespace SharpQuake
                     p.color = _Ramp1[0];
                     p.ramp = Sys.Random() & 3;
                     if ((i & 1) != 0)
+                    {
                         p.type = ptype_t.pt_explode;
+                    }
                     else
+                    {
                         p.type = ptype_t.pt_explode2;
+                    }
+
                     p.org = org + new Vector3((Sys.Random() % 32) - 16, (Sys.Random() % 32) - 16, (Sys.Random() % 32) - 16);
                     p.vel = new Vector3((Sys.Random() % 512) - 256, (Sys.Random() % 512) - 256, (Sys.Random() % 512) - 256);
                 }
@@ -415,8 +463,10 @@ namespace SharpQuake
         private static particle_t AllocParticle()
         {
             if (_FreeParticles == null)
+            {
                 return null;
-            
+            }
+
             particle_t p = _FreeParticles;
             _FreeParticles = p.next;
             p.next = _ActiveParticles;
@@ -439,7 +489,9 @@ namespace SharpQuake
             int color = Net.Reader.ReadByte();
 
             if (count == 255)
+            {
                 count = 1024;
+            }
 
             RunParticleEffect(ref org, ref dir, color, count);
         }
@@ -450,12 +502,16 @@ namespace SharpQuake
         public static void TeleportSplash(ref Vector3 org)
         {
             for (int i = -16; i < 16; i += 4)
+            {
                 for (int j = -16; j < 16; j += 4)
+                {
                     for (int k = -24; k < 32; k += 4)
                     {
                         particle_t p = AllocParticle();
                         if (p == null)
+                        {
                             return;
+                        }
 
                         p.die = (float)(Client.cl.time + 0.2 + (Sys.Random() & 7) * 0.02);
                         p.color = 7 + (Sys.Random() & 7);
@@ -469,6 +525,8 @@ namespace SharpQuake
                         float vel = 50 + (Sys.Random() & 63);
                         p.vel = dir * vel;
                     }
+                }
+            }
         }
 
         /// <summary>
@@ -479,12 +537,16 @@ namespace SharpQuake
             Vector3 dir;
 
             for (int i = -16; i < 16; i++)
+            {
                 for (int j = -16; j < 16; j++)
+                {
                     for (int k = 0; k < 1; k++)
                     {
                         particle_t p = AllocParticle();
                         if (p == null)
+                        {
                             return;
+                        }
 
                         p.die = (float)(Client.cl.time + 2 + (Sys.Random() & 31) * 0.02);
                         p.color = 224 + (Sys.Random() & 7);
@@ -501,6 +563,8 @@ namespace SharpQuake
                         float vel = 50 + (Sys.Random() & 63);
                         p.vel = dir * vel;
                     }
+                }
+            }
         }
 
         /// <summary>
@@ -514,7 +578,9 @@ namespace SharpQuake
             {
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 p.die = (float)(Client.cl.time + 0.3);
                 p.color = colorStart + (colorMod % colorLength);
@@ -535,7 +601,9 @@ namespace SharpQuake
             {
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 p.die = (float)(Client.cl.time + 1 + (Sys.Random() & 8) * 0.05);
 
@@ -586,7 +654,9 @@ namespace SharpQuake
                 Vector3 forward = new Vector3((float)(cp * cy), (float)(cp * sy), (float)-sp);
                 particle_t p = AllocParticle();
                 if (p == null)
+                {
                     return;
+                }
 
                 p.die = (float)(Client.cl.time + 0.01);
                 p.color = 0x6f;

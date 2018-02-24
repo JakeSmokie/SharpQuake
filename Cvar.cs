@@ -165,14 +165,18 @@ namespace SharpQuake
         public static string[] CompleteName(string partial)
         {
             if (String.IsNullOrEmpty(partial))
+            {
                 return null;
+            }
 
             List<string> result = new List<string>();
             Cvar var = _Vars;
             while (var != null)
             {
                 if (var._Name.StartsWith(partial))
+                {
                     result.Add(var._Name);
+                }
 
                 var = var._Next;
             }
@@ -202,7 +206,9 @@ namespace SharpQuake
         {
             bool changed = (String.Compare(_String, value) != 0);
             if (!changed)
+            {
                 return;
+            }
 
             _String = value;
             _Value = Common.atof(_String);
@@ -220,7 +226,9 @@ namespace SharpQuake
             // check variables
             Cvar var = Find(Cmd.Argv(0));
             if (var == null)
+            {
                 return false;
+            }
 
             // perform a variable print or set
             if (Cmd.Argc == 1)

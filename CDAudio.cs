@@ -20,9 +20,6 @@
 /// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 // cdaudio.h
 
@@ -45,10 +42,14 @@ namespace SharpQuake
         public static bool Init()
         {
             if (Client.cls.state == cactive_t.ca_dedicated)
+            {
                 return false;
+            }
 
             if (Common.HasParam("-nocdaudio"))
+            {
                 return false;
+            }
 
             _Controller.Init();
 
@@ -100,9 +101,11 @@ namespace SharpQuake
         static void CD_f()
         {
 	        if (Cmd.Argc < 2)
-		        return;
+            {
+                return;
+            }
 
-	        string command = Cmd.Argv(1);
+            string command = Cmd.Argv(1);
 
 	        if (Common.SameText(command, "on"))
 	        {
@@ -113,8 +116,11 @@ namespace SharpQuake
             if (Common.SameText(command, "off"))
 	        {
 		        if (_Controller.IsPlaying)
-			        _Controller.Stop();
-		        _Controller.IsEnabled = false;
+                {
+                    _Controller.Stop();
+                }
+
+                _Controller.IsEnabled = false;
 		        return;
 	        }
 
@@ -122,7 +128,9 @@ namespace SharpQuake
 	        {
                 _Controller.IsEnabled = true;
 		        if (_Controller.IsPlaying)
-			        _Controller.Stop();
+                {
+                    _Controller.Stop();
+                }
 
                 _Controller.ReloadDiskInfo();
 		        return;
@@ -135,13 +143,21 @@ namespace SharpQuake
 		        if (ret <= 0)
 		        {
 			        for (int n = 1; n < 100; n++)
-				        if (remap[n] != n)
-					        Con.Print("  {0} -> {1}\n", n, remap[n]);
-			        return;
+                    {
+                        if (remap[n] != n)
+                        {
+                            Con.Print("  {0} -> {1}\n", n, remap[n]);
+                        }
+                    }
+
+                    return;
 		        }
                 for (int n = 1; n <= ret; n++)
+                {
                     remap[n] = (byte)Common.atoi(Cmd.Argv(n + 1));
-		        return;
+                }
+
+                return;
 	        }
 
             if (Common.SameText(command, "close"))
@@ -193,8 +209,11 @@ namespace SharpQuake
             if (Common.SameText(command, "eject"))
 	        {
 		        if (_Controller.IsPlaying)
-			        _Controller.Stop();
-		        _Controller.Edject();
+                {
+                    _Controller.Stop();
+                }
+
+                _Controller.Edject();
 		        return;
 	        }
 
@@ -202,10 +221,15 @@ namespace SharpQuake
 	        {
 		        Con.Print("%u tracks\n", _Controller.MaxTrack);
 		        if (_Controller.IsPlaying)
-			        Con.Print("Currently {0} track {1}\n", _Controller.IsLooping ? "looping" : "playing", _Controller.CurrentTrack);
-		        else if (_Controller.IsPaused)
-			        Con.Print("Paused {0} track {1}\n", _Controller.IsLooping ? "looping" : "playing", _Controller.CurrentTrack);
-		        Con.Print("Volume is {0}\n", _Controller.Volume);
+                {
+                    Con.Print("Currently {0} track {1}\n", _Controller.IsLooping ? "looping" : "playing", _Controller.CurrentTrack);
+                }
+                else if (_Controller.IsPaused)
+                {
+                    Con.Print("Paused {0} track {1}\n", _Controller.IsLooping ? "looping" : "playing", _Controller.CurrentTrack);
+                }
+
+                Con.Print("Volume is {0}\n", _Controller.Volume);
 		        return;
 	        }
         }

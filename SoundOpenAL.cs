@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using OpenTK.Audio;
 using OpenTK.Audio.OpenAL;
 
@@ -101,16 +100,24 @@ namespace SharpQuake
             if (Sound.shm.samplebits == 8)
             {
                 if (Sound.shm.channels == 2)
+                {
                     _BufferFormat = ALFormat.Stereo8;
+                }
                 else
+                {
                     _BufferFormat = ALFormat.Mono8;
+                }
             }
             else
             {
                 if (Sound.shm.channels == 2)
+                {
                     _BufferFormat = ALFormat.Stereo16;
+                }
                 else
+                {
                     _BufferFormat = ALFormat.Mono16;
+                }
             }
 
             _IsInitialized = true;
@@ -142,7 +149,9 @@ namespace SharpQuake
                 foreach (int buffer in bufs)
                 {
                     if (buffer == 0)
+                    {
                         continue;
+                    }
 
                     int idx = Array.IndexOf(_Buffers, buffer);
                     if (idx != -1)
@@ -152,7 +161,9 @@ namespace SharpQuake
                         _BufferBytes[idx] = 0;
                     }
                     if (!_FreeBuffers.Contains(buffer))
+                    {
                         _FreeBuffers.Enqueue(buffer);
+                    }
                 }
             }
 

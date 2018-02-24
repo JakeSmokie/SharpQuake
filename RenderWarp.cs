@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
@@ -97,7 +95,8 @@ namespace SharpQuake
             int b = 0;
             Union4b rgba = Union4b.Empty;
 	        for (int i=0 ; i<128 ; i++)
-		        for (int j=0 ; j<128 ; j++)
+            {
+                for (int j=0 ; j<128 ; j++)
 		        {
 			        int p = src[offset + i*256 + j + 128];
                     rgba.ui0 = v8to24[p];
@@ -106,6 +105,7 @@ namespace SharpQuake
                     g += rgba.b1;
                     b += rgba.b2;
 		        }
+            }
 
             rgba.b0 = (byte)(r / size);
             rgba.b1 = (byte)(g / size);
@@ -115,24 +115,36 @@ namespace SharpQuake
             uint transpix = rgba.ui0;
 
             if (_SolidSkyTexture == 0)
+            {
                 _SolidSkyTexture = Drawer.GenerateTextureNumber();
-	        Drawer.Bind (_SolidSkyTexture );
+            }
+
+            Drawer.Bind (_SolidSkyTexture );
             GL.TexImage2D(TextureTarget.Texture2D, 0, Drawer.SolidFormat, 128, 128, 0, PixelFormat.Rgba, PixelType.UnsignedByte, trans);
             Drawer.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
 
 	        for (int i=0 ; i<128 ; i++)
-		        for (int j=0 ; j<128 ; j++)
+            {
+                for (int j=0 ; j<128 ; j++)
 		        {
 			        int p = src[offset + i*256 + j];
 			        if (p == 0)
-				        trans[(i*128) + j] = transpix;
-			        else
-				        trans[(i*128) + j] = v8to24[p];
-		        }
+                    {
+                        trans[(i*128) + j] = transpix;
+                    }
+                    else
+                    {
+                        trans[(i*128) + j] = v8to24[p];
+                    }
+                }
+            }
 
             if (_AlphaSkyTexture == 0)
+            {
                 _AlphaSkyTexture = Drawer.GenerateTextureNumber();
-	        Drawer.Bind(_AlphaSkyTexture);
+            }
+
+            Drawer.Bind(_AlphaSkyTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, Drawer.AlphaFormat, 128, 128, 0, PixelFormat.Rgba, PixelType.UnsignedByte, trans);
             Drawer.SetTextureFilters(TextureMinFilter.Linear, TextureMagFilter.Linear);
         }
@@ -157,9 +169,13 @@ namespace SharpQuake
                 int lindex = loadmodel.surfedges[fa.firstedge + i];
 
                 if (lindex > 0)
+                {
                     verts[numverts] = loadmodel.vertexes[loadmodel.edges[lindex].v[0]].position;
+                }
                 else
+                {
                     verts[numverts] = loadmodel.vertexes[loadmodel.edges[-lindex].v[1]].position;
+                }
 
                 numverts++;
             }
@@ -173,7 +189,9 @@ namespace SharpQuake
         static void SubdividePolygon(int numverts, Vector3[] verts)
         {
             if (numverts > 60)
+            {
                 Sys.Error("numverts = {0}", numverts);
+            }
 
             Vector3 mins, maxs;
             BoundPoly(numverts, verts, out mins, out maxs);
@@ -184,13 +202,19 @@ namespace SharpQuake
                 double m = (Mathlib.Comp(ref mins, i) + Mathlib.Comp(ref maxs, i)) * 0.5;
                 m = Mod.SubdivideSize * Math.Floor(m / Mod.SubdivideSize + 0.5);
                 if (Mathlib.Comp(ref maxs, i) - m < 8)
+                {
                     continue;
+                }
 
                 if (m - Mathlib.Comp(ref mins, i) < 8)
+                {
                     continue;
+                }
 
                 for (int j = 0; j < numverts; j++)
+                {
                     dist[j] = (float)(Mathlib.Comp(ref verts[j], i) - m);
+                }
 
                 Vector3[] front = new Vector3[64];
                 Vector3[] back = new Vector3[64];
@@ -215,7 +239,10 @@ namespace SharpQuake
                         b++;
                     }
                     if (dist[j] == 0 || dist[j + 1] == 0)
+                    {
                         continue;
+                    }
+
                     if ((dist[j] > 0) != (dist[j + 1] > 0))
                     {
                         // clip point
@@ -327,7 +354,9 @@ namespace SharpQuake
             _SpeedScale -= (int)_SpeedScale & ~127;
 
             for (msurface_t fa = s; fa != null; fa = fa.texturechain)
+            {
                 EmitSkyPolys(fa);
+            }
 
             GL.Enable(EnableCap.Blend);
             Drawer.Bind(_AlphaSkyTexture);
@@ -335,7 +364,9 @@ namespace SharpQuake
             _SpeedScale -= (int)_SpeedScale & ~127;
 
             for (msurface_t fa = s; fa != null; fa = fa.texturechain)
+            {
                 EmitSkyPolys(fa);
+            }
 
             GL.Disable(EnableCap.Blend);
         }

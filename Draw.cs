@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 
@@ -44,8 +42,8 @@ namespace SharpQuake
             public glmode_t(string name, TextureMinFilter minFilter, TextureMagFilter magFilter)
             {
                 this.name = name;
-                this.minimize = minFilter;
-                this.maximize = magFilter;
+                minimize = minFilter;
+                maximize = magFilter;
             }
         } //glmode_t;
       
@@ -154,7 +152,9 @@ namespace SharpQuake
         public static void Init()
         {
             for (int i = 0; i < _MenuCachePics.Length; i++)
+            {
                 _MenuCachePics[i] = new cachepic_t();
+            }
 
             if (_glNoBind == null)
             {
@@ -166,9 +166,11 @@ namespace SharpQuake
 	        // 3dfx can only handle 256 wide textures
             string renderer = GL.GetString(StringName.Renderer);
             if (renderer.Contains("3dfx") || renderer.Contains("Glide"))
+            {
                 Cvar.Set("gl_max_size", "256");
+            }
 
-	        Cmd.Add("gl_texturemode", TextureMode_f);
+            Cmd.Add("gl_texturemode", TextureMode_f);
 
 	        // load the console background and the charset
 	        // by hand, because we need to write the version
@@ -179,7 +181,9 @@ namespace SharpQuake
             for (int i = 0; i < 256 * 64; i++)
             {
 		        if (draw_chars[offset + i] == 0)
-			        draw_chars[offset + i] = 255;	// proper transparent color
+                {
+                    draw_chars[offset + i] = 255;   // proper transparent color
+                }
             }
 
 	        // now turn them into textures
@@ -187,9 +191,11 @@ namespace SharpQuake
 
             byte[] buf = Common.LoadFile("gfx/conback.lmp");
             if (buf == null)
-		        Sys.Error("Couldn't load gfx/conback.lmp");
+            {
+                Sys.Error("Couldn't load gfx/conback.lmp");
+            }
 
-	        dqpicheader_t cbHeader = Sys.BytesToStructure<dqpicheader_t>(buf, 0);
+            dqpicheader_t cbHeader = Sys.BytesToStructure<dqpicheader_t>(buf, 0);
 	        Wad.SwapPic(cbHeader);
 
 	        // hack the version number directly into the pic
@@ -197,7 +203,9 @@ namespace SharpQuake
             int offset2 = Marshal.SizeOf(typeof(dqpicheader_t)) + 320 * 186 + 320 - 11 - 8 * ver.Length;
 	        int y = ver.Length;
             for (int x = 0; x < y; x++)
+            {
                 CharToConback(ver[x], new ByteArraySegment(buf, offset2 + (x << 3)), new ByteArraySegment(draw_chars, offset));
+            }
 
             _ConBack = new glpic_t();
             _ConBack.width = cbHeader.width;
@@ -252,7 +260,9 @@ namespace SharpQuake
         public static void DrawPic(int x, int y, glpic_t pic)
         {
             if (_ScrapDirty)
+            {
                 UploadScrap();
+            }
 
             GL.Color4(1f, 1f, 1f, 1f);
             Bind(pic.texnum);
@@ -329,8 +339,13 @@ namespace SharpQuake
                 _ScrapDirty = true;
                 int k = 0;
                 for (int i = 0; i < gl.height; i++)
+                {
                     for (int j = 0; j < gl.width; j++, k++)
+                    {
                         _ScrapTexels[texnum][(y + i) * BLOCK_WIDTH + x + j] = Wad.Data[offset + k];// p->data[k];
+                    }
+                }
+
                 texnum += _ScrapTexNum;
                 gl.texnum = texnum;
                 gl.sl = (float)((x + 0.01) / (float)BLOCK_WIDTH);
@@ -354,8 +369,11 @@ namespace SharpQuake
 	        //if (_glNoBind.Value != 0)
 		    //    texnum = _CharTexture;
 	        if (CurrentTexture == texnum)
-		        return;
-	        CurrentTexture = texnum;
+            {
+                return;
+            }
+
+            CurrentTexture = texnum;
             GL.BindTexture(TextureTarget.Texture2D, texnum);
         }
 
@@ -390,11 +408,14 @@ namespace SharpQuake
             if (Cmd.Argc == 1)
             {
                 for (i = 0; i < 6; i++)
+                {
                     if (_MinFilter == _Modes[i].minimize)
                     {
                         Con.Print("{0}\n", _Modes[i].name);
                         return;
                     }
+                }
+
                 Con.Print("current filter is unknown???\n");
                 return;
             }
@@ -402,7 +423,9 @@ namespace SharpQuake
             for (i = 0; i < _Modes.Length; i++)
             {
                 if (Common.SameText(_Modes[i].name, Cmd.Argv(1)))
+                {
                     break;
+                }
             }
             if (i == _Modes.Length)
             {
@@ -439,14 +462,19 @@ namespace SharpQuake
                     if (glt.identifier == identifier)
                     {
                         if (width != glt.width || height != glt.height)
+                        {
                             Sys.Error("GL_LoadTexture: cache mismatch!");
+                        }
+
                         return glt.texnum;
                     }
                 }
 	        }
             if (_NumTextures == _glTextures.Length)
+            {
                 Sys.Error("GL_LoadTexture: no more texture slots available!");
-	        
+            }
+
             gltexture_t tex = new gltexture_t();
             _glTextures[_NumTextures] = tex;
             _NumTextures++;
@@ -488,8 +516,13 @@ namespace SharpQuake
 	        while (drawline-- > 0)
 	        {
                 for (int x = 0; x < 8; x++)
+                {
                     if (drawChars.Data[srcOffset + x] != 255)
+                    {
                         dest.Data[destOffset + x] = (byte)(0x60 + drawChars.Data[srcOffset + x]); // source[x];
+                    }
+                }
+
                 srcOffset += 128; // source += 128;
                 destOffset += 320; // dest += 320;
 	        }
@@ -515,18 +548,25 @@ namespace SharpQuake
                 {
                     byte p = data1[offset];
                     if (p == 255)
+                    {
                         noalpha = false;
+                    }
+
                     trans[i] = table[p];
                 }
 
 		        if (alpha && noalpha)
-			        alpha = false;
-	        }
+                {
+                    alpha = false;
+                }
+            }
 	        else
 	        {
 		        if ((s & 3) != 0)
-			        Sys.Error ("GL_Upload8: s&3");
-                
+                {
+                    Sys.Error ("GL_Upload8: s&3");
+                }
+
                 for (int i = 0; i < s; i += 4, offset += 4)
                 {
                     trans[i] = table[data1[offset]];
@@ -546,19 +586,29 @@ namespace SharpQuake
             int scaled_width, scaled_height;
 
             for (scaled_width = 1; scaled_width < width; scaled_width <<= 1)
+            {
                 ;
-            for (scaled_height = 1; scaled_height < height; scaled_height <<= 1)
-                ;
+            }
 
-	        scaled_width >>= (int)_glPicMip.Value;
+            for (scaled_height = 1; scaled_height < height; scaled_height <<= 1)
+            {
+                ;
+            }
+
+            scaled_width >>= (int)_glPicMip.Value;
 	        scaled_height >>= (int)_glPicMip.Value;
 
 	        if (scaled_width > _glMaxSize.Value)
+            {
                 scaled_width = (int)_glMaxSize.Value;
-            if (scaled_height > _glMaxSize.Value)
-                scaled_height = (int)_glMaxSize.Value;
+            }
 
-	        PixelInternalFormat samples = alpha ? _AlphaFormat : _SolidFormat;
+            if (scaled_height > _glMaxSize.Value)
+            {
+                scaled_height = (int)_glMaxSize.Value;
+            }
+
+            PixelInternalFormat samples = alpha ? _AlphaFormat : _SolidFormat;
             uint[] scaled;
             
             _Texels += scaled_width * scaled_height;
@@ -583,7 +633,9 @@ namespace SharpQuake
                 data.CopyTo(scaled, 0);
 	        }
 	        else
-		        ResampleTexture (data, width, height, out scaled, scaled_width, scaled_height);
+            {
+                ResampleTexture (data, width, height, out scaled, scaled_width, scaled_height);
+            }
 
             GCHandle h = GCHandle.Alloc(scaled, GCHandleType.Pinned);
             try
@@ -601,9 +653,15 @@ namespace SharpQuake
                         scaled_width >>= 1;
                         scaled_height >>= 1;
                         if (scaled_width < 1)
+                        {
                             scaled_width = 1;
+                        }
+
                         if (scaled_height < 1)
+                        {
                             scaled_height = 1;
+                        }
+
                         miplevel++;
                         GL.TexImage2D(TextureTarget.Texture2D, miplevel, samples, scaled_width, scaled_height, 0,
                             PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
@@ -618,9 +676,13 @@ namespace SharpQuake
             Done: ;
 
 	        if (mipmap)
+            {
                 SetTextureFilters(_MinFilter, _MagFilter);
-	        else
+            }
+            else
+            {
                 SetTextureFilters((TextureMinFilter)_MagFilter, _MagFilter);
+            }
         }
 
         // GL_ResampleTexture
@@ -694,12 +756,16 @@ namespace SharpQuake
         public static void DrawCharacter(int x, int y, int num)
         {
             if (num == 32)
-                return;		// space
+            {
+                return;     // space
+            }
 
             num &= 255;
 
             if (y <= -8)
-                return;			// totally off screen
+            {
+                return;         // totally off screen
+            }
 
             int row = num >> 4;
             int col = num & 15;
@@ -726,7 +792,9 @@ namespace SharpQuake
         public static void DrawString(int x, int y, string str)
         {
             for (int i = 0; i < str.Length; i++, x += 8)
+            {
                 DrawCharacter(x, y, str[i]);
+            }
         }
 
         // Scrap_AllocBlock
@@ -746,9 +814,14 @@ namespace SharpQuake
                     for (j = 0; j < w; j++)
                     {
                         if (_ScrapAllocated[texnum][i + j] >= best)
+                        {
                             break;
+                        }
+
                         if (_ScrapAllocated[texnum][i + j] > best2)
+                        {
                             best2 = _ScrapAllocated[texnum][i + j];
+                        }
                     }
                     if (j == w)
                     {
@@ -759,10 +832,14 @@ namespace SharpQuake
                 }
 
                 if (best + h > BLOCK_HEIGHT)
+                {
                     continue;
+                }
 
                 for (int i = 0; i < w; i++)
+                {
                     _ScrapAllocated[texnum][x + i] = best + h;
+                }
 
                 return texnum;
             }
@@ -778,12 +855,16 @@ namespace SharpQuake
             {
                 cachepic_t p = _MenuCachePics[i];
                 if (p.name == path)// !strcmp(path, pic->name))
+                {
                     return p.pic;
+                }
             }
 
 	        if (_MenuNumCachePics == MAX_CACHED_PICS)
-		        Sys.Error("menu_numcachepics == MAX_CACHED_PICS");
-            
+            {
+                Sys.Error("menu_numcachepics == MAX_CACHED_PICS");
+            }
+
             cachepic_t pic = _MenuCachePics[_MenuNumCachePics];
 	        _MenuNumCachePics++;
             pic.name = path;
@@ -793,7 +874,10 @@ namespace SharpQuake
             //
             byte[] data = Common.LoadFile(path);
 	        if (data == null)
-		        Sys.Error ("Draw_CachePic: failed to load {0}", path);
+            {
+                Sys.Error ("Draw_CachePic: failed to load {0}", path);
+            }
+
             dqpicheader_t header = Sys.BytesToStructure<dqpicheader_t>(data, 0);
             Wad.SwapPic(header);
 
@@ -875,9 +959,13 @@ namespace SharpQuake
                 {
                     uint p = _MenuPlayerPixels[srcOffset + ((u * pic.width) >> 6)];
                     if (p == 255)
+                    {
                         trans[destOffset + u] = p;
+                    }
                     else
+                    {
                         trans[destOffset + u] = Vid.Table8to24[translation[p]];
+                    }
                 }
             }
 
@@ -914,9 +1002,13 @@ namespace SharpQuake
             int y = (Scr.vid.height * 3) >> 2;
 
             if (lines > y)
+            {
                 DrawPic(0, lines - Scr.vid.height, _ConBack);
+            }
             else
+            {
                 DrawAlphaPic(0, lines - Scr.vid.height, _ConBack, (float)(1.2 * lines) / y);
+            }
         }
 
         
@@ -924,8 +1016,10 @@ namespace SharpQuake
         public static void DrawAlphaPic (int x, int y, glpic_t pic, float alpha)
         {
 	        if (_ScrapDirty)
+            {
                 UploadScrap();
-	        
+            }
+
             GL.Disable(EnableCap.AlphaTest);
             GL.Enable(EnableCap.Blend);
             GL.Color4(1f, 1f, 1f, alpha);
@@ -962,8 +1056,10 @@ namespace SharpQuake
         public static void SelectTexture(MTexTarget target)
         {
             if (!Vid.glMTexable)
+            {
                 return;
-            
+            }
+
             switch (target)
             {
                 case MTexTarget.TEXTURE0_SGIS:
@@ -980,7 +1076,9 @@ namespace SharpQuake
             }
             
             if (target == _OldTarget)
+            {
                 return;
+            }
 
             _CntTextures[_OldTarget - MTexTarget.TEXTURE0_SGIS] = Drawer.CurrentTexture;
             Drawer.CurrentTexture = _CntTextures[target - MTexTarget.TEXTURE0_SGIS];

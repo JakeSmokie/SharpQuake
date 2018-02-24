@@ -26,7 +26,6 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Input;
 
-
 namespace SharpQuake
 {
     public class MainForm : GameWindow
@@ -59,19 +58,13 @@ namespace SharpQuake
         Stopwatch _Swatch;
         public bool ConfirmExit = true;
 
-        public static MainForm Instance
-        {
-            get { return (MainForm)_Instance.Target; }
-        }
+        public static MainForm Instance => (MainForm)_Instance.Target;
         public static DisplayDevice DisplayDevice
         {
             get { return _DisplayDevice; }
             set { _DisplayDevice = value; }
         }
-        public static bool IsFullscreen
-        {
-            get { return (Instance.WindowState == WindowState.Fullscreen); }
-        }
+        public static bool IsFullscreen => (Instance.WindowState == WindowState.Fullscreen);
 
 
         private MainForm(Size size, GraphicsMode mode, bool fullScreen)
@@ -79,24 +72,24 @@ namespace SharpQuake
         {
             _Instance = new WeakReference(this);
             _Swatch = new Stopwatch();
-            this.VSync = VSyncMode.On;
-            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            if (this.Keyboard != null)
+            VSync = VSyncMode.On;
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            if (Keyboard != null)
             {
-                this.Keyboard.KeyRepeat = true;
-                this.Keyboard.KeyDown += new EventHandler<OpenTK.Input.KeyboardKeyEventArgs>(Keyboard_KeyDown);
-                this.Keyboard.KeyUp += new EventHandler<OpenTK.Input.KeyboardKeyEventArgs>(Keyboard_KeyUp);
+                Keyboard.KeyRepeat = true;
+                Keyboard.KeyDown += new EventHandler<KeyboardKeyEventArgs>(Keyboard_KeyDown);
+                Keyboard.KeyUp += new EventHandler<KeyboardKeyEventArgs>(Keyboard_KeyUp);
             }
-            if (this.Mouse != null)
+            if (Mouse != null)
             {
-                this.Mouse.Move += new EventHandler<OpenTK.Input.MouseMoveEventArgs>(Mouse_Move);
-                this.Mouse.ButtonDown += new EventHandler<OpenTK.Input.MouseButtonEventArgs>(Mouse_ButtonEvent);
-                this.Mouse.ButtonUp += new EventHandler<OpenTK.Input.MouseButtonEventArgs>(Mouse_ButtonEvent);
-                this.Mouse.WheelChanged += new EventHandler<OpenTK.Input.MouseWheelEventArgs>(Mouse_WheelChanged);
+                Mouse.Move += new EventHandler<MouseMoveEventArgs>(Mouse_Move);
+                Mouse.ButtonDown += new EventHandler<MouseButtonEventArgs>(Mouse_ButtonEvent);
+                Mouse.ButtonUp += new EventHandler<MouseButtonEventArgs>(Mouse_ButtonEvent);
+                Mouse.WheelChanged += new EventHandler<MouseWheelEventArgs>(Mouse_WheelChanged);
             }
         }
 
-        void Mouse_WheelChanged(object sender, OpenTK.Input.MouseWheelEventArgs e)
+        void Mouse_WheelChanged(object sender, MouseWheelEventArgs e)
         {
             if (e.Delta > 0)
             {
@@ -111,23 +104,29 @@ namespace SharpQuake
             }
         }
 
-        void Mouse_ButtonEvent(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        void Mouse_ButtonEvent(object sender, MouseButtonEventArgs e)
         {
             _MouseBtnState = 0;
 
             if (e.Button == MouseButton.Left && e.IsPressed)
+            {
                 _MouseBtnState |= 1;
-            
+            }
+
             if (e.Button == MouseButton.Right && e.IsPressed)
+            {
                 _MouseBtnState |= 2;
+            }
 
             if (e.Button == MouseButton.Middle && e.IsPressed)
+            {
                 _MouseBtnState |= 4;
+            }
 
             Input.MouseEvent(_MouseBtnState);
         }
 
-        void Mouse_Move(object sender, OpenTK.Input.MouseMoveEventArgs e)
+        void Mouse_Move(object sender, MouseMoveEventArgs e)
         {
             Input.MouseEvent(_MouseBtnState);
         }
@@ -138,37 +137,42 @@ namespace SharpQuake
             key &= 255;
 
             if (key >= _KeyTable.Length)
+            {
                 return 0;
-            
+            }
+
             if (_KeyTable[key] == 0)
+            {
                 Con.DPrint("key 0x{0:X} has no translation\n", key);
-            
+            }
+
             return _KeyTable[key];
         }
 
-        void Keyboard_KeyUp(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
+        void Keyboard_KeyUp(object sender, KeyboardKeyEventArgs e)
         {
             Key.Event(MapKey(e.Key), false);
         }
 
-        void Keyboard_KeyDown(object sender, OpenTK.Input.KeyboardKeyEventArgs e)
-        {
-            Key.Event(MapKey(e.Key), true);
-        }
+        void Keyboard_KeyDown(object sender, KeyboardKeyEventArgs e) => Key.Event(MapKey(e.Key), true);
 
         protected override void OnFocusedChanged(EventArgs e)
         {
             base.OnFocusedChanged(e);
 
-            if (this.Focused)
+            if (Focused)
+            {
                 Sound.UnblockSound();
+            }
             else
+            {
                 Sound.BlockSound();
+            }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            if (this.ConfirmExit)
+            if (ConfirmExit)
             {
                 e.Cancel = (MessageBox.Show("Are you sure you want to quit?",
                     "Confirm Exit", MessageBoxButtons.YesNo) != DialogResult.Yes);
@@ -189,8 +193,10 @@ namespace SharpQuake
         {
             try
             {
-                if (this.WindowState == OpenTK.WindowState.Minimized || Scr.BlockDrawing)
-                    Scr.SkipUpdate = true;	// no point in bothering to draw
+                if (WindowState == OpenTK.WindowState.Minimized || Scr.BlockDrawing)
+                {
+                    Scr.SkipUpdate = true; // no point in bothering to draw
+                }
 
                 _Swatch.Stop();
                 double ts = _Swatch.Elapsed.TotalSeconds;
@@ -204,13 +210,7 @@ namespace SharpQuake
             }
         }
 
-        static string DumpFilePath
-        {
-            get
-            {
-                return Path.Combine(Application.LocalUserAppDataPath, "error.txt");
-            }
-        }
+        static string DumpFilePath => Path.Combine(Application.LocalUserAppDataPath, "error.txt");
 
         static void DumpError(Exception ex)
         {
@@ -251,7 +251,9 @@ namespace SharpQuake
                 DumpError(ex);
                 
                 if (Debugger.IsAttached)
+                {
                     throw new Exception("Exception in SafeShutdown()!", ex);
+                }
             }
         }
 
@@ -260,9 +262,11 @@ namespace SharpQuake
             DumpError(ex);
             
             if (Debugger.IsAttached)
+            {
                 throw new Exception("Fatal error!", ex);
+            }
 
-            Cursor.Show();
+            //Cursor.Show();
             MessageBox.Show(ex.Message);
             SafeShutdown();
         }
@@ -278,9 +282,11 @@ namespace SharpQuake
                 _DisplayDevice = DisplayDevice.Default;
 
                 if (File.Exists(DumpFilePath))
-                    File.Delete(DumpFilePath);
+            {
+                File.Delete(DumpFilePath);
+            }
 
-                quakeparms_t parms = new quakeparms_t();
+            quakeparms_t parms = new quakeparms_t();
 
                 parms.basedir = Application.StartupPath;
 
@@ -294,9 +300,11 @@ namespace SharpQuake
                 Common.Args.CopyTo(parms.argv, 0);
 
                 if (Common.HasParam("-dedicated"))
-                    throw new QuakeException("Dedicated server mode not supported!");
+            {
+                throw new QuakeException("Dedicated server mode not supported!");
+            }
 
-                Size size = new Size(640, 480);
+            Size size = new Size(640, 480);
                 GraphicsMode mode = new GraphicsMode();
                 bool fullScreen = false;
                 using (MainForm form = MainForm.CreateInstance(size, mode, fullScreen))

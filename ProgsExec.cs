@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SharpQuake
 {
@@ -145,8 +143,10 @@ namespace SharpQuake
         static void Profile_f()
         {
             if (_Functions == null)
+            {
                 return;
-            
+            }
+
             dfunction_t best;
             int num = 0;
             do
@@ -165,7 +165,10 @@ namespace SharpQuake
                 if (best != null)
                 {
                     if (num < 10)
+                    {
                         Con.Print("{0,7} {1}\n", best.profile, GetString(best.s_name));
+                    }
+
                     num++;
                     best.profile = 0;
                 }
@@ -180,7 +183,10 @@ namespace SharpQuake
             if (fnum < 1 || fnum >= _Functions.Length)
             {
                 if (Progs.GlobalStruct.self != 0)
+                {
                     Print(Server.ProgToEdict(Progs.GlobalStruct.self));
+                }
+
                 Host.Error("PR_ExecuteProgram: NULL function");
             }
 
@@ -205,13 +211,17 @@ namespace SharpQuake
                 eval_t* c = (eval_t*)Get(_Statements[s].c);
 
                 if (--runaway == 0)
+                {
                     RunError("runaway loop error");
+                }
 
                 xFunction.profile++;
                 _xStatement = s;
 
                 if (Trace)
+                {
                     PrintStatement(ref _Statements[s]);
+                }
 
                 switch ((OP)_Statements[s].op)
                 {
@@ -389,7 +399,10 @@ namespace SharpQuake
                     case OP.OP_ADDRESS:
                         ed = Server.ProgToEdict(a->edict);
                         if (ed == Server.sv.edicts[0] && Server.IsActive)
+                        {
                             RunError("assignment to world entity");
+                        }
+
                         c->_int = MakeAddr(a->edict, b->_int);
                         break;
 
@@ -409,12 +422,18 @@ namespace SharpQuake
 
                     case OP.OP_IFNOT:
                         if (a->_int == 0)
-                            s += _Statements[s].b - 1;	// offset the s++
+                        {
+                            s += _Statements[s].b - 1; // offset the s++
+                        }
+
                         break;
 
                     case OP.OP_IF:
                         if (a->_int != 0)
-                            s += _Statements[s].b - 1;	// offset the s++
+                        {
+                            s += _Statements[s].b - 1; // offset the s++
+                        }
+
                         break;
 
                     case OP.OP_GOTO:
@@ -432,7 +451,9 @@ namespace SharpQuake
                     case OP.OP_CALL8:
                         _Argc = _Statements[s].op - (int)OP.OP_CALL0;
                         if (a->function == 0)
+                        {
                             RunError("NULL function");
+                        }
 
                         dfunction_t newf = _Functions[a->function];
 
@@ -441,7 +462,10 @@ namespace SharpQuake
                             // negative statements are built in functions
                             int i = -newf.first_statement;
                             if (i >= QBuiltins.Count)
+                            {
                                 RunError("Bad builtin call number");
+                            }
+
                             QBuiltins.Execute(i);
                             break;
                         }
@@ -459,7 +483,10 @@ namespace SharpQuake
 
                         s = LeaveFunction();
                         if (_Depth == exitdepth)
-                            return;		// all done
+                        {
+                            return;     // all done
+                        }
+
                         break;
 
                     case OP.OP_STATE:
@@ -493,15 +520,22 @@ namespace SharpQuake
             _Stack[_Depth].f = xFunction;
             _Depth++;
             if (_Depth >= MAX_STACK_DEPTH)
+            {
                 RunError("stack overflow");
+            }
 
             // save off any locals that the new function steps on
             int c = f.locals;
             if (_LocalStackUsed + c > LOCALSTACK_SIZE)
+            {
                 RunError("PR_ExecuteProgram: locals stack overflow\n");
+            }
 
             for (int i = 0; i < c; i++)
+            {
                 _LocalStack[_LocalStackUsed + i] = *(int*)Get(f.parm_start + i);
+            }
+
             _LocalStackUsed += c;
 
             // copy parameters
@@ -555,7 +589,9 @@ namespace SharpQuake
                     Con.Print("<NO FUNCTION>\n");
                 }
                 else
+                {
                     Con.Print("{0,12} : {1}\n", GetString(f.s_file), GetString(f.s_name));
+                }
             }
         }
 
@@ -571,7 +607,9 @@ namespace SharpQuake
 
             OP op = (OP)s.op;
             if (op == OP.OP_IF || op == OP.OP_IFNOT)
+            {
                 Con.Print("{0}branch {1}", GlobalString(s.a), s.b);
+            }
             else if (op == OP.OP_GOTO)
             {
                 Con.Print("branch {0}", s.a);
@@ -584,11 +622,19 @@ namespace SharpQuake
             else
             {
                 if (s.a != 0)
+                {
                     Con.Print(GlobalString(s.a));
+                }
+
                 if (s.b != 0)
+                {
                     Con.Print(GlobalString(s.b));
+                }
+
                 if (s.c != 0)
+                {
                     Con.Print(GlobalStringNoContents(s.c));
+                }
             }
             Con.Print("\n");
         }
@@ -599,13 +645,17 @@ namespace SharpQuake
         static int LeaveFunction ()
         {
             if (_Depth <= 0)
+            {
                 Sys.Error("prog stack underflow");
+            }
 
             // restore locals from the stack
             int c = xFunction.locals;
             _LocalStackUsed -= c;
             if (_LocalStackUsed < 0)
+            {
                 RunError("PR_ExecuteProgram: locals stack underflow\n");
+            }
 
             for (int i = 0; i < c; i++)
             {

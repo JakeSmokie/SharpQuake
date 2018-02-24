@@ -21,7 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
@@ -79,9 +78,14 @@ namespace SharpQuake
                     _NumCommands = reader.ReadInt32();
                     _NumOrder = reader.ReadInt32();
                     for (int i = 0; i < _NumCommands; i++)
+                    {
                         _Commands[i] = reader.ReadInt32();
+                    }
+
                     for (int i = 0; i < _NumOrder; i++)
+                    {
                         _VertexOrder[i] = reader.ReadInt32();
+                    }
                 }
             }
             else
@@ -99,15 +103,22 @@ namespace SharpQuake
                 string fullpath = Path.Combine(Common.GameDir, path);
                 Stream fs = Sys.FileOpenWrite(fullpath, true);
                 if (fs != null)
+                {
                     using (BinaryWriter writer = new BinaryWriter(fs, Encoding.ASCII))
                     {
                         writer.Write(_NumCommands);
                         writer.Write(_NumOrder);
                         for (int i = 0; i < _NumCommands; i++)
+                        {
                             writer.Write(_Commands[i]);
+                        }
+
                         for (int i = 0; i < _NumOrder; i++)
+                        {
                             writer.Write(_VertexOrder[i]);
+                        }
                     }
+                }
             }
 
             //
@@ -124,10 +135,12 @@ namespace SharpQuake
             _AliasHdr.posedata = verts; // (byte*)verts - (byte*)paliashdr;
             int offset = 0;
             for (int i = 0; i < _AliasHdr.numposes; i++)
+            {
                 for (int j = 0; j < _NumOrder; j++)
                 {
                     verts[offset++] = poseverts[i][_VertexOrder[j]];  // *verts++ = poseverts[i][vertexorder[j]];
                 }
+            }
         }
 
         /// <summary>
@@ -155,7 +168,9 @@ namespace SharpQuake
             {
                 // pick an unused triangle and start the trifan
                 if (_Used[i] != 0)
+                {
                     continue;
+                }
 
                 int bestlen = 0;
                 for (int type = 0; type < 2; type++)
@@ -163,29 +178,45 @@ namespace SharpQuake
                     for (int startv = 0; startv < 3; startv++)
                     {
                         if (type == 1)
+                        {
                             len = StripLength(i, startv);
+                        }
                         else
+                        {
                             len = FanLength(i, startv);
+                        }
+
                         if (len > bestlen)
                         {
                             besttype = type;
                             bestlen = len;
                             for (int j = 0; j < bestlen + 2; j++)
+                            {
                                 bestverts[j] = _StripVerts[j];
+                            }
+
                             for (int j = 0; j < bestlen; j++)
+                            {
                                 besttris[j] = _StripTris[j];
+                            }
                         }
                     }
                 }
 
                 // mark the tris on the best strip as used
                 for (int j = 0; j < bestlen; j++)
+                {
                     _Used[besttris[j]] = 1;
+                }
 
                 if (besttype == 1)
+                {
                     _Commands[_NumCommands++] = (bestlen + 2);
+                }
                 else
+                {
                     _Commands[_NumCommands++] = -(bestlen + 2);
+                }
 
                 Union4b uval = Union4b.Empty;
                 for (int j = 0; j < bestlen + 2; j++)
@@ -198,7 +229,10 @@ namespace SharpQuake
                     float s = stverts[k].s;
                     float t = stverts[k].t;
                     if (triangles[besttris[0]].facesfront == 0 && stverts[k].onseam != 0)
-                        s += _AliasHdr.skinwidth / 2;	// on back side
+                    {
+                        s += _AliasHdr.skinwidth / 2;  // on back side
+                    }
+
                     s = (s + 0.5f) / _AliasHdr.skinwidth;
                     t = (t + 0.5f) / _AliasHdr.skinheight;
 
@@ -241,28 +275,41 @@ namespace SharpQuake
             for (int j = starttri + 1; j < _AliasHdr.numtris; j++)
             {
                 if (triangles[j].facesfront != lastfacesfront)
+                {
                     continue;
+                }
 
                 vidx = triangles[j].vertindex;
 
                 for (int k = 0; k < 3; k++)
                 {
                     if (vidx[k] != m1)
+                    {
                         continue;
+                    }
+
                     if (vidx[(k + 1) % 3] != m2)
+                    {
                         continue;
+                    }
 
                     // this is the next part of the fan
 
                     // if we can't use this triangle, this tristrip is done
                     if (_Used[j] != 0)
+                    {
                         goto done;
+                    }
 
                     // the new edge
                     if ((_StripCount & 1) != 0)
+                    {
                         m2 = vidx[(k + 2) % 3];
+                    }
                     else
+                    {
                         m1 = vidx[(k + 2) % 3];
+                    }
 
                     _StripVerts[_StripCount + 2] = triangles[j].vertindex[(k + 2) % 3];
                     _StripTris[_StripCount] = j;
@@ -276,8 +323,12 @@ namespace SharpQuake
 
             // clear the temp used flags
             for (int j = starttri + 1; j < _AliasHdr.numtris; j++)
+            {
                 if (_Used[j] == 2)
+                {
                     _Used[j] = 0;
+                }
+            }
 
             return _StripCount;
         }
@@ -308,20 +359,29 @@ namespace SharpQuake
             {
                 vidx = triangles[j].vertindex;
                 if (triangles[j].facesfront != lastfacesfront)
+                {
                     continue;
+                }
 
                 for (int k = 0; k < 3; k++)
                 {
                     if (vidx[k] != m1)
+                    {
                         continue;
+                    }
+
                     if (vidx[(k + 1) % 3] != m2)
+                    {
                         continue;
+                    }
 
                     // this is the next part of the fan
 
                     // if we can't use this triangle, this tristrip is done
                     if (_Used[j] != 0)
+                    {
                         goto done;
+                    }
 
                     // the new edge
                     m2 = vidx[(k + 2) % 3];
@@ -338,8 +398,12 @@ namespace SharpQuake
 
             // clear the temp used flags
             for (int j = starttri + 1; j < _AliasHdr.numtris; j++)
+            {
                 if (_Used[j] == 2)
+                {
                     _Used[j] = 0;
+                }
+            }
 
             return _StripCount;
         }

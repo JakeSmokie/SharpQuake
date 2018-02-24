@@ -164,14 +164,20 @@ namespace SharpQuake
         public static float Comp(ref v3f a, int index)
         {
             if (index < 0 || index > 2)
+            {
                 throw new ArgumentOutOfRangeException("index");
+            }
+
             return (index == 0 ? a.x : (index == 1 ? a.y : a.z));
         }
 
         public static float Comp(ref Vector3 a, int index)
         {
             if (index < 0 || index > 2)
+            {
                 throw new ArgumentOutOfRangeException("index");
+            }
+
             return (index == 0 ? a.X : (index == 1 ? a.Y : a.Z));
         }
 
@@ -299,9 +305,14 @@ namespace SharpQuake
 
             int sides = 0;
             if (dist1 >= p.dist)
+            {
                 sides = 1;
+            }
+
             if (dist2 < p.dist)
+            {
                 sides |= 2;
+            }
 
 #if PARANOID
             if (sides == 0)
@@ -314,29 +325,51 @@ namespace SharpQuake
         public static void SetComp(ref Vector3 dest, int index, float value)
         {
             if (index == 0)
+            {
                 dest.X = value;
+            }
             else if (index == 1)
+            {
                 dest.Y = value;
+            }
             else if (index == 2)
+            {
                 dest.Z = value;
+            }
             else
+            {
                 throw new ArgumentException("Index must be in range 0-2!");
+            }
         }
 
         public static void CorrectAngles180(ref Vector3 a)
         {
             if (a.X > 180)
+            {
                 a.X -= 360;
+            }
             else if (a.X < -180)
+            {
                 a.X += 360;
+            }
+
             if (a.Y > 180)
+            {
                 a.Y -= 360;
+            }
             else if (a.Y < -180)
+            {
                 a.Y += 360;
+            }
+
             if (a.Z > 180)
+            {
                 a.Z -= 360;
+            }
             else if (a.Z < -180)
+            {
                 a.Z += 360;
+            }
         }
 
         public static void RotatePointAroundVector(out Vector3 dst, ref Vector3 dir, ref Vector3 point, float degrees)

@@ -21,9 +21,7 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Runtime.InteropServices;
 using System.IO;
 
 namespace SharpQuake
@@ -80,9 +78,11 @@ namespace SharpQuake
         {
             int width = (Scr.vid.width >> 3) - 2;
 	        if (width == _LineWidth)
-		        return;
+            {
+                return;
+            }
 
-	        if (width < 1)	// video hasn't been initialized yet
+            if (width < 1)	// video hasn't been initialized yet
 	        {
 		        width = 38;
                 _LineWidth = width; // con_linewidth = width;
@@ -98,12 +98,16 @@ namespace SharpQuake
 		        int numlines = oldtotallines;
 
 		        if (_TotalLines < numlines)
-			        numlines = _TotalLines;
+                {
+                    numlines = _TotalLines;
+                }
 
-		        int numchars = oldwidth;
+                int numchars = oldwidth;
 	
 		        if (_LineWidth < numchars)
-			        numchars = _LineWidth;
+                {
+                    numchars = _LineWidth;
+                }
 
                 char[] tmp = _Text;
                 _Text = new char[CON_TEXTSIZE];
@@ -133,8 +137,10 @@ namespace SharpQuake
 	        {
                 string path = Path.Combine(Common.GameDir, LOG_FILE_NAME);
                 if (File.Exists(path))
+                {
                     File.Delete(path);
-                
+                }
+
                 _Log = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read);
 	        }
 
@@ -166,7 +172,9 @@ namespace SharpQuake
         public static void Draw(int lines, bool drawinput)
         {
             if (lines <= 0)
+            {
                 return;
+            }
 
             // draw the background
             Drawer.DrawConsoleBackground(lines);
@@ -181,17 +189,23 @@ namespace SharpQuake
             {
                 int j = i - BackScroll;
                 if (j < 0)
+                {
                     j = 0;
+                }
 
                 int offset = (j % _TotalLines) * _LineWidth;
 
                 for (int x = 0; x < _LineWidth; x++)
+                {
                     Drawer.DrawCharacter((x + 1) << 3, y, _Text[offset + x]);
+                }
             }
 
             // draw the input prompt, user text, and cursor if desired
             if (drawinput)
+            {
                 DrawInput();
+            }
         }
 
         /// <summary>
@@ -203,20 +217,28 @@ namespace SharpQuake
             
             // log all messages to file
             if (_DebugLog)
+            {
                 DebugLog(msg);
+            }
 
-	        if (!_IsInitialized)
-		        return;
-		
-	        if (Client.cls.state == cactive_t.ca_dedicated)
-		        return;		// no graphics mode
+            if (!_IsInitialized)
+            {
+                return;
+            }
+
+            if (Client.cls.state == cactive_t.ca_dedicated)
+            {
+                return;     // no graphics mode
+            }
 
             // write it to the scrollable buffer
             Print(msg);
 	
             // update the screen if the console is displayed
             if (Client.cls.signon != Client.SIGNONS && !Scr.IsDisabledForLoading)
+            {
                 Scr.UpdateScreen();
+            }
         }
 
         /// <summary>
@@ -249,9 +271,11 @@ namespace SharpQuake
         static void Print(string txt)
         {
             if (String.IsNullOrEmpty(txt))
+            {
                 return;
+            }
 
-	        int mask, offset = 0;
+            int mask, offset = 0;
 	
 	        BackScroll = 0;
 
@@ -267,7 +291,9 @@ namespace SharpQuake
 		        offset++;
 	        }
 	        else
-		        mask = 0;
+            {
+                mask = 0;
+            }
 
             while (offset < txt.Length)
 	        {
@@ -278,14 +304,18 @@ namespace SharpQuake
                 for (l = 0; l < _LineWidth && offset + l < txt.Length; l++)
                 {
                     if (txt[offset + l] <= ' ')
+                    {
                         break;
+                    }
                 }
 
 	            // word wrap
 		        if (l != _LineWidth && (_X + l > _LineWidth))
-			        _X = 0;
+                {
+                    _X = 0;
+                }
 
-		        offset++;
+                offset++;
 
                 if (_CR != 0)
                 {
@@ -298,8 +328,10 @@ namespace SharpQuake
 			        LineFeed();
 		            // mark time for transparent overlay
 			        if (_Current >= 0)
-				        _Times[_Current % NUM_CON_TIMES] = Host.RealTime; // realtime
-		        }
+                    {
+                        _Times[_Current % NUM_CON_TIMES] = Host.RealTime; // realtime
+                    }
+                }
 
 		        switch (c)
 		        {
@@ -317,8 +349,11 @@ namespace SharpQuake
 			            _Text[y * _LineWidth + _X] = (char)(c | mask);
 			            _X++;
 			            if (_X >= _LineWidth)
-				            _X = 0;
-			            break;
+                        {
+                            _X = 0;
+                        }
+
+                        break;
 		        }
 	        }
         }
@@ -331,7 +366,9 @@ namespace SharpQuake
         {
             // don't confuse non-developers with techie stuff...
 	        if (Host.IsDeveloper)
+            {
                 Print(fmt, args);
+            }
         }
 
         // Con_SafePrintf (char *fmt, ...)
@@ -362,13 +399,21 @@ namespace SharpQuake
             for (int i = _Current - NUM_CON_TIMES + 1; i <= _Current; i++)
             {
                 if (i < 0)
+                {
                     continue;
+                }
+
                 double time = _Times[i % NUM_CON_TIMES];
                 if (time == 0)
+                {
                     continue;
+                }
+
                 time = Host.RealTime - time;
                 if (time > _NotifyTime.Value)
+                {
                     continue;
+                }
 
                 int textOffset = (i % _TotalLines) * _LineWidth;
 
@@ -376,7 +421,9 @@ namespace SharpQuake
                 Scr.CopyTop = true;
 
                 for (int x = 0; x < _LineWidth; x++)
+                {
                     Drawer.DrawCharacter((x + 1) << 3, v, _Text[textOffset + x]);
+                }
 
                 v += 8;
             }
@@ -399,15 +446,18 @@ namespace SharpQuake
             }
 
             if (v > _NotifyLines)
+            {
                 _NotifyLines = v;
-
+            }
         }
 
         // Con_ClearNotify (void)
         public static void ClearNotify()
         {
             for (int i = 0; i < NUM_CON_TIMES; i++)
+            {
                 _Times[i] = 0;
+            }
         }
 
         /// <summary>
@@ -429,7 +479,9 @@ namespace SharpQuake
                 }
             }
             else
+            {
                 Key.Destination = keydest_t.key_console;
+            }
 
             Scr.EndLoadingPlaque();
             Array.Clear(_Times, 0, _Times.Length);
@@ -469,26 +521,34 @@ namespace SharpQuake
         static void DrawInput()
         {
             if (Key.Destination != keydest_t.key_console && !_ForcedUp)
-                return;		// don't draw anything
+            {
+                return;     // don't draw anything
+            }
 
             // add the cursor frame
             Key.Lines[Key.EditLine][Key.LinePos] = (char)(10 + ((int)(Host.RealTime * _CursorSpeed) & 1));
 
             // fill out remainder with spaces
             for (int i = Key.LinePos + 1; i < _LineWidth; i++)
+            {
                 Key.Lines[Key.EditLine][i] = ' ';
+            }
 
             //	prestep if horizontally scrolling
             int offset = 0;
             if (Key.LinePos >= _LineWidth)
+            {
                 offset = 1 + Key.LinePos - _LineWidth;
+            }
             //text += 1 + key_linepos - con_linewidth;
 
             // draw it
             int y = _VisLines - 16;
 
             for (int i = 0; i < _LineWidth; i++)
+            {
                 Drawer.DrawCharacter((i + 1) << 3, _VisLines - 16, Key.Lines[Key.EditLine][offset + i]);
+            }
 
             // remove cursor
             Key.Lines[Key.EditLine][Key.LinePos] = '\0';

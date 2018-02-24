@@ -20,9 +20,6 @@
 /// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using OpenTK;
@@ -159,10 +156,14 @@ namespace SharpQuake
         public static void Move(usercmd_t cmd)
         {
             if (!MainForm.Instance.Focused)
+            {
                 return;
+            }
 
             if (MainForm.Instance.WindowState == WindowState.Minimized)
+            {
                 return;
+            }
 
             MouseMove(cmd);
         }
@@ -210,7 +211,9 @@ namespace SharpQuake
         static void MouseMove(usercmd_t cmd)
         {
             if (!_IsMouseActive)
+            {
                 return;
+            }
 
             Rectangle bounds = MainForm.Instance.Bounds;
             Point current_pos = Cursor.Position;
@@ -240,27 +243,42 @@ namespace SharpQuake
 
             // add mouse X/Y movement to cmd
             if (ClientInput.StrafeBtn.IsDown || (Client.LookStrafe && ClientInput.MLookBtn.IsDown))
+            {
                 cmd.sidemove += Client.MSide * _Mouse.X;
+            }
             else
+            {
                 Client.cl.viewangles.Y -= Client.MYaw * _Mouse.X;
+            }
 
             if (ClientInput.MLookBtn.IsDown)
+            {
                 View.StopPitchDrift();
+            }
 
             if (ClientInput.MLookBtn.IsDown && !ClientInput.StrafeBtn.IsDown)
             {
                 Client.cl.viewangles.X += Client.MPitch * _Mouse.Y;
                 if (Client.cl.viewangles.X > 80)
+                {
                     Client.cl.viewangles.X = 80;
+                }
+
                 if (Client.cl.viewangles.X < -70)
+                {
                     Client.cl.viewangles.X = -70;
+                }
             }
             else
             {
                 if (ClientInput.StrafeBtn.IsDown && Host.NoClipAngleHack)
+                {
                     cmd.upmove -= Client.MForward * _Mouse.Y;
+                }
                 else
+                {
                     cmd.forwardmove -= Client.MForward * _Mouse.Y;
+                }
             }
 
             // if the mouse has moved, force it to the center, so there's room to move

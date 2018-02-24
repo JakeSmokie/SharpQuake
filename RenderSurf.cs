@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -64,19 +62,27 @@ namespace SharpQuake
             _FrameCount = 1;		// no dlightcache
 
             if (_LightMapTextures == 0)
+            {
                 _LightMapTextures = Drawer.GenerateTextureNumberRange(MAX_LIGHTMAPS);
+            }
 
             Drawer.LightMapFormat = PixelFormat.Luminance;// GL_LUMINANCE;
 
             // default differently on the Permedia
             if (Scr.IsPermedia)
+            {
                 Drawer.LightMapFormat = PixelFormat.Rgba;
+            }
 
             if (Common.HasParam("-lm_1"))
+            {
                 Drawer.LightMapFormat = PixelFormat.Luminance;
+            }
 
             if (Common.HasParam("-lm_a"))
+            {
                 Drawer.LightMapFormat = PixelFormat.Alpha;
+            }
 
             //if (Common.HasParam("-lm_i"))
             //    Drawer.LightMapFormat = PixelFormat.Intensity;
@@ -85,7 +91,9 @@ namespace SharpQuake
             //    Drawer.LightMapFormat = PixelFormat.Rgba4;
 
             if (Common.HasParam("-lm_4"))
+            {
                 Drawer.LightMapFormat = PixelFormat.Rgba;
+            }
 
             switch (Drawer.LightMapFormat)
             {
@@ -108,10 +116,14 @@ namespace SharpQuake
             {
                 model_t m = Client.cl.model_precache[j];
                 if (m == null)
+                {
                     break;
+                }
 
                 if (m.name != null && m.name.StartsWith("*"))
+                {
                     continue;
+                }
 
                 _CurrentVertBase = m.vertexes;
                 _CurrentModel = m;
@@ -119,17 +131,23 @@ namespace SharpQuake
                 {
                     CreateSurfaceLightmap(m.surfaces[i]);
                     if ((m.surfaces[i].flags & Surf.SURF_DRAWTURB) != 0)
+                    {
                         continue;
+                    }
 
                     if ((m.surfaces[i].flags & Surf.SURF_DRAWSKY) != 0)
+                    {
                         continue;
+                    }
 
                     BuildSurfaceDisplayList(m.surfaces[i]);
                 }
             }
 
             if (_glTexSort.Value == 0)
+            {
                 Drawer.SelectTexture(MTexTarget.TEXTURE1_SGIS);
+            }
 
             //
             // upload all lightmaps that were filled
@@ -143,7 +161,9 @@ namespace SharpQuake
                 for (int i = 0; i < MAX_LIGHTMAPS; i++)
                 {
                     if (_Allocated[i, 0] == 0)
-                        break;		// no more used
+                    {
+                        break;      // no more used
+                    }
 
                     _LightMapModified[i] = false;
                     _LightMapRectChange[i].l = BLOCK_WIDTH;
@@ -164,7 +184,9 @@ namespace SharpQuake
             }
 
             if (_glTexSort.Value == 0)
+            {
                 Drawer.SelectTexture(MTexTarget.TEXTURE0_SGIS);
+            }
         }
 
         /// <summary>
@@ -173,7 +195,9 @@ namespace SharpQuake
         static void CreateSurfaceLightmap (msurface_t surf)
         {
             if ((surf.flags & (Surf.SURF_DRAWSKY | Surf.SURF_DRAWTURB)) != 0)
+            {
                 return;
+            }
 
             int smax = (surf.extents[0] >> 4) + 1;
             int tmax = (surf.extents[1] >> 4) + 1;
@@ -266,7 +290,9 @@ namespace SharpQuake
                         {
                             //int k;
                             for (int k = 0; k < Mod.VERTEXSIZE; ++k)
+                            {
                                 poly.verts[j - 1][k] = poly.verts[j][k];
+                            }
                         }
                         --lnumverts;
                         ++_ColinElim;
@@ -304,9 +330,14 @@ namespace SharpQuake
                     for (j = 0; j < w; j++)
                     {
                         if (_Allocated[texnum, i + j] >= best)
+                        {
                             break;
+                        }
+
                         if (_Allocated[texnum, i + j] > best2)
+                        {
                             best2 = _Allocated[texnum, i + j];
+                        }
                     }
                     if (j == w)
                     {
@@ -317,10 +348,14 @@ namespace SharpQuake
                 }
 
                 if (best + h > BLOCK_HEIGHT)
+                {
                     continue;
+                }
 
                 for (int i = 0; i < w; i++)
+                {
                     _Allocated[texnum, x + i] = best + h;
+                }
 
                 return texnum;
             }
@@ -348,28 +383,39 @@ namespace SharpQuake
             if (_FullBright.Value != 0 || Client.cl.worldmodel.lightdata == null)
             {
                 for (int i = 0; i < size; i++)
+                {
                     _BlockLights[i] = 255 * 256;
+                }
             }
             else
             {
                 // clear to no light
                 for (int i = 0; i < size; i++)
+                {
                     _BlockLights[i] = 0;
+                }
 
                 // add all the lightmaps
                 if (lightmap != null)
+                {
                     for (int maps = 0; maps < BspFile.MAXLIGHTMAPS && surf.styles[maps] != 255; maps++)
                     {
                         int scale = _LightStyleValue[surf.styles[maps]];
                         surf.cached_light[maps] = scale;	// 8.8 fraction
                         for (int i = 0; i < size; i++)
+                        {
                             _BlockLights[i] += (uint)(lightmap[srcOffset + i] * scale);
+                        }
+
                         srcOffset += size; // lightmap += size;	// skip to next lightmap
                     }
+                }
 
                 // add all the dynamic lights
                 if (surf.dlightframe == _FrameCount)
+                {
                     AddDynamicLights(surf);
+                }
             }
             // bound, invert, and shift
             //store:
@@ -387,7 +433,10 @@ namespace SharpQuake
                             uint t = _BlockLights[blOffset++];// *bl++;
                             t >>= 7;
                             if (t > 255)
+                            {
                                 t = 255;
+                            }
+
                             data[destOffset + 3] = (byte)(255 - t); //dest[3] = 255 - t;
                             destOffset += 4;
                         }
@@ -404,7 +453,10 @@ namespace SharpQuake
                             uint t = _BlockLights[blOffset++];// *bl++;
                             t >>= 7;
                             if (t > 255)
+                            {
                                 t = 255;
+                            }
+
                             data[destOffset + j] = (byte)(255 - t); // dest[j] = 255 - t;
                         }
                     }
@@ -429,14 +481,19 @@ namespace SharpQuake
             for (int lnum = 0; lnum < Client.MAX_DLIGHTS; lnum++)
             {
                 if ((surf.dlightbits & (1 << lnum)) == 0)
-                    continue;		// not lit by this light
+                {
+                    continue;       // not lit by this light
+                }
 
                 float rad = dlights[lnum].radius;
                 float dist = Vector3.Dot(dlights[lnum].origin, surf.plane.normal) - surf.plane.dist;
                 rad -= Math.Abs(dist);
                 float minlight = dlights[lnum].minlight;
                 if (rad < minlight)
+                {
                     continue;
+                }
+
                 minlight = rad - minlight;
 
                 Vector3 impact = dlights[lnum].origin - surf.plane.normal * dist;
@@ -451,18 +508,31 @@ namespace SharpQuake
                 {
                     int td = (int)(local1 - t * 16);
                     if (td < 0)
+                    {
                         td = -td;
+                    }
+
                     for (int s = 0; s < smax; s++)
                     {
                         int sd = (int)(local0 - s * 16);
                         if (sd < 0)
+                        {
                             sd = -sd;
+                        }
+
                         if (sd > td)
+                        {
                             dist = sd + (td >> 1);
+                        }
                         else
+                        {
                             dist = td + (sd >> 1);
+                        }
+
                         if (dist < minlight)
+                        {
                             _BlockLights[t * smax + s] += (uint)((rad - dist) * 256);
+                        }
                     }
                 }
             }
@@ -474,7 +544,9 @@ namespace SharpQuake
         static void DrawWaterSurfaces()
         {
             if (_WaterAlpha.Value == 1.0f && _glTexSort.Value != 0)
+            {
                 return;
+            }
 
             //
             // go back to the world matrix
@@ -491,7 +563,9 @@ namespace SharpQuake
             if (_glTexSort.Value == 0)
             {
                 if (_WaterChain == null)
+                {
                     return;
+                }
 
                 for (msurface_t s = _WaterChain; s != null; s = s.texturechain)
                 {
@@ -506,21 +580,29 @@ namespace SharpQuake
                 {
                     texture_t t = Client.cl.worldmodel.textures[i];
                     if (t == null)
+                    {
                         continue;
+                    }
 
                     msurface_t s = t.texturechain;
                     if (s == null)
+                    {
                         continue;
-                    
+                    }
+
                     if ((s.flags & Surf.SURF_DRAWTURB) == 0)
+                    {
                         continue;
+                    }
 
                     // set modulate mode explicitly
 
                     Drawer.Bind(t.gl_texturenum);
 
                     for (; s != null; s = s.texturechain)
+                    {
                         EmitWaterPolys(s);
+                    }
 
                     t.texturechain = null;
                 }
@@ -540,10 +622,14 @@ namespace SharpQuake
         private static void MarkLeaves()
         {
             if (_OldViewLeaf == _ViewLeaf && _NoVis.Value == 0)
+            {
                 return;
+            }
 
             if (_IsMirror)
+            {
                 return;
+            }
 
             _VisFrameCount++;
             _OldViewLeaf = _ViewLeaf;
@@ -556,7 +642,9 @@ namespace SharpQuake
                 //memset(solid, 0xff, (cl.worldmodel->numleafs + 7) >> 3);
             }
             else
+            {
                 vis = Mod.LeafPVS(_ViewLeaf, Client.cl.worldmodel);
+            }
 
             model_t world = Client.cl.worldmodel;
             for (int i = 0; i < world.numleafs; i++)
@@ -567,7 +655,10 @@ namespace SharpQuake
                     do
                     {
                         if (node.visframe == _VisFrameCount)
+                        {
                             break;
+                        }
+
                         node.visframe = _VisFrameCount;
                         node = node.parent;
                     } while (node != null);
@@ -605,14 +696,21 @@ namespace SharpQuake
         static void BlendLightmaps()
         {
             if (_FullBright.Value != 0)
+            {
                 return;
+            }
+
             if (_glTexSort.Value == 0)
+            {
                 return;
+            }
 
             GL.DepthMask(false); // don't bother writing Z
 
             if (Drawer.LightMapFormat == PixelFormat.Luminance)
+            {
                 GL.BlendFunc(BlendingFactorSrc.Zero, BlendingFactorDest.OneMinusSrcColor);
+            }
             //else if (gl_lightmap_format == GL_INTENSITY)
             //{
             //    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -629,16 +727,22 @@ namespace SharpQuake
             {
                 glpoly_t p = _LightMapPolys[i];
                 if (p == null)
+                {
                     continue;
+                }
 
                 Drawer.Bind(_LightMapTextures + i);
                 if (_LightMapModified[i])
+                {
                     CommitLightmap(i);
+                }
 
                 for (; p != null; p = p.chain)
                 {
                     if ((p.flags & Surf.SURF_UNDERWATER) != 0)
+                    {
                         DrawGLWaterPolyLightmap(p);
+                    }
                     else
                     {
                         GL.Begin(BeginMode.Polygon);
@@ -655,7 +759,9 @@ namespace SharpQuake
 
             GL.Disable(EnableCap.Blend);
             if (Drawer.LightMapFormat == PixelFormat.Luminance)
+            {
                 GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            }
             //else if (gl_lightmap_format == GL_INTENSITY)
             //{
             //    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -684,14 +790,20 @@ namespace SharpQuake
             {
                 texture_t t = world.textures[i];
                 if (t == null)
+                {
                     continue;
+                }
 
                 msurface_t s = t.texturechain;
                 if (s == null)
+                {
                     continue;
+                }
 
                 if (i == _SkyTextureNum)
+                {
                     DrawSkyChain(s);
+                }
                 else if (i == _MirrorTextureNum && _MirrorAlpha.Value != 1.0f)
                 {
                     MirrorChain(s);
@@ -700,9 +812,14 @@ namespace SharpQuake
                 else
                 {
                     if ((s.flags & Surf.SURF_DRAWTURB) != 0 && _WaterAlpha.Value != 1.0f)
-                        continue;	// draw translucent water later
+                    {
+                        continue;   // draw translucent water later
+                    }
+
                     for (; s != null; s = s.texturechain)
+                    {
                         RenderBrushPoly(s);
+                    }
                 }
 
                 t.texturechain = null;
@@ -732,9 +849,13 @@ namespace SharpQuake
             }
 
             if ((fa.flags & Surf.SURF_UNDERWATER) != 0)
+            {
                 DrawGLWaterPoly(fa.polys);
+            }
             else
+            {
                 DrawGLPoly(fa.polys);
+            }
 
             // add the poly to the proper lightmap chain
 
@@ -744,11 +865,13 @@ namespace SharpQuake
             // check for lightmap modification
             bool modified = false;
             for (int maps = 0; maps < BspFile.MAXLIGHTMAPS && fa.styles[maps] != 255; maps++)
+            {
                 if (_LightStyleValue[fa.styles[maps]] != fa.cached_light[maps])
                 {
                     modified = true;
                     break;
                 }
+            }
 
             if (modified ||
                 fa.dlightframe == _FrameCount ||	// dynamic this frame
@@ -770,21 +893,32 @@ namespace SharpQuake
             if (fa.light_t < theRect.t)
             {
                 if (theRect.h != 0)
+                {
                     theRect.h += (byte)(theRect.t - fa.light_t);
+                }
+
                 theRect.t = (byte)fa.light_t;
             }
             if (fa.light_s < theRect.l)
             {
                 if (theRect.w != 0)
+                {
                     theRect.w += (byte)(theRect.l - fa.light_s);
+                }
+
                 theRect.l = (byte)fa.light_s;
             }
             int smax = (fa.extents[0] >> 4) + 1;
             int tmax = (fa.extents[1] >> 4) + 1;
             if ((theRect.w + theRect.l) < (fa.light_s + smax))
+            {
                 theRect.w = (byte)((fa.light_s - theRect.l) + smax);
+            }
+
             if ((theRect.h + theRect.t) < (fa.light_t + tmax))
+            {
                 theRect.h = (byte)((fa.light_t - theRect.t) + tmax);
+            }
         }
 
         private static void DrawGLPoly(glpoly_t p)
@@ -805,7 +939,10 @@ namespace SharpQuake
         private static void MirrorChain(msurface_t s)
         {
             if (_IsMirror)
+            {
                 return;
+            }
+
             _IsMirror = true;
             _MirrorPlane = s.plane;
         }
@@ -816,12 +953,19 @@ namespace SharpQuake
         static void RecursiveWorldNode(mnodebase_t node)
         {
             if (node.contents == Contents.CONTENTS_SOLID)
-                return;		// solid
+            {
+                return;     // solid
+            }
 
             if (node.visframe != _VisFrameCount)
+            {
                 return;
+            }
+
             if (CullBox(ref node.mins, ref node.maxs))
+            {
                 return;
+            }
 
             int c;
 
@@ -844,7 +988,9 @@ namespace SharpQuake
 
                 // deal with model fragments in this leaf
                 if (pleaf.efrags != null)
+                {
                     StoreEfrags(pleaf.efrags);
+                }
 
                 return;
             }
@@ -890,18 +1036,26 @@ namespace SharpQuake
                 int offset = n.firstsurface;
 
                 if (dot < 0 - QDef.BACKFACE_EPSILON)
+                {
                     side = Surf.SURF_PLANEBACK;
+                }
                 else if (dot > QDef.BACKFACE_EPSILON)
+                {
                     side = 0;
+                }
 
                 for (; c != 0; c--, offset++)
                 {
                     if (surf[offset].visframe != _FrameCount)
+                    {
                         continue;
+                    }
 
                     // don't backface underwater surfaces, because they warp
                     if ((surf[offset].flags & Surf.SURF_UNDERWATER) == 0 && ((dot < 0) ^ ((surf[offset].flags & Surf.SURF_PLANEBACK) != 0)))
-                        continue;		// wrong side
+                    {
+                        continue;       // wrong side
+                    }
 
                     // if sorting by texture, just store it out
                     if (_glTexSort.Value != 0)
@@ -923,7 +1077,9 @@ namespace SharpQuake
                         _WaterChain = surf[offset];
                     }
                     else
+                    {
                         DrawSequentialPoly(surf[offset]);
+                    }
                 }
             }
 
@@ -958,7 +1114,9 @@ namespace SharpQuake
                     Drawer.Bind(_LightMapTextures + s.lightmaptexturenum);
                     int i = s.lightmaptexturenum;
                     if (_LightMapModified[i])
+                    {
                         CommitLightmap(i);
+                    }
 
                     GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvMode.Blend);
                     GL.Begin(BeginMode.Polygon);
@@ -1050,7 +1208,9 @@ namespace SharpQuake
                 Drawer.Bind(_LightMapTextures + s.lightmaptexturenum);
                 int i = s.lightmaptexturenum;
                 if (_LightMapModified[i])
+                {
                     CommitLightmap(i);
+                }
 
                 GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvMode.Blend);
                 GL.Begin(BeginMode.TriangleFan);
@@ -1160,11 +1320,15 @@ namespace SharpQuake
             if (_CurrentEntity.frame != 0)
             {
                 if (t.alternate_anims != null)
+                {
                     t = t.alternate_anims;
+                }
             }
 
             if (t.anim_total == 0)
+            {
                 return t;
+            }
 
             int reletive = (int)(Client.cl.time * 10) % t.anim_total;
             int count = 0;
@@ -1172,9 +1336,14 @@ namespace SharpQuake
             {
                 t = t.anim_next;
                 if (t == null)
+                {
                     Sys.Error("R_TextureAnimation: broken cycle");
+                }
+
                 if (++count > 100)
+                {
                     Sys.Error("R_TextureAnimation: infinite cycle");
+                }
             }
 
             return t;
@@ -1189,7 +1358,9 @@ namespace SharpQuake
             _BrushPolys++;
 
             if ((fa.flags & (Surf.SURF_DRAWSKY | Surf.SURF_DRAWTURB)) != 0)
+            {
                 return;
+            }
 
             fa.polys.chain = _LightMapPolys[fa.lightmaptexturenum];
             _LightMapPolys[fa.lightmaptexturenum] = fa.polys;
@@ -1197,11 +1368,13 @@ namespace SharpQuake
             // check for lightmap modification
             bool flag = false;
             for (int maps = 0; maps < BspFile.MAXLIGHTMAPS && fa.styles[maps] != 255; maps++)
+            {
                 if (_LightStyleValue[fa.styles[maps]] != fa.cached_light[maps])
                 {
                     flag = true;
                     break;
                 }
+            }
 
             if (flag ||
                 fa.dlightframe == _FrameCount || // dynamic this frame
@@ -1248,7 +1421,9 @@ namespace SharpQuake
             }
 
             if (CullBox(ref mins, ref maxs))
+            {
                 return;
+            }
 
             GL.Color3(1f, 1, 1);
             Array.Clear(_LightMapPolys, 0, _LightMapPolys.Length);
@@ -1270,7 +1445,9 @@ namespace SharpQuake
                 for (int k = 0; k < Client.MAX_DLIGHTS; k++)
                 {
                     if ((Client.DLights[k].die < Client.cl.time) || (Client.DLights[k].radius == 0))
+                    {
                         continue;
+                    }
 
                     MarkLights(Client.DLights[k], 1 << k, clmodel.nodes[clmodel.hulls[0].firstclipnode]);
                 }
@@ -1299,9 +1476,13 @@ namespace SharpQuake
                 if ((planeBack && (dot < -QDef.BACKFACE_EPSILON)) || (!planeBack && (dot > QDef.BACKFACE_EPSILON)))
                 {
                     if (_glTexSort.Value != 0)
+                    {
                         RenderBrushPoly(psurf[surfOffset]);
+                    }
                     else
+                    {
                         DrawSequentialPoly(psurf[surfOffset]);
+                    }
                 }
             }
 

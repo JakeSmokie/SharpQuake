@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections;
 using System.Text;
 
 // cmd.h -- Command buffer and command execution
@@ -98,7 +97,9 @@ namespace SharpQuake
         {
             // ??? because hunk allocation would get stomped
             if (Host.IsInitialized)
+            {
                 Sys.Error("Cmd.Add after host initialized!");
+            }
 
             // fail if the command is a variable name
             if (Cvar.Exists(name))
@@ -137,13 +138,17 @@ namespace SharpQuake
         public static string[] Complete(string partial)
         {
             if (String.IsNullOrEmpty(partial))
+            {
                 return null;
-            
+            }
+
             List<string> result = new List<string>();
             foreach (string cmd in _Functions.Keys)
             {
                 if (cmd.StartsWith(partial))
+                {
                     result.Add(cmd);
+                }
             }
             return (result.Count > 0 ? result.ToArray() : null);
         }
@@ -154,7 +159,9 @@ namespace SharpQuake
         public static string Argv(int arg)
         {
             if (arg < 0 || arg >= _Argc)
+            {
                 return String.Empty;
+            }
 
             return _Argv[arg];
         }
@@ -180,13 +187,17 @@ namespace SharpQuake
             while (!String.IsNullOrEmpty(text))
             {
                 if (_Argc == 1)
+                {
                     _Args = text;
+                }
 
                 text = Common.Parse(text);
 
                 if (String.IsNullOrEmpty(Common.Token))
+                {
                     break;
-                
+                }
+
                 if (_Argc < MAX_ARGS)
                 {
                     argv.Add(Common.Token);
@@ -210,7 +221,9 @@ namespace SharpQuake
 
             // execute the command line
             if (_Argc <= 0)
-                return;		// no tokens
+            {
+                return;     // no tokens
+            }
 
             // check functions
             xcommand_t handler = Find(_Argv[0]); // must search with comparison like Q_strcasecmp()
@@ -230,7 +243,9 @@ namespace SharpQuake
                 {
                     // check cvars
                     if (!Cvar.Command())
+                    {
                         Con.Print("Unknown command \"{0}\"\n", _Argv[0]);
+                    }
                 }
             }
         }
@@ -250,7 +265,9 @@ namespace SharpQuake
             }
 
             if (Client.cls.demoplayback)
-                return;		// not really connected
+            {
+                return;     // not really connected
+            }
 
             MsgWriter writer = Client.cls.message;
             writer.WriteByte(Protocol.clc_stringcmd);
@@ -291,7 +308,9 @@ namespace SharpQuake
                 {
                     sb.Append(_Argv[i]);
                     if (i + 1 < _Argc)
+                    {
                         sb.Append(" ");
+                    }
                 }
             }
 
@@ -383,7 +402,9 @@ namespace SharpQuake
             {
                 sb.Append(_Argv[i]);
                 if (i + 1 < _Argc)
+                {
                     sb.Append(" ");
+                }
             }
             sb.AppendLine();
             _Aliases[name] = sb.ToString();
@@ -435,7 +456,9 @@ namespace SharpQuake
         public static void AddText(string text)
         {
             if (String.IsNullOrEmpty(text))
+            {
                 return;
+            }
 
             int len = text.Length;
             if (_Buf.Length + len > _Buf.Capacity)
@@ -476,13 +499,19 @@ namespace SharpQuake
                 for (i = 0; i < text.Length; i++)
                 {
                     if (text[i] == '"')
+                    {
                         quotes++;
+                    }
 
                     if (((quotes & 1) == 0) && (text[i] == ';'))
-                        break;	// don't break if inside a quoted string
-                    
+                    {
+                        break;  // don't break if inside a quoted string
+                    }
+
                     if (text[i] == '\n')
+                    {
                         break;
+                    }
                 }
 
                 string line = text.Substring(0, i).TrimEnd('\n', ';');

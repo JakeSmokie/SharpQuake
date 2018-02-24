@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenTK;
 
 namespace SharpQuake
@@ -59,16 +57,24 @@ namespace SharpQuake
             }
 
             for (int i = 0; i < _EFrags.Length; i++)
+            {
                 _EFrags[i] = new efrag_t();
+            }
 
             for (int i = 0; i < _Entities.Length; i++)
+            {
                 _Entities[i] = new entity_t();
+            }
 
             for (int i = 0; i < _StaticEntities.Length; i++)
+            {
                 _StaticEntities[i] = new entity_t();
+            }
 
             for (int i = 0; i < _DLights.Length; i++)
+            {
                 _DLights[i] = new dlight_t();
+            }
 
             //
             // register our commands
@@ -87,16 +93,22 @@ namespace SharpQuake
         public static void EstablishConnection(string host)
         {
             if (cls.state == cactive_t.ca_dedicated)
+            {
                 return;
+            }
 
             if (cls.demoplayback)
+            {
                 return;
+            }
 
             Disconnect();
 
             cls.netcon = Net.Connect(host);
             if (cls.netcon == null)
+            {
                 Host.Error("CL_Connect: connect failed\n");
+            }
 
             Con.DPrint("CL_EstablishConnection: connected to {0}\n", host);
 
@@ -113,7 +125,9 @@ namespace SharpQuake
         public static void NextDemo()
         {
             if (cls.demonum == -1)
-                return;		// don't play demos
+            {
+                return;     // don't play demos
+            }
 
             Scr.BeginLoadingPlaque();
 
@@ -184,11 +198,15 @@ namespace SharpQuake
             {
                 dlight_t dl = _DLights[i];
                 if (dl.die < cl.time || dl.radius == 0)
+                {
                     continue;
+                }
 
                 dl.radius -= time * dl.decay;
                 if (dl.radius < 0)
+                {
                     dl.radius = 0;
+                }
             }
         }
 
@@ -213,14 +231,18 @@ namespace SharpQuake
         {
             Disconnect();
             if (Server.IsActive)
+            {
                 Host.ShutdownServer(false);
+            }
         }
 
         // CL_SendCmd
         public static void SendCmd()
         {
             if (cls.state != cactive_t.ca_connected)
+            {
                 return;
+            }
 
             if (cls.signon == SIGNONS)
             {
@@ -245,7 +267,9 @@ namespace SharpQuake
 
             // send the reliable message
             if (cls.message.IsEmpty)
-                return;		// no message at all
+            {
+                return;     // no message at all
+            }
 
             if (!Net.CanSendMessage(cls.netcon))
             {
@@ -254,7 +278,9 @@ namespace SharpQuake
             }
 
             if (Net.SendMessage(cls.netcon, cls.message) == -1)
+            {
                 Host.Error("CL_WriteToServer: lost server connection");
+            }
 
             cls.message.Clear();
         }
@@ -272,16 +298,23 @@ namespace SharpQuake
             {
                 ret = GetMessage();
                 if (ret == -1)
+                {
                     Host.Error("CL_ReadFromServer: lost server connection");
+                }
+
                 if (ret == 0)
+                {
                     break;
+                }
 
                 cl.last_received_message = (float)Host.RealTime;
                 ParseServerMessage();
             } while (ret != 0 && cls.state == cactive_t.ca_connected);
 
             if (_ShowNet.Value != 0)
+            {
                 Con.Print("\n");
+            }
 
 
             //
@@ -327,7 +360,10 @@ namespace SharpQuake
                 {
                     // empty slot
                     if (ent.forcelink)
-                        Render.RemoveEfrags(ent);	// just became empty
+                    {
+                        Render.RemoveEfrags(ent);  // just became empty
+                    }
+
                     continue;
                 }
 
@@ -353,7 +389,9 @@ namespace SharpQuake
                     float f = frac;
                     Vector3 delta = ent.msg_origins[0] - ent.msg_origins[1];
                     if (Math.Abs(delta.X) > 100 || Math.Abs(delta.Y) > 100 || Math.Abs(delta.Z) > 100)
+                    {
                         f = 1; // assume a teleportation, not a motion
+                    }
 
                     // interpolate the origin and angles
                     ent.origin = ent.msg_origins[1] + f * delta;
@@ -364,10 +402,14 @@ namespace SharpQuake
 
                 // rotate binary objects locally
                 if ((ent.model.flags & EF.EF_ROTATE) != 0)
+                {
                     ent.angles.Y = bobjrotate;
+                }
 
                 if ((ent.effects & EntityEffects.EF_BRIGHTFIELD) != 0)
+                {
                     Render.EntityParticles(ent);
+                }
 
                 if ((ent.effects & EntityEffects.EF_MUZZLEFLASH) != 0)
                 {
@@ -398,13 +440,21 @@ namespace SharpQuake
                 }
 
                 if ((ent.model.flags & EF.EF_GIB) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 2);
+                }
                 else if ((ent.model.flags & EF.EF_ZOMGIB) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 4);
+                }
                 else if ((ent.model.flags & EF.EF_TRACER) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 3);
+                }
                 else if ((ent.model.flags & EF.EF_TRACER2) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 5);
+                }
                 else if ((ent.model.flags & EF.EF_ROCKET) != 0)
                 {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 0);
@@ -414,14 +464,20 @@ namespace SharpQuake
                     dl.die = (float)cl.time + 0.01f;
                 }
                 else if ((ent.model.flags & EF.EF_GRENADE) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 1);
+                }
                 else if ((ent.model.flags & EF.EF_TRACER3) != 0)
+                {
                     Render.RocketTrail(ref oldorg, ref ent.origin, 6);
+                }
 
                 ent.forcelink = false;
 
                 if (i == cl.viewentity && !Chase.IsActive)
+                {
                     continue;
+                }
 
                 if (NumVisEdicts < MAX_VISEDICTS)
                 {
@@ -476,7 +532,9 @@ namespace SharpQuake
         static void ClearState()
         {
             if (!Server.sv.active)
+            {
                 Host.ClearMemory();
+            }
 
             // wipe the entire cl structure
             _State.Clear();
@@ -485,27 +543,41 @@ namespace SharpQuake
 
             // clear other arrays
             foreach (efrag_t ef in _EFrags)
+            {
                 ef.Clear();
+            }
+
             foreach (entity_t et in _Entities)
+            {
                 et.Clear();
+            }
 
             foreach (dlight_t dl in _DLights)
+            {
                 dl.Clear();
-            
+            }
+
             Array.Clear(_LightStyle, 0, _LightStyle.Length);
 
             foreach (entity_t et in _TempEntities)
+            {
                 et.Clear();
+            }
 
             foreach (beam_t b in _Beams)
+            {
                 b.Clear();
+            }
 
             //
             // allocate the efrags and chain together into a free list
             //
             cl.free_efrags = _EFrags[0];// cl_efrags;
             for (int i = 0; i < MAX_EFRAGS - 1; i++)
+            {
                 _EFrags[i].entnext = _EFrags[i + 1];
+            }
+
             _EFrags[MAX_EFRAGS - 1].entnext = null;
         }
 
@@ -525,11 +597,15 @@ namespace SharpQuake
 
             // if running a local server, shut it down
             if (cls.demoplayback)
+            {
                 StopPlayback();
+            }
             else if (cls.state == cactive_t.ca_connected)
             {
                 if (cls.demorecording)
+                {
                     Stop_f();
+                }
 
                 Con.DPrint("Sending clc_disconnect\n");
                 cls.message.Clear();
@@ -540,7 +616,9 @@ namespace SharpQuake
 
                 cls.state = cactive_t.ca_disconnected;
                 if (Server.sv.active)
+                {
                     Host.ShutdownServer(false);
+                }
             }
 
             cls.demoplayback = cls.timedemo = false;

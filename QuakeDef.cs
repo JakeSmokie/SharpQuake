@@ -23,9 +23,6 @@
 //define	PARANOID			// speed sapping error checking
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using OpenTK;
 
 // quakedef.h
 
@@ -196,8 +193,8 @@ namespace SharpQuake
 
         public quakeparms_t()
         {
-            this.basedir = String.Empty;
-            this.cachedir = String.Empty;
+            basedir = String.Empty;
+            cachedir = String.Empty;
         }
     }// quakeparms_t;
 }

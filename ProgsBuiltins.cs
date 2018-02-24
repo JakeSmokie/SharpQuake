@@ -21,7 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using OpenTK;
 
@@ -158,7 +157,10 @@ namespace SharpQuake
                         edict_t ent = Server.ProgToEdict(Progs.GlobalStruct.msg_entity);
                         int entnum = Server.NumForEdict(ent);
                         if (entnum < 1 || entnum > Server.svs.maxclients)
+                        {
                             Progs.RunError("WriteDest: not a client");
+                        }
+
                         return Server.svs.clients[entnum - 1].message;
 
                     case MSG_ALL:
@@ -400,7 +402,9 @@ namespace SharpQuake
         static void SetMinMaxSize(edict_t e, ref Vector3 min, ref Vector3 max, bool rotate)
         {
             if (min.X > max.X || min.Y > max.Y || min.Z > max.Z)
+            {
                 Progs.RunError("backwards mins/maxs");
+            }
 
             rotate = false;		// FIXME: implement rotation properly again
 
@@ -504,7 +508,9 @@ namespace SharpQuake
                 string check = Server.sv.model_precache[i];
 
                 if (check == null)
+                {
                     break;
+                }
 
                 if (check == m)
                 {
@@ -514,9 +520,13 @@ namespace SharpQuake
                     model_t mod = Server.sv.models[(int)e.v.modelindex];
 
                     if (mod != null)
+                    {
                         SetMinMaxSize(e, ref mod.mins, ref mod.maxs, true);
+                    }
                     else
+                    {
                         SetMinMaxSize(e, ref Common.ZeroVector, ref Common.ZeroVector, true);
+                    }
 
                     return;
                 }
@@ -631,12 +641,16 @@ namespace SharpQuake
             float* value1 = GetVector(OFS.OFS_PARM0);
             float yaw;
             if (value1[1] == 0 && value1[0] == 0)
+            {
                 yaw = 0;
+            }
             else
             {
                 yaw = (int)(Math.Atan2(value1[1], value1[0]) * 180 / Math.PI);
                 if (yaw < 0)
+                {
                     yaw += 360;
+                }
             }
 
             ReturnFloat(yaw);
@@ -659,20 +673,28 @@ namespace SharpQuake
             {
                 yaw = 0;
                 if (value1[2] > 0)
+                {
                     pitch = 90;
+                }
                 else
+                {
                     pitch = 270;
+                }
             }
             else
             {
                 yaw = (int)(Math.Atan2(value1[1], value1[0]) * 180 / Math.PI);
                 if (yaw < 0)
+                {
                     yaw += 360;
+                }
 
                 forward = (float)Math.Sqrt(value1[0] * value1[0] + value1[1] * value1[1]);
                 pitch = (int)(Math.Atan2(value1[2], forward) * 180 / Math.PI);
                 if (pitch < 0)
+                {
                     pitch += 360;
+                }
             }
 
             Vector3 result = new Vector3(pitch, yaw, 0);
@@ -731,7 +753,9 @@ namespace SharpQuake
             for (int i = 0; i < Server.sv.sound_precache.Length; i++)
             {
                 if (Server.sv.sound_precache[i] == null)
+                {
                     break;
+                }
 
                 if (samp == Server.sv.sound_precache[i])
                 {
@@ -740,7 +764,9 @@ namespace SharpQuake
 
                     msg.WriteByte(Protocol.svc_spawnstaticsound);
                     for (int i2 = 0; i2 < 3; i2++)
+                    {
                         msg.WriteCoord(pos[i2]);
+                    }
 
                     msg.WriteByte(i);
 
@@ -825,9 +851,13 @@ namespace SharpQuake
             Mathlib.Copy(ref trace.plane.normal, out Progs.GlobalStruct.trace_plane_normal);
             Progs.GlobalStruct.trace_plane_dist = trace.plane.dist;
             if (trace.ent != null)
+            {
                 Progs.GlobalStruct.trace_ent = Server.EdictToProg(trace.ent);
+            }
             else
+            {
                 Progs.GlobalStruct.trace_ent = Server.EdictToProg(Server.sv.edicts[0]);
+            }
         }
 
 
@@ -850,31 +880,50 @@ namespace SharpQuake
             // cycle to the next one
 
             if (check < 1)
+            {
                 check = 1;
+            }
+
             if (check > Server.svs.maxclients)
+            {
                 check = Server.svs.maxclients;
+            }
 
             int i = check + 1;
             if (check == Server.svs.maxclients)
+            {
                 i = 1;
+            }
 
             edict_t ent;
             for (; ; i++)
             {
                 if (i == Server.svs.maxclients + 1)
+                {
                     i = 1;
+                }
 
                 ent = Server.EdictNum(i);
 
                 if (i == check)
-                    break;	// didn't find anything else
+                {
+                    break;  // didn't find anything else
+                }
 
                 if (ent.free)
+                {
                     continue;
+                }
+
                 if (ent.v.health <= 0)
+                {
                     continue;
+                }
+
                 if (((int)ent.v.flags & EdictFlags.FL_NOTARGET) != 0)
+                {
                     continue;
+                }
 
                 // anything that is a client, or has a client as an enemy
                 break;
@@ -947,7 +996,10 @@ namespace SharpQuake
         {
             int entnum = Server.NumForEdict(GetEdict(OFS.OFS_PARM0));
             if (entnum < 1 || entnum > Server.svs.maxclients)
+            {
                 Progs.RunError("Parm 0 not a client");
+            }
+
             string str = GetString(OFS.OFS_PARM1);
 
             client_t old = Host.HostClient;
@@ -1015,14 +1067,21 @@ namespace SharpQuake
             {
                 edict_t ent = Server.sv.edicts[i];
                 if (ent.free)
+                {
                     continue;
+                }
+
                 if (ent.v.solid == Solids.SOLID_NOT)
+                {
                     continue;
+                }
 
                 Vector3 v = vorg - (Common.ToVector(ref ent.v.origin) +
                     (Common.ToVector(ref ent.v.mins) + Common.ToVector(ref ent.v.maxs)) * 0.5f);
                 if (v.Length > rad)
+                {
                     continue;
+                }
 
                 ent.v.chain = Server.EdictToProg(chain);
                 chain = ent;
@@ -1047,9 +1106,14 @@ namespace SharpQuake
             float v = GetFloat(OFS.OFS_PARM0);
 
             if (v == (int)v)
+            {
                 SetTempString(String.Format("{0}", (int)v));
+            }
             else
+            {
                 SetTempString(String.Format("{0:F1}", v)); //  sprintf(pr_string_temp, "%5.1f", v);
+            }
+
             ReturnInt(_TempString);
         }
 
@@ -1089,16 +1153,24 @@ namespace SharpQuake
             int f = GetInt(OFS.OFS_PARM1);
             string s = GetString(OFS.OFS_PARM2);
             if (s == null)
+            {
                 Progs.RunError("PF_Find: bad search string");
+            }
 
             for (e++; e < Server.sv.num_edicts; e++)
             {
                 edict_t ed = Server.EdictNum(e);
                 if (ed.free)
+                {
                     continue;
+                }
+
                 string t = Progs.GetString(ed.GetInt(f)); // E_STRING(ed, f);
                 if (String.IsNullOrEmpty(t))
+                {
                     continue;
+                }
+
                 if (t == s)
                 {
                     ReturnEdict(ed);
@@ -1112,7 +1184,9 @@ namespace SharpQuake
         static void CheckEmptyString(string s)
         {
             if (s == null || s.Length == 0 || s[0] <= ' ')
+            {
                 Progs.RunError ("Bad string");
+            }
         }
 
         static void PF_precache_file()
@@ -1124,7 +1198,9 @@ namespace SharpQuake
         static void PF_precache_sound()
         {
             if (!Server.IsLoading)
+            {
                 Progs.RunError("PF_Precache_*: Precache can only be done in spawn functions");
+            }
 
             string s = GetString(OFS.OFS_PARM0);
             ReturnInt(GetInt(OFS.OFS_PARM0)); //  G_INT(OFS_RETURN) = G_INT(OFS_PARM0);
@@ -1138,7 +1214,9 @@ namespace SharpQuake
                     return;
                 }
                 if (Server.sv.sound_precache[i] == s)
+                {
                     return;
+                }
             }
             Progs.RunError("PF_precache_sound: overflow");
         }
@@ -1146,7 +1224,9 @@ namespace SharpQuake
         static void PF_precache_model()
         {
             if (!Server.IsLoading)
+            {
                 Progs.RunError("PF_Precache_*: Precache can only be done in spawn functions");
+            }
 
             string s = GetString(OFS.OFS_PARM0);
             ReturnInt(GetInt(OFS.OFS_PARM0)); //G_INT(OFS_RETURN) = G_INT(OFS_PARM0);
@@ -1161,7 +1241,9 @@ namespace SharpQuake
                     return;
                 }
                 if (Server.sv.model_precache[i] == s)
+                {
                     return;
+                }
             }
             Progs.RunError("PF_precache_model: overflow");
         }
@@ -1242,7 +1324,9 @@ namespace SharpQuake
             trace_t trace = Server.Move(ref org, ref mins, ref maxs, ref end, 0, ent);
 
             if (trace.fraction == 1 || trace.allsolid)
+            {
                 ReturnFloat(0);
+            }
             else
             {
                 Mathlib.Copy(ref trace.endpos, out ent.v.origin);
@@ -1270,7 +1354,9 @@ namespace SharpQuake
 
             // send message to all clients on this server
             if (!Server.IsActive)
+            {
                 return;
+            }
 
             for (int j = 0; j < Server.svs.maxclients; j++)
             {
@@ -1288,9 +1374,13 @@ namespace SharpQuake
         {
             float f = GetFloat(OFS.OFS_PARM0);
             if (f > 0)
+            {
                 ReturnFloat((int)(f + 0.5));
+            }
             else
+            {
                 ReturnFloat((int)(f - 0.5));
+            }
         }
 
         static void PF_floor()
@@ -1387,11 +1477,19 @@ namespace SharpQuake
             {
                 edict_t check = Server.sv.edicts[i];
                 if (check.v.takedamage != Damages.DAMAGE_AIM)
+                {
                     continue;
+                }
+
                 if (check == ent)
+                {
                     continue;
+                }
+
                 if (Host.TeamPlay != 0 && ent.v.team > 0 && ent.v.team == check.v.team)
-                    continue;	// don't aim at teammate
+                {
+                    continue;   // don't aim at teammate
+                }
 
                 v3f tmp;
                 Mathlib.VectorAdd(ref check.v.mins, ref check.v.maxs, out tmp);
@@ -1402,7 +1500,10 @@ namespace SharpQuake
                 Mathlib.Normalize(ref dir);
                 float dist = Vector3.Dot(dir, Common.ToVector(ref Progs.GlobalStruct.v_forward));
                 if (dist < bestdist)
-                    continue;	// to far to turn
+                {
+                    continue;   // to far to turn
+                }
+
                 tr = Server.Move(ref start, ref Common.ZeroVector, ref Common.ZeroVector, ref end, 0, ent);
                 if (tr.ent == check)
                 {	// can shoot at this one
@@ -1442,28 +1543,38 @@ namespace SharpQuake
             float speed = ent.v.yaw_speed;
 
             if (current == ideal)
+            {
                 return;
+            }
 
             float move = ideal - current;
             if (ideal > current)
             {
                 if (move >= 180)
+                {
                     move = move - 360;
+                }
             }
             else
             {
                 if (move <= -180)
+                {
                     move = move + 360;
+                }
             }
             if (move > 0)
             {
                 if (move > speed)
+                {
                     move = speed;
+                }
             }
             else
             {
                 if (move < -speed)
+                {
                     move = -speed;
+                }
             }
 
             ent.v.angles.y = Mathlib.AngleMod(current + move);
@@ -1539,7 +1650,9 @@ namespace SharpQuake
             edict_t ent = GetEdict(OFS.OFS_PARM0);
             int i = Server.NumForEdict(ent);
             if (i < 1 || i > Server.svs.maxclients)
+            {
                 Progs.RunError("Entity is not a client");
+            }
 
             // copy spawn parms out of the client_t
             client_t client = Server.svs.clients[i - 1];
@@ -1556,7 +1669,9 @@ namespace SharpQuake
         {
             // make sure we don't issue two changelevels
             if (Server.svs.changelevel_issued)
+            {
                 return;
+            }
 
             Server.svs.changelevel_issued = true;
 

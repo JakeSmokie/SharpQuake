@@ -3,3 +3,6 @@
 ################################################################################
 
 /.vs/SharpQuake/v15/Server/sqlite3
+/.vs/SharpQuake/v15/sqlite3
+/bin/Debug
+/obj

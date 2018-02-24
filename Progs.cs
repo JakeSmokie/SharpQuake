@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 
 // progs.h
@@ -82,17 +80,20 @@ namespace SharpQuake
 
         public edict_t()
         {
-            this.area = new link_t(this);
-            this.leafnums = new short[Progs.MAX_ENT_LEAFS];
-            this.fields = new float[(Progs.EdictSize - entvars_t.SizeInBytes) >> 2];
+            area = new link_t(this);
+            leafnums = new short[Progs.MAX_ENT_LEAFS];
+            fields = new float[(Progs.EdictSize - entvars_t.SizeInBytes) >> 2];
         }
 
         public void Clear()
         {
-            this.v = default(entvars_t);
-            if (this.fields != null)
-                Array.Clear(this.fields, 0, this.fields.Length);
-            this.free = false;
+            v = default(entvars_t);
+            if (fields != null)
+            {
+                Array.Clear(fields, 0, fields.Length);
+            }
+
+            free = false;
         }
 
         public bool IsV(int offset, out int correctedOffset)
@@ -111,7 +112,7 @@ namespace SharpQuake
             int offset1;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     result->_int = a->_int;
@@ -119,7 +120,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pv = this.fields)
+                fixed (void* pv = fields)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     result->_int = a->_int;
@@ -132,7 +133,7 @@ namespace SharpQuake
             int offset1;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     a->_int = value->_int;
@@ -140,7 +141,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pv = this.fields)
+                fixed (void* pv = fields)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     a->_int = value->_int;
@@ -153,7 +154,7 @@ namespace SharpQuake
             int offset1;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     result->vector[0] = a->vector[0];
@@ -163,7 +164,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pf = this.fields)
+                fixed (void* pf = fields)
                 {
                     eval_t* a = (eval_t*)((int*)pf + offset1);
                     result->vector[0] = a->vector[0];
@@ -178,7 +179,7 @@ namespace SharpQuake
             int offset1;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     a->vector[0] = value->vector[0];
@@ -188,7 +189,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pf = this.fields)
+                fixed (void* pf = fields)
                 {
                     eval_t* a = (eval_t*)((int*)pf + offset1);
                     a->vector[0] = value->vector[0];
@@ -203,7 +204,7 @@ namespace SharpQuake
             int offset1, result;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     result = a->_int;
@@ -211,7 +212,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pv = this.fields)
+                fixed (void* pv = fields)
                 {
                     eval_t* a = (eval_t*)((int*)pv + offset1);
                     result = a->_int;
@@ -226,7 +227,7 @@ namespace SharpQuake
             float result;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((float*)pv + offset1);
                     result = a->_float;
@@ -234,7 +235,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pv = this.fields)
+                fixed (void* pv = fields)
                 {
                     eval_t* a = (eval_t*)((float*)pv + offset1);
                     result = a->_float;
@@ -248,7 +249,7 @@ namespace SharpQuake
             int offset1;
             if (IsV(offset, out offset1))
             {
-                fixed (void* pv = &this.v)
+                fixed (void* pv = &v)
                 {
                     eval_t* a = (eval_t*)((float*)pv + offset1);
                     a->_float = value;
@@ -256,7 +257,7 @@ namespace SharpQuake
             }
             else
             {
-                fixed (void* pv = this.fields)
+                fixed (void* pv = fields)
                 {
                     eval_t* a = (eval_t*)((float*)pv + offset1);
                     a->_float = value;
@@ -400,10 +401,10 @@ namespace SharpQuake
 
         public void SwapBytes()
         {
-            this.op = (ushort)Common.LittleShort((short)this.op);
-            this.a = Common.LittleShort(this.a);
-            this.b = Common.LittleShort(this.b);
-            this.c = Common.LittleShort(this.c);
+            op = (ushort)Common.LittleShort((short)op);
+            a = Common.LittleShort(a);
+            b = Common.LittleShort(b);
+            c = Common.LittleShort(c);
         }
     } // dstatement_t;
 
@@ -419,9 +420,9 @@ namespace SharpQuake
 
         public void SwapBytes()
         {
-            this.type = (ushort)Common.LittleShort((short)this.type);
-            this.ofs = (ushort)Common.LittleShort((short)this.ofs);
-            this.s_name = Common.LittleLong(this.s_name);
+            type = (ushort)Common.LittleShort((short)type);
+            ofs = (ushort)Common.LittleShort((short)ofs);
+            s_name = Common.LittleLong(s_name);
         }
     } // ddef_t;
 
@@ -445,26 +446,26 @@ namespace SharpQuake
 
         public string FileName
         {
-            get { return Progs.GetString(this.s_file); }
+            get { return Progs.GetString(s_file); }
         }
         public string Name
         {
-            get { return Progs.GetString(this.s_name); }
+            get { return Progs.GetString(s_name); }
         }
 
         public void SwapBytes()
         {
-            this.first_statement = Common.LittleLong(this.first_statement);
-            this.parm_start = Common.LittleLong(this.parm_start);
-            this.locals = Common.LittleLong(this.locals);
-            this.s_name = Common.LittleLong(this.s_name);
-            this.s_file = Common.LittleLong(this.s_file);
-            this.numparms = Common.LittleLong(this.numparms);
+            first_statement = Common.LittleLong(first_statement);
+            parm_start = Common.LittleLong(parm_start);
+            locals = Common.LittleLong(locals);
+            s_name = Common.LittleLong(s_name);
+            s_file = Common.LittleLong(s_file);
+            numparms = Common.LittleLong(numparms);
         }
 
         public override string ToString()
         {
-            return String.Format("{{{0}: {1}()}}", this.FileName, this.Name);
+            return String.Format("{{{0}: {1}()}}", FileName, Name);
         }
     } // dfunction_t;
 
@@ -499,21 +500,21 @@ namespace SharpQuake
 
         public void SwapBytes()
         {
-            this.version = Common.LittleLong(this.version);
-            this.crc = Common.LittleLong(this.crc);
-            this.ofs_statements = Common.LittleLong(this.ofs_statements);
-            this.numstatements = Common.LittleLong(this.numstatements);
-            this.ofs_globaldefs = Common.LittleLong(this.ofs_globaldefs);
-            this.numglobaldefs = Common.LittleLong(this.numglobaldefs);
-            this.ofs_fielddefs = Common.LittleLong(this.ofs_fielddefs);
-            this.numfielddefs = Common.LittleLong(this.numfielddefs);
-            this.ofs_functions = Common.LittleLong(this.ofs_functions);
-            this.numfunctions = Common.LittleLong(this.numfunctions);
-            this.ofs_strings = Common.LittleLong(this.ofs_strings);
-            this.numstrings = Common.LittleLong(this.numstrings);
-            this.ofs_globals = Common.LittleLong(this.ofs_globals);
-            this.numglobals = Common.LittleLong(this.numglobals);
-            this.entityfields = Common.LittleLong(this.entityfields);
+            version = Common.LittleLong(version);
+            crc = Common.LittleLong(crc);
+            ofs_statements = Common.LittleLong(ofs_statements);
+            numstatements = Common.LittleLong(numstatements);
+            ofs_globaldefs = Common.LittleLong(ofs_globaldefs);
+            numglobaldefs = Common.LittleLong(numglobaldefs);
+            ofs_fielddefs = Common.LittleLong(ofs_fielddefs);
+            numfielddefs = Common.LittleLong(numfielddefs);
+            ofs_functions = Common.LittleLong(ofs_functions);
+            numfunctions = Common.LittleLong(numfunctions);
+            ofs_strings = Common.LittleLong(ofs_strings);
+            numstrings = Common.LittleLong(numstrings);
+            ofs_globals = Common.LittleLong(ofs_globals);
+            numglobals = Common.LittleLong(numglobals);
+            entityfields = Common.LittleLong(entityfields);
         }
     } // dprograms_t;
 
@@ -525,7 +526,7 @@ namespace SharpQuake
 
         public bool IsEmpty
         {
-            get { return (this.x == 0) && (this.y == 0) && (this.z == 0); }
+            get { return (x == 0) && (y == 0) && (z == 0); }
         }
     }
 
@@ -605,24 +606,26 @@ namespace SharpQuake
         public void SetParams(float[] src)
         {
             if (src.Length < Server.NUM_SPAWN_PARMS)
+            {
                 throw new ArgumentException(String.Format("There must be {0} parameters!", Server.NUM_SPAWN_PARMS));
-            
-            this.parm1 = src[0];
-            this.parm2 = src[1];
-            this.parm3 = src[2];
-            this.parm4 = src[3];
-            this.parm5 = src[4];
-            this.parm6 = src[5];
-            this.parm7 = src[6];
-            this.parm8 = src[7];
-            this.parm9 = src[8];
-            this.parm10 = src[9];
-            this.parm11 = src[10];
-            this.parm12 = src[11];
-            this.parm13 = src[12];
-            this.parm14 = src[13];
-            this.parm15 = src[14];
-            this.parm16 = src[15];
+            }
+
+            parm1 = src[0];
+            parm2 = src[1];
+            parm3 = src[2];
+            parm4 = src[3];
+            parm5 = src[4];
+            parm6 = src[5];
+            parm7 = src[6];
+            parm8 = src[7];
+            parm9 = src[8];
+            parm10 = src[9];
+            parm11 = src[10];
+            parm12 = src[11];
+            parm13 = src[12];
+            parm14 = src[13];
+            parm15 = src[14];
+            parm16 = src[15];
         }
     } // globalvars_t;
 

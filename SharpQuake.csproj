@@ -36,7 +36,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;GLQUAKE, QUAKE_GAME, _WINDOWS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;_WINDOWS, GLQUAKE, QUAKE_GAME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -57,7 +57,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;GLQUAKE, QUAKE_GAME</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;GLQUAKE, QUAKE_GAME, _WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -93,9 +93,7 @@
     <Compile Include="Anorms.cs" />
     <Compile Include="BspFile.cs" />
     <Compile Include="CDAudio.cs" />
-    <Compile Include="CDAudioWin.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Include="CDAudioWin.cs" />
     <Compile Include="Chase.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="ClientDemo.cs" />

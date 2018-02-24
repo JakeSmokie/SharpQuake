@@ -65,7 +65,9 @@ namespace SharpQuake
         {
             _Data = Common.LoadFile(filename);
             if (_Data == null)
+            {
                 Sys.Error("Wad.LoadWadFile: couldn't load {0}", filename);
+            }
 
             if (_Handle.IsAllocated)
             {
@@ -78,7 +80,9 @@ namespace SharpQuake
 
             if (header.identification[0] != 'W' || header.identification[1] != 'A' ||
                 header.identification[2] != 'D' || header.identification[3] != '2')
+            {
                 Sys.Error("Wad file {0} doesn't have WAD2 id\n", filename);
+            }
 
             int numlumps = Common.LittleLong(header.numlumps);
             int infotableofs = Common.LittleLong(header.infotableofs);

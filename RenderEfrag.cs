@@ -20,9 +20,6 @@
 /// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using OpenTK;
 
 // gl_refrag.c
@@ -48,7 +45,9 @@ namespace SharpQuake
         public static void AddEfrags(entity_t ent)
         {
             if (ent.model == null)
+            {
                 return;
+            }
 
             _AddEnt = ent;
             _LastObj = ent; //  lastlink = &ent->efrag;
@@ -68,13 +67,17 @@ namespace SharpQuake
         static void SplitEntityOnNode(mnodebase_t node)
         {
             if (node.contents == Contents.CONTENTS_SOLID)
+            {
                 return;
+            }
 
             // add an efrag if the node is a leaf
             if (node.contents < 0)
             {
                 if (_EfragTopNode == null)
+                {
                     _EfragTopNode = node as mnode_t;
+                }
 
                 mleaf_t leaf = (mleaf_t)(object)node;
 
@@ -113,8 +116,10 @@ namespace SharpQuake
             // NODE_MIXED
             mnode_t n = node as mnode_t;
             if (n == null)
+            {
                 return;
-            
+            }
+
             mplane_t splitplane = n.plane;
             int sides = Mathlib.BoxOnPlaneSide(ref _EMins, ref _EMaxs, splitplane);
 
@@ -123,15 +128,21 @@ namespace SharpQuake
                 // split on this plane
                 // if this is the first splitter of this bmodel, remember it
                 if (_EfragTopNode == null)
+                {
                     _EfragTopNode = n;
+                }
             }
 
             // recurse down the contacted sides
             if ((sides & 1) != 0)
+            {
                 SplitEntityOnNode(n.children[0]);
+            }
 
             if ((sides & 2) != 0)
+            {
                 SplitEntityOnNode(n.children[1]);
+            }
         }
 
         /// <summary>

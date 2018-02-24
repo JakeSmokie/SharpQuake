@@ -21,9 +21,7 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.IO;
 
 // snd_mem.c
 
@@ -37,7 +35,9 @@ namespace SharpQuake
 	        wavinfo_t info = new wavinfo_t();
 
             if (wav == null)
-		        return info;
+            {
+                return info;
+            }
 
             // debug
             //using (FileStream fs = new FileStream(Path.GetFileName(name), FileMode.Create, FileAccess.Write, FileShare.Read))
@@ -104,10 +104,12 @@ namespace SharpQuake
 		        }
 	        }
 	        else
-		        info.loopstart = -1;
+            {
+                info.loopstart = -1;
+            }
 
             // find data chunk
-	        int data = helper.FindChunk("data", offset);
+            int data = helper.FindChunk("data", offset);
 	        if (data == -1)
 	        {
 		        Con.Print("Missing data chunk\n");
@@ -118,10 +120,14 @@ namespace SharpQuake
 	        if (info.samples > 0)
 	        {
 		        if (samples < info.samples)
-			        Sys.Error("Sound {0} has a bad loop length", name);
-	        }
+                {
+                    Sys.Error("Sound {0} has a bad loop length", name);
+                }
+            }
 	        else
-		        info.samples = samples;
+            {
+                info.samples = samples;
+            }
 
             info.dataofs = data + 8;
 	
@@ -133,20 +139,29 @@ namespace SharpQuake
         {
             sfxcache_t sc = (sfxcache_t)Cache.Check(sfx.cache);
             if (sc == null)
+            {
                 return;
+            }
 
             float stepscale = (float)inrate / _shm.speed;	// this is usually 0.5, 1, or 2
 
             int outcount = (int)(sc.length / stepscale);
             sc.length = outcount;
             if (sc.loopstart != -1)
+            {
                 sc.loopstart = (int)(sc.loopstart / stepscale);
+            }
 
             sc.speed = _shm.speed;
             if (_LoadAs8bit.Value != 0)
+            {
                 sc.width = 1;
+            }
             else
+            {
                 sc.width = inwidth;
+            }
+
             sc.stereo = 0;
 
             sc.data = new byte[outcount * sc.width]; // uze: check this later!!!
@@ -215,19 +230,25 @@ namespace SharpQuake
             {
                 offset = lastChunk; //data_p = last_chunk;
                 if (offset >= _Wav.Length) // data_p >= iff_end)
+                {
                     break; // didn't find the chunk
+                }
 
                 //offset += 4; // data_p += 4;
                 int iff_chunk_len = GetLittleLong(offset + 4);
                 if (iff_chunk_len < 0)
+                {
                     break;
-                
+                }
+
                 //data_p -= 8;
                 lastChunk = offset + 8 + ((iff_chunk_len + 1) & ~1);
                 //last_chunk = data_p + 8 + ((iff_chunk_len + 1) & ~1);
                 string chunkName = Encoding.ASCII.GetString(_Wav, offset, 4);
                 if (chunkName == name)
+                {
                     return offset;
+                }
             }
             return -1;
         }

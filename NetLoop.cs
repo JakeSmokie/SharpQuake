@@ -21,8 +21,6 @@
 /// </copyright>
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SharpQuake
 {
@@ -49,7 +47,9 @@ namespace SharpQuake
         public void Init()
         {
             if (Client.cls.state == cactive_t.ca_dedicated)
+            {
                 return;// -1;
+            }
 
             _IsInitialized = true;
         }
@@ -62,14 +62,20 @@ namespace SharpQuake
         public void SearchForHosts(bool xmit)
         {
             if (!Server.sv.active)
+            {
                 return;
+            }
 
-	        Net.HostCacheCount = 1;
+            Net.HostCacheCount = 1;
 	        if (Net.HostName == "UNNAMED")
-		        Net.HostCache[0].name = "local";
-	        else
-		        Net.HostCache[0].name = Net.HostName;
-	        
+            {
+                Net.HostCache[0].name = "local";
+            }
+            else
+            {
+                Net.HostCache[0].name = Net.HostName;
+            }
+
             Net.HostCache[0].map = Server.sv.name;
 	        Net.HostCache[0].users = Net.ActiveConnections;
             Net.HostCache[0].maxusers = Server.svs.maxclients;
@@ -80,7 +86,9 @@ namespace SharpQuake
         public qsocket_t Connect(string host)
         {
             if (host != "local")
+            {
                 return null;
+            }
 
             _LocalConnectPending = true;
 
@@ -119,7 +127,9 @@ namespace SharpQuake
         public qsocket_t CheckNewConnections()
         {
             if (!_LocalConnectPending)
+            {
                 return null;
+            }
 
             _LocalConnectPending = false;
             _Server.ClearBuffers();
@@ -138,7 +148,9 @@ namespace SharpQuake
         public int GetMessage(qsocket_t sock)
         {
             if (sock.receiveMessageLength == 0)
+            {
                 return 0;
+            }
 
             int ret = sock.receiveMessage[0];
             int length = sock.receiveMessage[1] + (sock.receiveMessage[2] << 8);
@@ -151,10 +163,14 @@ namespace SharpQuake
             sock.receiveMessageLength -= length;
 
             if (sock.receiveMessageLength > 0)
+            {
                 Array.Copy(sock.receiveMessage, length, sock.receiveMessage, 0, sock.receiveMessageLength);
+            }
 
             if (sock.driverdata != null && ret == 1)
+            {
                 ((qsocket_t)sock.driverdata).canSend = true;
+            }
 
             return ret;
         }
@@ -162,12 +178,16 @@ namespace SharpQuake
         public int SendMessage(qsocket_t sock, MsgWriter data)
         {
             if (sock.driverdata == null)
+            {
                 return -1;
+            }
 
             qsocket_t sock2 = (qsocket_t)sock.driverdata;
 
             if ((sock2.receiveMessageLength + data.Length + 4) > Net.NET_MAXMESSAGE)
+            {
                 Sys.Error("Loop_SendMessage: overflow\n");
+            }
 
             // message type
             int offset = sock2.receiveMessageLength;
@@ -191,12 +211,16 @@ namespace SharpQuake
         public int SendUnreliableMessage(qsocket_t sock, MsgWriter data)
         {
             if (sock.driverdata == null)
+            {
                 return -1;
+            }
 
             qsocket_t sock2 = (qsocket_t)sock.driverdata;
 
             if ((sock2.receiveMessageLength + data.Length + sizeof(byte) + sizeof(short)) > Net.NET_MAXMESSAGE)
+            {
                 return 0;
+            }
 
             int offset = sock2.receiveMessageLength;
 
@@ -220,7 +244,10 @@ namespace SharpQuake
         public bool CanSendMessage(qsocket_t sock)
         {
             if (sock.driverdata == null)
+            {
                 return false;
+            }
+
             return sock.canSend;
         }
 
@@ -232,14 +259,20 @@ namespace SharpQuake
         public void Close(qsocket_t sock)
         {
             if (sock.driverdata != null)
+            {
                 ((qsocket_t)sock.driverdata).driverdata = null;
-            
+            }
+
             sock.ClearBuffers();
             sock.canSend = true;
             if (sock == _Client)
+            {
                 _Client = null;
+            }
             else
+            {
                 _Server = null;
+            }
         }
 
         public void Shutdown()

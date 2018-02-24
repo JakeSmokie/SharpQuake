@@ -20,9 +20,6 @@
 /// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 // zone.h
 // zone.c
@@ -87,7 +84,9 @@ namespace SharpQuake
             public void RemoveFromLRU()
             {
                 if (_LruNext == null || _LruPrev == null)
+                {
                     Sys.Error("Cache_UnlinkLRU: NULL link");
+                }
 
                 _LruNext._LruPrev = _LruPrev;
                 _LruPrev._LruNext = _LruNext;
@@ -98,7 +97,9 @@ namespace SharpQuake
             public void LRUInstertAfter(CacheEntry prev)
             {
                 if (_LruNext != null || _LruPrev != null)
+                {
                     Sys.Error("Cache_MakeLRU: active link");
+                }
 
                 prev._LruNext._LruPrev = this;
                 _LruNext = prev._LruNext;
@@ -111,18 +112,29 @@ namespace SharpQuake
             {
                 _Next = next;
                 if (next._Prev != null)
+                {
                     _Prev = next._Prev;
+                }
                 else
+                {
                     _Prev = next;
-                
+                }
+
                 if (next._Prev != null)
+                {
                     next._Prev._Next = this;
+                }
                 else
+                {
                     next._Prev = this;
+                }
+
                 next._Prev = this;
 
                 if (next._Next == null)
+                {
                     next._Next = this;
+                }
             }
 
             public void Remove()
@@ -164,7 +176,9 @@ namespace SharpQuake
             CacheEntry cs = (CacheEntry)c;
 
 	        if (cs == null || cs.data == null)
-		        return null;
+            {
+                return null;
+            }
 
             // move to head of LRU
             cs.RemoveFromLRU();
@@ -178,9 +192,11 @@ namespace SharpQuake
         public static cache_user_t Alloc(int size, string name)
         {
 	        if (size <= 0)
-		        Sys.Error("Cache_Alloc: size {0}", size);
+            {
+                Sys.Error("Cache_Alloc: size {0}", size);
+            }
 
-	        size = (size + 15) & ~15;
+            size = (size + 15) & ~15;
 
             CacheEntry entry = null;
 
@@ -189,13 +205,17 @@ namespace SharpQuake
 	        {
 		        entry = TryAlloc(size);
 		        if (entry != null)
-			        break;
-	
-	            // free the least recently used cahedat
-		        if (_Head.LruPrev == _Head)// cache_head.lru_prev == &cache_head)
-			        Sys.Error("Cache_Alloc: out of memory");
-													        // not enough memory at all
-		        Free(_Head.LruPrev);
+                {
+                    break;
+                }
+
+                // free the least recently used cahedat
+                if (_Head.LruPrev == _Head)// cache_head.lru_prev == &cache_head)
+                {
+                    Sys.Error("Cache_Alloc: out of memory");
+                }
+                // not enough memory at all
+                Free(_Head.LruPrev);
 	        }
 
             Check(entry);
@@ -208,7 +228,9 @@ namespace SharpQuake
         static void Flush()
         {
 	        while (_Head.Next != _Head)
-		        Free(_Head.Next); // reclaim the space
+            {
+                Free(_Head.Next); // reclaim the space
+            }
         }
 
         // Cache_Free
@@ -217,9 +239,11 @@ namespace SharpQuake
         static void Free(cache_user_t c)
         {
             if (c.data == null)
+            {
                 Sys.Error("Cache_Free: not allocated");
+            }
 
-	        CacheEntry entry = (CacheEntry)c;
+            CacheEntry entry = (CacheEntry)c;
             entry.Remove();
         }
 
@@ -227,7 +251,9 @@ namespace SharpQuake
         static CacheEntry TryAlloc(int size)
         {
             if (_BytesAllocated + size > _Capacity)
+            {
                 return null;
+            }
 
             CacheEntry result = new CacheEntry(size);
             _Head.InsertBefore(result);

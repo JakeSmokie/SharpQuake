@@ -133,26 +133,34 @@ namespace SharpQuake
             }
 
             for (byte n = 0; n < 100; n++)
+            {
                 _Remap[n] = n;
-            
+            }
+
             _IsInitialized = true;
             _IsEnabled = true;
 
             ReloadDiskInfo();
             if (!_IsValidDisc)
+            {
                 Con.Print("CDAudio_Init: No CD in player.\n");
+            }
         }
 
         public void Play(byte track, bool looping)
         {
             if (!_IsEnabled)
+            {
                 return;
+            }
 
             if (!_IsValidDisc)
             {
                 ReloadDiskInfo();
                 if (!_IsValidDisc)
+                {
                     return;
+                }
             }
 
             track = _Remap[track];
@@ -192,7 +200,10 @@ namespace SharpQuake
             if (_IsPlaying)
             {
                 if (_PlayTrack == track)
+                {
                     return;
+                }
+
                 Stop();
             }
 
@@ -212,20 +223,28 @@ namespace SharpQuake
             _IsPlaying = true;
 
             if (_Volume == 0)
+            {
                 Pause();
+            }
         }
 
         public void Stop()
         {
             if (!_IsEnabled)
+            {
                 return;
+            }
 
             if (!_IsPlaying)
+            {
                 return;
+            }
 
             int ret = Mci.SendCommand(_DeviceID, Mci. MCI_STOP, 0, IntPtr.Zero);
             if (ret != 0)
+            {
                 Con.DPrint("MCI_STOP failed ({0})", ret);
+            }
 
             _WasPlaying = false;
             _IsPlaying = false;
@@ -234,15 +253,21 @@ namespace SharpQuake
         public void Pause()
         {
             if (!_IsEnabled)
+            {
                 return;
+            }
 
             if (!_IsPlaying)
+            {
                 return;
+            }
 
             Mci.GenericParams gp = default(Mci.GenericParams);
             int ret = Mci.SendCommand(_DeviceID, Mci.MCI_PAUSE, 0, ref gp);
             if (ret != 0)
+            {
                 Con.DPrint("MCI_PAUSE failed ({0})", ret);
+            }
 
             _WasPlaying = _IsPlaying;
             _IsPlaying = false;
@@ -251,13 +276,19 @@ namespace SharpQuake
         public void Resume()
         {
             if (!_IsEnabled)
+            {
                 return;
+            }
 
             if (!_IsValidDisc)
+            {
                 return;
+            }
 
             if (!_WasPlaying)
+            {
                 return;
+            }
 
             Mci.PlayParams pp;
             pp.dwFrom = Mci. MCI_MAKE_TMSF(_PlayTrack, 0, 0, 0);
@@ -265,7 +296,9 @@ namespace SharpQuake
             pp.dwCallback = _Form.Handle;// (DWORD)mainwindow;
             int ret = Mci.Play(_DeviceID, Mci.MCI_PLAY, Mci. MCI_TO | Mci. MCI_NOTIFY, ref pp);
             if (ret != 0)
+            {
                 Con.DPrint("CDAudio: MCI_PLAY failed ({0})\n", ret);
+            }
 
             _IsPlaying = (ret == 0);
         }
@@ -279,18 +312,24 @@ namespace SharpQuake
             }
             
             if (!_IsInitialized)
+            {
                 return;
-            
+            }
+
             Stop();
 
             if (Mci.SendCommand(_DeviceID, Mci.MCI_CLOSE, Mci. MCI_WAIT, IntPtr.Zero) != 0)
+            {
                 Con.DPrint("CDAudio_Shutdown: MCI_CLOSE failed\n");
+            }
         }
 
         public void Update()
         {
             if (!_IsEnabled)
+            {
                 return;
+            }
 
             if (Sound.BgmVolume != _Volume)
             {
@@ -351,14 +390,18 @@ namespace SharpQuake
         {
             int ret = Mci.SendCommand(_DeviceID, Mci. MCI_SET, Mci. MCI_SET_DOOR_CLOSED, IntPtr.Zero);
             if (ret != 0)
+            {
                 Con.DPrint("MCI_SET_DOOR_CLOSED failed ({0})\n", ret);
+            }
         }
 
         public void Edject()
         {
             int ret = Mci.SendCommand(_DeviceID, Mci.MCI_SET, Mci.MCI_SET_DOOR_OPEN, IntPtr.Zero);
             if (ret != 0)
+            {
                 Con.DPrint("MCI_SET_DOOR_OPEN failed ({0})\n", ret);
+            }
         }
 
         #endregion
@@ -366,8 +409,10 @@ namespace SharpQuake
         public void MessageHandler(ref Message m)
         {
             if (m.LParam != _DeviceID)
+            {
                 return;
-            
+            }
+
             switch (m.WParam.ToInt32())
             {
                 case Mci.MCI_NOTIFY_SUCCESSFUL:
@@ -375,7 +420,9 @@ namespace SharpQuake
                     {
                         _IsPlaying = false;
                         if (_IsLooping)
+                        {
                             Play(_PlayTrack, true);
+                        }
                     }
                     break;
 
