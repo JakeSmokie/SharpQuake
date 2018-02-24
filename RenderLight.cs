@@ -47,20 +47,20 @@ namespace SharpQuake
 
             for (int i = 0; i < Client.MAX_DLIGHTS; i++)
             {
-                dlight_t l = Client.DLights[i];
-                if (l.die < Client.cl.time || l.radius == 0)
+                DynamicLight l = Client.DLights[i];
+                if (l.die < Client.Cl.time || l.radius == 0)
                 {
                     continue;
                 }
 
-                Render.MarkLights(l, 1 << i, Client.cl.worldmodel.nodes[0]);
+                Render.MarkLights(l, 1 << i, Client.Cl.worldmodel.nodes[0]);
             }
         }
 
         /// <summary>
         /// R_MarkLights
         /// </summary>
-        static void MarkLights(dlight_t light, int bit, mnodebase_t node)
+        static void MarkLights(DynamicLight light, int bit, mnodebase_t node)
         {
             if (node.contents < 0)
             {
@@ -85,7 +85,7 @@ namespace SharpQuake
             // mark the polygons
             for (int i = 0; i < n.numsurfaces; i++)
             {
-                msurface_t surf = Client.cl.worldmodel.surfaces[n.firstsurface + i];
+                msurface_t surf = Client.Cl.worldmodel.surfaces[n.firstsurface + i];
                 if (surf.dlightframe != _DlightFrameCount)
                 {
                     surf.dlightbits = 0;
@@ -121,8 +121,8 @@ namespace SharpQuake
 
             for (int i = 0; i < Client.MAX_DLIGHTS; i++)
             {
-                dlight_t l = Client.DLights[i];
-                if (l.die < Client.cl.time || l.radius == 0)
+                DynamicLight l = Client.DLights[i];
+                if (l.die < Client.Cl.time || l.radius == 0)
                 {
                     continue;
                 }
@@ -145,7 +145,7 @@ namespace SharpQuake
             //
             // light animations
             // 'm' is normal light, 'a' is no light, 'z' is double bright
-            int i = (int)(Client.cl.time * 10);
+            int i = (int)(Client.Cl.time * 10);
             for (int j = 0; j < QDef.MAX_LIGHTSTYLES; j++)
             {
                 if (String.IsNullOrEmpty(Client.LightStyle[j].map))
@@ -166,7 +166,7 @@ namespace SharpQuake
         /// </summary>
         static int LightPoint(ref Vector3 p)
         {
-            if (Client.cl.worldmodel.lightdata == null)
+            if (Client.Cl.worldmodel.lightdata == null)
             {
                 return 255;
             }
@@ -174,7 +174,7 @@ namespace SharpQuake
             Vector3 end = p;
             end.Z -= 2048;
 
-            int r = RecursiveLightPoint(Client.cl.worldmodel.nodes[0], ref p, ref end);
+            int r = RecursiveLightPoint(Client.Cl.worldmodel.nodes[0], ref p, ref end);
             if (r == -1)
             {
                 r = 0;
@@ -225,7 +225,7 @@ namespace SharpQuake
             _LightSpot = mid;
             _LightPlane = plane;
 
-            msurface_t[] surf = Client.cl.worldmodel.surfaces;
+            msurface_t[] surf = Client.Cl.worldmodel.surfaces;
             int offset = n.firstsurface;
             for (int i = 0; i < n.numsurfaces; i++, offset++)
             {
@@ -288,7 +288,7 @@ namespace SharpQuake
         /// <summary>
         /// R_RenderDlight
         /// </summary>
-        static void RenderDlight(dlight_t light)
+        static void RenderDlight(DynamicLight light)
         {
             float rad = light.radius * 0.35f;
             Vector3 v = light.origin - Render.Origin;

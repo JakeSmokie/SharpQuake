@@ -60,12 +60,12 @@ namespace SharpQuake
             // nothing to do
         }
 
-        public qsocket_t Connect(string host)
+        public QSocket Connect(string host)
         {
             return null;
         }
 
-        public qsocket_t CheckNewConnections()
+        public QSocket CheckNewConnections()
         {
             if (Host.Time != _Next.time || _Next.op != VcrOp.VCR_OP_CONNECT)
             {
@@ -78,7 +78,7 @@ namespace SharpQuake
                 return null;
             }
 
-            qsocket_t sock = Net.NewSocket();
+            QSocket sock = Net.NewSocket();
             sock.driverdata = _Next.session;
 
             byte[] buf = new byte[Net.NET_NAMELEN];
@@ -90,7 +90,7 @@ namespace SharpQuake
             return sock;
         }
 
-        public int GetMessage(qsocket_t sock)
+        public int GetMessage(QSocket sock)
         {
             if (Host.Time != _Next.time || _Next.op != VcrOp.VCR_OP_GETMESSAGE || _Next.session != SocketToSession(sock))
             {
@@ -133,7 +133,7 @@ namespace SharpQuake
             }
         }
 
-        public int SendMessage(qsocket_t sock, MsgWriter data)
+        public int SendMessage(QSocket sock, MessageWriter data)
         {
             if (Host.Time != _Next.time || _Next.op != VcrOp.VCR_OP_SENDMESSAGE || _Next.session != SocketToSession(sock))
             {
@@ -147,12 +147,12 @@ namespace SharpQuake
             return ret;
         }
 
-        public int SendUnreliableMessage(qsocket_t sock, MsgWriter data)
+        public int SendUnreliableMessage(QSocket sock, MessageWriter data)
         {
             throw new NotImplementedException();
         }
 
-        public bool CanSendMessage(qsocket_t sock)
+        public bool CanSendMessage(QSocket sock)
         {
             if (Host.Time != _Next.time || _Next.op != VcrOp. VCR_OP_CANSENDMESSAGE || _Next.session != SocketToSession(sock))
             {
@@ -167,12 +167,12 @@ namespace SharpQuake
 
         }
 
-        public bool CanSendUnreliableMessage(qsocket_t sock)
+        public bool CanSendUnreliableMessage(QSocket sock)
         {
             return true;
         }
 
-        public void Close(qsocket_t sock)
+        public void Close(QSocket sock)
         {
             // nothing to do
         }
@@ -184,7 +184,7 @@ namespace SharpQuake
 
         #endregion
 
-        public long SocketToSession(qsocket_t sock)
+        public long SocketToSession(QSocket sock)
         {
             return (long)sock.driverdata;
         }

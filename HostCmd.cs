@@ -80,7 +80,7 @@ namespace SharpQuake
         /// </summary>
         public static void Quit_f()
         {
-            if (Key.Destination != keydest_t.key_console && Client.cls.state != cactive_t.ca_dedicated)
+            if (Key.Destination != keydest_t.key_console && Client.Cls.state != ClientActivityState.Dedicated)
             {
                 MenuBase.QuitMenu.Show();
                 return;
@@ -324,7 +324,7 @@ namespace SharpQuake
                 return;
             }
 
-            Client.cls.demonum = -1;		// stop demo loop in case this fails
+            Client.Cls.demonum = -1;		// stop demo loop in case this fails
 
             Client.Disconnect();
             ShutdownServer(false);
@@ -332,7 +332,7 @@ namespace SharpQuake
             Key.Destination = keydest_t.key_game;			// remove console or menu
             Scr.BeginLoadingPlaque();
 
-            Client.cls.mapstring = Cmd.JoinArgv() + "\n";
+            Client.Cls.mapstring = Cmd.JoinArgv() + "\n";
 
             Server.svs.serverflags = 0;			// haven't completed an episode yet
             string name = Cmd.Argv(1);
@@ -343,9 +343,9 @@ namespace SharpQuake
                 return;
             }
 
-            if (Client.cls.state != cactive_t.ca_dedicated)
+            if (Client.Cls.state != ClientActivityState.Dedicated)
             {
-                Client.cls.spawnparms = Cmd.JoinArgv();
+                Client.Cls.spawnparms = Cmd.JoinArgv();
                 Cmd.ExecuteString("connect local", cmd_source_t.src_command);
             }
         }
@@ -361,7 +361,7 @@ namespace SharpQuake
                 Con.Print("changelevel <levelname> : continue game on a new level\n");
                 return;
             }
-            if (!Server.sv.active || Client.cls.demoplayback)
+            if (!Server.sv.active || Client.Cls.demoplayback)
             {
                 Con.Print("Only the server may changelevel\n");
                 return;
@@ -376,7 +376,7 @@ namespace SharpQuake
         // Restarts the current server for a dead player
         static void Restart_f()
         {
-            if (Client.cls.demoplayback || !Server.IsActive)
+            if (Client.Cls.demoplayback || !Server.IsActive)
             {
                 return;
             }
@@ -399,7 +399,7 @@ namespace SharpQuake
         static void Reconnect_f()
         {
             Scr.BeginLoadingPlaque();
-            Client.cls.signon = 0;		// need new connection messages
+            Client.Cls.signon = 0;		// need new connection messages
         }
 
         /// <summary>
@@ -408,8 +408,8 @@ namespace SharpQuake
         /// </summary>
         static void Connect_f()
         {
-            Client.cls.demonum = -1;		// stop demo loop in case this fails
-            if (Client.cls.demoplayback)
+            Client.Cls.demonum = -1;		// stop demo loop in case this fails
+            if (Client.Cls.demoplayback)
             {
                 Client.StopPlayback();
                 Client.Disconnect();
@@ -426,8 +426,8 @@ namespace SharpQuake
         /// </summary>
         static string SavegameComment()
         {
-            string result = String.Format("{0} kills:{1,3}/{2,3}", Client.cl.levelname,
-                Client.cl.stats[QStats.STAT_MONSTERS], Client.cl.stats[QStats. STAT_TOTALMONSTERS]);
+            string result = String.Format("{0} kills:{1,3}/{2,3}", Client.Cl.levelname,
+                Client.Cl.stats[QStats.STAT_MONSTERS], Client.Cl.stats[QStats. STAT_TOTALMONSTERS]);
             
             // convert space to _ to make stdio happy
             result = result.Replace(' ', '_');
@@ -462,7 +462,7 @@ namespace SharpQuake
                 return;
             }
 
-            if (Client.cl.intermission != 0)
+            if (Client.Cl.intermission != 0)
             {
                 Con.Print("Can't save in intermission.\n");
                 return;
@@ -561,7 +561,7 @@ namespace SharpQuake
                 return;
             }
 
-            Client.cls.demonum = -1;		// stop demo loop in case this fails
+            Client.Cls.demonum = -1;		// stop demo loop in case this fails
 
             string name = Path.ChangeExtension(Path.Combine(Common.GameDir, Cmd.Argv(1)), ".sav");
 
@@ -683,7 +683,7 @@ namespace SharpQuake
                 }
             }
 
-            if (Client.cls.state != cactive_t.ca_dedicated)
+            if (Client.Cls.state != ClientActivityState.Dedicated)
             {
                 Client.EstablishConnection("local");
                 Reconnect_f();
@@ -723,7 +723,7 @@ namespace SharpQuake
                 }
 
                 Cvar.Set("_cl_name", newName);
-                if (Client.cls.state == cactive_t.ca_connected)
+                if (Client.Cls.state == ClientActivityState.Connected)
                 {
                     Cmd.ForwardToServer();
                 }
@@ -743,7 +743,7 @@ namespace SharpQuake
             Host.HostClient.edict.v.netname = Progs.NewString(newName);
 
             // send notification to all clients
-            MsgWriter msg = Server.sv.reliable_datagram;
+            MessageWriter msg = Server.sv.reliable_datagram;
             msg.WriteByte(Protocol.svc_updatename);
             msg.WriteByte(Host.ClientNum);
             msg.WriteString(newName);
@@ -765,7 +765,7 @@ namespace SharpQuake
             bool fromServer = false;
             if (Cmd.Source == cmd_source_t.src_command)
             {
-                if (Client.cls.state == cactive_t.ca_dedicated)
+                if (Client.Cls.state == ClientActivityState.Dedicated)
                 {
                     fromServer = true;
                     teamonly = false;
@@ -923,7 +923,7 @@ namespace SharpQuake
             if (Cmd.Source == cmd_source_t.src_command)
             {
                 Cvar.Set("_cl_color", playercolor);
-                if (Client.cls.state == cactive_t.ca_connected)
+                if (Client.Cls.state == ClientActivityState.Connected)
                 {
                     Cmd.ForwardToServer();
                 }
@@ -936,7 +936,7 @@ namespace SharpQuake
             Host.HostClient.edict.v.team = bottom + 1;
 
             // send notification to all clients
-            MsgWriter msg = Server.sv.reliable_datagram;
+            MessageWriter msg = Server.sv.reliable_datagram;
             msg.WriteByte(Protocol.svc_updatecolors);
             msg.WriteByte(Host.ClientNum);
             msg.WriteByte(Host.HostClient.colors);
@@ -1015,7 +1015,7 @@ namespace SharpQuake
                 return;
             }
 
-            MsgWriter msg = Host.HostClient.message;
+            MessageWriter msg = Host.HostClient.message;
             msg.Write(Server.sv.signon.Data, 0, Server.sv.signon.Length);
             msg.WriteByte(Protocol.svc_signonnum);
             msg.WriteByte(2);
@@ -1077,7 +1077,7 @@ namespace SharpQuake
 
 
             // send all current names, colors, and frag counts
-            MsgWriter msg = Host.HostClient.message;
+            MessageWriter msg = Host.HostClient.message;
             msg.Clear();
 
             // send time of update
@@ -1219,7 +1219,7 @@ namespace SharpQuake
                 string who;
                 if (Cmd.Source == cmd_source_t.src_command)
                 {
-                    if (Client.cls.state == cactive_t.ca_dedicated)
+                    if (Client.Cls.state == ClientActivityState.Dedicated)
                     {
                         who = "Console";
                     }
@@ -1467,7 +1467,7 @@ namespace SharpQuake
                 return;
             }
 
-            model_t m = Mod.ForName(Cmd.Argv(1), false);
+            Model m = Mod.ForName(Cmd.Argv(1), false);
             if (m == null)
             {
                 Con.Print("Can't load {0}\n", Cmd.Argv(1));
@@ -1475,7 +1475,7 @@ namespace SharpQuake
             }
 
             e.v.frame = 0;
-            Client.cl.model_precache[(int)e.v.modelindex] = m;
+            Client.Cl.model_precache[(int)e.v.modelindex] = m;
         }
 
         /// <summary>
@@ -1489,7 +1489,7 @@ namespace SharpQuake
                 return;
             }
 
-            model_t m = Client.cl.model_precache[(int)e.v.modelindex];
+            Model m = Client.Cl.model_precache[(int)e.v.modelindex];
 
             int f = Common.atoi(Cmd.Argv(1));
             if (f >= m.numframes)
@@ -1501,7 +1501,7 @@ namespace SharpQuake
         }
 
 
-        static void PrintFrameName(model_t m, int frame)
+        static void PrintFrameName(Model m, int frame)
         {
             aliashdr_t hdr = Mod.GetExtraData(m);
             if (hdr == null)
@@ -1523,7 +1523,7 @@ namespace SharpQuake
                 return;
             }
 
-            model_t m = Client.cl.model_precache[(int)e.v.modelindex];
+            Model m = Client.Cl.model_precache[(int)e.v.modelindex];
 
             e.v.frame = e.v.frame + 1;
             if (e.v.frame >= m.numframes)
@@ -1545,7 +1545,7 @@ namespace SharpQuake
                 return;
             }
 
-            model_t m = Client.cl.model_precache[(int)e.v.modelindex];
+            Model m = Client.Cl.model_precache[(int)e.v.modelindex];
 
             e.v.frame = e.v.frame - 1;
             if (e.v.frame < 0)
@@ -1559,7 +1559,7 @@ namespace SharpQuake
         // Host_Startdemos_f
         static void Startdemos_f()
         {
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 if (!Server.sv.active)
                 {
@@ -1579,17 +1579,17 @@ namespace SharpQuake
 
             for (int i = 1; i < c + 1; i++)
             {
-                Client.cls.demos[i - 1] = Common.Copy(Cmd.Argv(i), Client.MAX_DEMONAME);
+                Client.Cls.demos[i - 1] = Common.Copy(Cmd.Argv(i), Client.MAX_DEMONAME);
             }
 
-            if (!Server.sv.active && Client.cls.demonum != -1 && !Client.cls.demoplayback)
+            if (!Server.sv.active && Client.Cls.demonum != -1 && !Client.Cls.demoplayback)
             {
-                Client.cls.demonum = 0;
+                Client.Cls.demonum = 0;
                 Client.NextDemo();
             }
             else
             {
-                Client.cls.demonum = -1;
+                Client.Cls.demonum = -1;
             }
         }
 
@@ -1600,14 +1600,14 @@ namespace SharpQuake
         /// </summary>
         static void Demos_f()
         {
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 return;
             }
 
-            if (Client.cls.demonum == -1)
+            if (Client.Cls.demonum == -1)
             {
-                Client.cls.demonum = 1;
+                Client.Cls.demonum = 1;
             }
 
             Client.Disconnect_f();
@@ -1620,12 +1620,12 @@ namespace SharpQuake
         /// </summary>
         static void Stopdemo_f()
         {
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 return;
             }
 
-            if (!Client.cls.demoplayback)
+            if (!Client.Cls.demoplayback)
             {
                 return;
             }

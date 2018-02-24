@@ -195,7 +195,7 @@ namespace SharpQuake
                 // send any final messages (don't check for errors)
                 if (Net.CanSendMessage(client.netconnection))
                 {
-                    MsgWriter msg = client.message;
+                    MessageWriter msg = client.message;
                     msg.WriteByte(Protocol.svc_disconnect);
                     Net.SendMessage(client.netconnection, msg);
                 }
@@ -345,7 +345,7 @@ namespace SharpQuake
         /// </summary>
         static void SendNop(client_t client)
         {
-            MsgWriter msg = new MsgWriter(4);
+            MessageWriter msg = new MessageWriter(4);
             msg.WriteChar(Protocol.svc_nop);
 
             if (Net.SendUnreliableMessage(client.netconnection, msg) == -1)
@@ -362,7 +362,7 @@ namespace SharpQuake
         /// </summary>
         static bool SendClientDatagram(client_t client)
         {
-            MsgWriter msg = new MsgWriter(QDef.MAX_DATAGRAM); // Uze todo: make static?
+            MessageWriter msg = new MessageWriter(QDef.MAX_DATAGRAM); // Uze todo: make static?
 
             msg.WriteByte(Protocol.svc_time);
             msg.WriteFloat((float)sv.time);
@@ -391,7 +391,7 @@ namespace SharpQuake
         /// <summary>
         /// SV_WriteEntitiesToClient
         /// </summary>
-        static void WriteEntitiesToClient(edict_t clent, MsgWriter msg)
+        static void WriteEntitiesToClient(edict_t clent, MessageWriter msg)
         {
             // find the client's PVS
             Vector3 org = Common.ToVector(ref clent.v.origin) + Common.ToVector(ref clent.v.view_ofs);
@@ -738,7 +738,7 @@ namespace SharpQuake
             {
                 if (svs.clients[i].active && svs.clients[i].spawned)
                 {
-                    MsgWriter msg = svs.clients[i].message;
+                    MessageWriter msg = svs.clients[i].message;
                     msg.WriteByte(Protocol.svc_print);
                     msg.WriteString(tmp);
                 }
@@ -748,7 +748,7 @@ namespace SharpQuake
         /// <summary>
         /// SV_WriteClientdataToMessage
         /// </summary>
-        public static void WriteClientDataToMessage(edict_t ent, MsgWriter msg)
+        public static void WriteClientDataToMessage(edict_t ent, MessageWriter msg)
         {
             //
             // send a damage message
@@ -959,7 +959,7 @@ namespace SharpQuake
             //
             while (true)
             {
-                qsocket_t ret = Net.CheckNewConnections();
+                QSocket ret = Net.CheckNewConnections();
                 if (ret == null)
                 {
                     break;
@@ -1004,7 +1004,7 @@ namespace SharpQuake
             edict_t ent = EdictNum(edictnum);
 
             // set up the client_t
-            qsocket_t netconnection = client.netconnection;
+            QSocket netconnection = client.netconnection;
 
             float[] spawn_parms = new float[NUM_SPAWN_PARMS];
             if (sv.loadgame)
@@ -1251,7 +1251,7 @@ namespace SharpQuake
         /// </summary>
         static void SendServerInfo(client_t client)
         {
-            MsgWriter writer = client.message;
+            MessageWriter writer = client.message;
 
             writer.WriteByte(Protocol.svc_print);
             writer.WriteString(String.Format("{0}\nVERSION {1,4:F2} SERVER ({2} CRC)", (char)2, QDef.VERSION, Progs.Crc));
@@ -1319,13 +1319,13 @@ namespace SharpQuake
         /// </summary>
         private static void SendReconnect()
         {
-            MsgWriter msg = new MsgWriter(128);
+            MessageWriter msg = new MessageWriter(128);
 
             msg.WriteChar(Protocol.svc_stufftext);
             msg.WriteString("reconnect\n");
             Net.SendToAll(msg, 5);
 
-            if (Client.cls.state != cactive_t.ca_dedicated)
+            if (Client.Cls.state != ClientActivityState.Dedicated)
             {
                 Cmd.ExecuteString("reconnect\n", cmd_source_t.src_command);
             }

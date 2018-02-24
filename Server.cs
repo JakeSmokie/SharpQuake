@@ -194,14 +194,14 @@ namespace SharpQuake
         public int axis;		// -1 = leaf node
         public float dist;
         public areanode_t[] children; // [2];
-        public link_t trigger_edicts;
-        public link_t solid_edicts;
+        public LinkList trigger_edicts;
+        public LinkList solid_edicts;
 
         public areanode_t()
         {
             children = new areanode_t[2];
-            trigger_edicts = new link_t(this);
-            solid_edicts = new link_t(this);
+            trigger_edicts = new LinkList(this);
+            solid_edicts = new LinkList(this);
         }
 
         public void Clear()
@@ -241,9 +241,9 @@ namespace SharpQuake
 	    public double lastchecktime;
 	    public string name;// char		name[64];			// map name
 	    public string modelname;// char		modelname[64];		// maps/<name>.bsp, for model_precache[0]
-	    public model_t worldmodel;
+	    public Model worldmodel;
 	    public string[] model_precache; //[MAX_MODELS];	// NULL terminated
-	    public model_t[] models; //[MAX_MODELS];
+	    public Model[] models; //[MAX_MODELS];
 	    public string[] sound_precache; //[MAX_SOUNDS];	// NULL terminated
 	    public string[] lightstyles; // [MAX_LIGHTSTYLES];
 	    public int num_edicts;
@@ -253,19 +253,19 @@ namespace SharpQuake
 									    // be used to reference the world ent
 	    public server_state_t state;			// some actions are only valid during load
 
-        public MsgWriter datagram;
-        public MsgWriter reliable_datagram; // copied to all clients at end of frame
-        public MsgWriter signon;
+        public MessageWriter datagram;
+        public MessageWriter reliable_datagram; // copied to all clients at end of frame
+        public MessageWriter signon;
 
         public server_t()
         {
             model_precache = new string[QDef.MAX_MODELS];
-            models = new model_t[QDef.MAX_MODELS];
+            models = new Model[QDef.MAX_MODELS];
             sound_precache = new string[QDef.MAX_SOUNDS];
             lightstyles = new string[QDef.MAX_LIGHTSTYLES];
-            datagram = new MsgWriter(QDef.MAX_DATAGRAM);
-            reliable_datagram = new MsgWriter(QDef.MAX_DATAGRAM);
-            signon = new MsgWriter(8192);
+            datagram = new MessageWriter(QDef.MAX_DATAGRAM);
+            reliable_datagram = new MessageWriter(QDef.MAX_DATAGRAM);
+            signon = new MessageWriter(8192);
         }
 
         public void Clear()
@@ -304,12 +304,12 @@ namespace SharpQuake
 
 	    public double last_message;		// reliable messages must be sent
 										    // periodically
-	    public qsocket_t netconnection;	// communications handle
+	    public QSocket netconnection;	// communications handle
 
-	    public usercmd_t cmd;				// movement
+	    public UserCommand cmd;				// movement
 	    public Vector3 wishdir;			// intended motion calced from cmd
 
-        public MsgWriter message;
+        public MessageWriter message;
 	    //public sizebuf_t		message;			// can be added to at any time,
 										    // copied and clear once per frame
 	    //public byte[] msgbuf;//[MAX_MSGLEN];
@@ -331,7 +331,7 @@ namespace SharpQuake
         {
             ping_times = new float[Server.NUM_PING_TIMES];
             spawn_parms = new float[Server.NUM_SPAWN_PARMS];
-            message = new MsgWriter(QDef.MAX_MSGLEN);
+            message = new MessageWriter(QDef.MAX_MSGLEN);
         }
 
         public void Clear()

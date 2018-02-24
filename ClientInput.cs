@@ -39,9 +39,9 @@ namespace SharpQuake
         /// CL_BaseMove
         /// Send the intended movement message to the server
         /// </summary>
-        static void BaseMove(ref usercmd_t cmd)
+        static void BaseMove(ref UserCommand cmd)
         {
-            if (cls.signon != SIGNONS)
+            if (Cls.signon != SIGNONS)
             {
                 return;
             }
@@ -94,47 +94,47 @@ namespace SharpQuake
 
             if (!ClientInput.StrafeBtn.IsDown)
             {
-                cl.viewangles.Y -= speed * _YawSpeed.Value * KeyState(ref ClientInput.RightBtn);
-                cl.viewangles.Y += speed * _YawSpeed.Value * KeyState(ref ClientInput.LeftBtn);
-                cl.viewangles.Y = Mathlib.AngleMod(cl.viewangles.Y);
+                Cl.viewangles.Y -= speed * _YawSpeed.Value * KeyState(ref ClientInput.RightBtn);
+                Cl.viewangles.Y += speed * _YawSpeed.Value * KeyState(ref ClientInput.LeftBtn);
+                Cl.viewangles.Y = Mathlib.AngleMod(Cl.viewangles.Y);
             }
 
             if (ClientInput.KLookBtn.IsDown)
             {
                 View.StopPitchDrift();
-                cl.viewangles.X -= speed * _PitchSpeed.Value * KeyState(ref ClientInput.ForwardBtn);
-                cl.viewangles.X += speed * _PitchSpeed.Value * KeyState(ref ClientInput.BackBtn);
+                Cl.viewangles.X -= speed * _PitchSpeed.Value * KeyState(ref ClientInput.ForwardBtn);
+                Cl.viewangles.X += speed * _PitchSpeed.Value * KeyState(ref ClientInput.BackBtn);
             }
 
             float up = KeyState(ref ClientInput.LookUpBtn);
             float down = KeyState(ref ClientInput.LookDownBtn);
 
-            cl.viewangles.X -= speed * _PitchSpeed.Value * up;
-            cl.viewangles.X += speed * _PitchSpeed.Value * down;
+            Cl.viewangles.X -= speed * _PitchSpeed.Value * up;
+            Cl.viewangles.X += speed * _PitchSpeed.Value * down;
 
             if (up != 0 || down != 0)
             {
                 View.StopPitchDrift();
             }
 
-            if (cl.viewangles.X > 80)
+            if (Cl.viewangles.X > 80)
             {
-                cl.viewangles.X = 80;
+                Cl.viewangles.X = 80;
             }
 
-            if (cl.viewangles.X < -70)
+            if (Cl.viewangles.X < -70)
             {
-                cl.viewangles.X = -70;
+                Cl.viewangles.X = -70;
             }
 
-            if (cl.viewangles.Z > 50)
+            if (Cl.viewangles.Z > 50)
             {
-                cl.viewangles.Z = 50;
+                Cl.viewangles.Z = 50;
             }
 
-            if (cl.viewangles.Z < -50)
+            if (Cl.viewangles.Z < -50)
             {
-                cl.viewangles.Z = -50;
+                Cl.viewangles.Z = -50;
             }
         }
 
@@ -144,7 +144,7 @@ namespace SharpQuake
         // 0.5 if it was pressed and held
         // 0 if held then released, and
         // 1.0 if held for the entire time
-        static float KeyState(ref kbutton_t key)
+        static float KeyState(ref KeyButton key)
         {
             bool impulsedown = (key.state & 2) != 0;
             bool impulseup = (key.state & 4) != 0;
@@ -205,22 +205,22 @@ namespace SharpQuake
         }
 
         // CL_SendMove
-        public static void SendMove(ref usercmd_t cmd)
+        public static void SendMove(ref UserCommand cmd)
         {
-            cl.cmd = cmd; // cl.cmd = *cmd - struct copying!!!
+            Cl.cmd = cmd; // cl.cmd = *cmd - struct copying!!!
 
-            MsgWriter msg = new MsgWriter(128);
+            MessageWriter msg = new MessageWriter(128);
 
             //
             // send the movement message
             //
             msg.WriteByte(Protocol.clc_move);
 
-            msg.WriteFloat((float)cl.mtime[0]);	// so server can get ping times
+            msg.WriteFloat((float)Cl.mtime[0]);	// so server can get ping times
 
-            msg.WriteAngle(cl.viewangles.X);
-            msg.WriteAngle(cl.viewangles.Y);
-            msg.WriteAngle(cl.viewangles.Z);
+            msg.WriteAngle(Cl.viewangles.X);
+            msg.WriteAngle(Cl.viewangles.Y);
+            msg.WriteAngle(Cl.viewangles.Z);
 
             msg.WriteShort((short)cmd.forwardmove);
             msg.WriteShort((short)cmd.sidemove);
@@ -253,7 +253,7 @@ namespace SharpQuake
             //
             // deliver the message
             //
-            if (cls.demoplayback)
+            if (Cls.demoplayback)
             {
                 return;
             }
@@ -262,12 +262,12 @@ namespace SharpQuake
             // allways dump the first two message, because it may contain leftover inputs
             // from the last level
             //
-            if (++cl.movemessages <= 2)
+            if (++Cl.movemessages <= 2)
             {
                 return;
             }
 
-            if (Net.SendUnreliableMessage(cls.netcon, msg) == -1)
+            if (Net.SendUnreliableMessage(Cls.netcon, msg) == -1)
             {
                 Con.Print("CL_SendMove: lost server connection\n");
                 Disconnect();
@@ -279,23 +279,23 @@ namespace SharpQuake
     static class ClientInput
     {
         // kbutton_t in_xxx
-        public static kbutton_t MLookBtn;
-        public static kbutton_t KLookBtn;
-        public static kbutton_t LeftBtn;
-        public static kbutton_t RightBtn;
-        public static kbutton_t ForwardBtn;
-        public static kbutton_t BackBtn;
-        public static kbutton_t LookUpBtn;
-        public static kbutton_t LookDownBtn;
-        public static kbutton_t MoveLeftBtn;
-        public static kbutton_t MoveRightBtn;
-        public static kbutton_t StrafeBtn;
-        public static kbutton_t SpeedBtn;
-        public static kbutton_t UseBtn;
-        public static kbutton_t JumpBtn;
-        public static kbutton_t AttackBtn;
-        public static kbutton_t UpBtn;
-        public static kbutton_t DownBtn;
+        public static KeyButton MLookBtn;
+        public static KeyButton KLookBtn;
+        public static KeyButton LeftBtn;
+        public static KeyButton RightBtn;
+        public static KeyButton ForwardBtn;
+        public static KeyButton BackBtn;
+        public static KeyButton LookUpBtn;
+        public static KeyButton LookDownBtn;
+        public static KeyButton MoveLeftBtn;
+        public static KeyButton MoveRightBtn;
+        public static KeyButton StrafeBtn;
+        public static KeyButton SpeedBtn;
+        public static KeyButton UseBtn;
+        public static KeyButton JumpBtn;
+        public static KeyButton AttackBtn;
+        public static KeyButton UpBtn;
+        public static KeyButton DownBtn;
 
         public static int Impulse;
 
@@ -338,7 +338,7 @@ namespace SharpQuake
             Cmd.Add("-mlook", MLookUp);
         }
 
-        static void KeyDown(ref kbutton_t b)
+        static void KeyDown(ref KeyButton b)
         {
             int k;
             string c = Cmd.Argv(1);
@@ -378,7 +378,7 @@ namespace SharpQuake
             b.state |= 1 + 2; // down + impulse down
         }
 
-        static void KeyUp(ref kbutton_t b)
+        static void KeyUp(ref KeyButton b)
         {
             int k;
             string c = Cmd.Argv(1);

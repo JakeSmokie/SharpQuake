@@ -30,36 +30,36 @@ namespace SharpQuake
     partial class Client
     {
         static int _NumTempEntities; // num_temp_entities
-        static entity_t[] _TempEntities = new entity_t[MAX_TEMP_ENTITIES]; // cl_temp_entities[MAX_TEMP_ENTITIES]
-        static beam_t[] _Beams = new beam_t[MAX_BEAMS]; // cl_beams[MAX_BEAMS]
+        static Entity[] _TempEntities = new Entity[MAX_TEMP_ENTITIES]; // cl_temp_entities[MAX_TEMP_ENTITIES]
+        static Beam[] _Beams = new Beam[MAX_BEAMS]; // cl_beams[MAX_BEAMS]
 
-        static sfx_t _SfxWizHit; // cl_sfx_wizhit
-        static sfx_t _SfxKnigtHit; // cl_sfx_knighthit
-        static sfx_t _SfxTink1; // cl_sfx_tink1
-        static sfx_t _SfxRic1; // cl_sfx_ric1
-        static sfx_t _SfxRic2; // cl_sfx_ric2
-        static sfx_t _SfxRic3; // cl_sfx_ric3
-        static sfx_t _SfxRExp3; // cl_sfx_r_exp3
+        static SFX _SfxWizHit; // cl_sfx_wizhit
+        static SFX _SfxKnigtHit; // cl_sfx_knighthit
+        static SFX _SfxTink1; // cl_sfx_tink1
+        static SFX _SfxRic1; // cl_sfx_ric1
+        static SFX _SfxRic2; // cl_sfx_ric2
+        static SFX _SfxRic3; // cl_sfx_ric3
+        static SFX _SfxRExp3; // cl_sfx_r_exp3
 
         // CL_InitTEnts
         static void InitTempEntities()
         {
-	        _SfxWizHit =  Sound.PrecacheSound ("wizard/hit.wav");
-	        _SfxKnigtHit = Sound.PrecacheSound ("hknight/hit.wav");
-	        _SfxTink1 = Sound.PrecacheSound ("weapons/tink1.wav");
-	        _SfxRic1 = Sound.PrecacheSound ("weapons/ric1.wav");
-	        _SfxRic2 = Sound.PrecacheSound ("weapons/ric2.wav");
-	        _SfxRic3 = Sound.PrecacheSound ("weapons/ric3.wav");
-	        _SfxRExp3 = Sound.PrecacheSound ("weapons/r_exp3.wav");
+            _SfxWizHit = Sound.PrecacheSound("wizard/hit.wav");
+            _SfxKnigtHit = Sound.PrecacheSound("hknight/hit.wav");
+            _SfxTink1 = Sound.PrecacheSound("weapons/tink1.wav");
+            _SfxRic1 = Sound.PrecacheSound("weapons/ric1.wav");
+            _SfxRic2 = Sound.PrecacheSound("weapons/ric2.wav");
+            _SfxRic3 = Sound.PrecacheSound("weapons/ric3.wav");
+            _SfxRExp3 = Sound.PrecacheSound("weapons/r_exp3.wav");
 
             for (int i = 0; i < _TempEntities.Length; i++)
             {
-                _TempEntities[i] = new entity_t();
+                _TempEntities[i] = new Entity();
             }
 
             for (int i = 0; i < _Beams.Length; i++)
             {
-                _Beams[i] = new beam_t();
+                _Beams[i] = new Beam();
             }
         }
 
@@ -71,16 +71,16 @@ namespace SharpQuake
             // update lightning
             for (int i = 0; i < MAX_BEAMS; i++)
             {
-                beam_t b = _Beams[i];
-                if (b.model == null || b.endtime < cl.time)
+                Beam b = _Beams[i];
+                if (b.model == null || b.endtime < Cl.time)
                 {
                     continue;
                 }
 
                 // if coming from the player, update the start position
-                if (b.entity == cl.viewentity)
+                if (b.entity == Cl.viewentity)
                 {
-                    b.start = _Entities[cl.viewentity].origin;
+                    b.start = _Entities[Cl.viewentity].origin;
                 }
 
                 // calculate pitch and yaw
@@ -120,7 +120,7 @@ namespace SharpQuake
                 float d = Mathlib.Normalize(ref dist);
                 while (d > 0)
                 {
-                    entity_t ent = NewTempEntity();
+                    Entity ent = NewTempEntity();
                     if (ent == null)
                     {
                         return;
@@ -144,7 +144,7 @@ namespace SharpQuake
         /// <summary>
         /// CL_NewTempEntity
         /// </summary>
-        static entity_t NewTempEntity()
+        static Entity NewTempEntity()
         {
             if (NumVisEdicts == MAX_VISEDICTS)
             {
@@ -156,24 +156,24 @@ namespace SharpQuake
                 return null;
             }
 
-            entity_t ent = _TempEntities[_NumTempEntities];
+            Entity ent = _TempEntities[_NumTempEntities];
             _NumTempEntities++;
             _VisEdicts[NumVisEdicts] = ent;
             NumVisEdicts++;
 
             ent.colormap = Scr.vid.colormap;
-            
+
             return ent;
         }
 
-        
+
         /// <summary>
         /// CL_ParseTEnt
         /// </summary>
         static void ParseTempEntity()
         {
             Vector3 pos;
-            dlight_t dl;
+            DynamicLight dl;
             int type = Net.Reader.ReadByte();
             switch (type)
             {
@@ -255,7 +255,7 @@ namespace SharpQuake
                     dl = AllocDlight(0);
                     dl.origin = pos;
                     dl.radius = 350;
-                    dl.die = (float)Client.cl.time + 0.5f;
+                    dl.die = (float)Client.Cl.time + 0.5f;
                     dl.decay = 300;
                     Sound.StartSound(-1, 0, _SfxRExp3, ref pos, 1, 1);
                     break;
@@ -302,7 +302,7 @@ namespace SharpQuake
                     dl = AllocDlight(0);
                     dl.origin = pos;
                     dl.radius = 350;
-                    dl.die = (float)cl.time + 0.5f;
+                    dl.die = (float)Cl.time + 0.5f;
                     dl.decay = 300;
                     Sound.StartSound(-1, 0, _SfxRExp3, ref pos, 1, 1);
                     break;
@@ -316,7 +316,7 @@ namespace SharpQuake
         /// <summary>
         /// CL_ParseBeam
         /// </summary>
-        static void ParseBeam(model_t m)
+        static void ParseBeam(Model m)
         {
             int ent = Net.Reader.ReadShort();
 
@@ -326,12 +326,12 @@ namespace SharpQuake
             // override any beam with the same entity
             for (int i = 0; i < MAX_BEAMS; i++)
             {
-                beam_t b = _Beams[i];
+                Beam b = _Beams[i];
                 if (b.entity == ent)
                 {
                     b.entity = ent;
                     b.model = m;
-                    b.endtime = (float)(cl.time + 0.2);
+                    b.endtime = (float)(Cl.time + 0.2);
                     b.start = start;
                     b.end = end;
                     return;
@@ -341,12 +341,12 @@ namespace SharpQuake
             // find a free beam
             for (int i = 0; i < MAX_BEAMS; i++)
             {
-                beam_t b = _Beams[i];
-                if (b.model == null || b.endtime < cl.time)
+                Beam b = _Beams[i];
+                if (b.model == null || b.endtime < Cl.time)
                 {
                     b.entity = ent;
                     b.model = m;
-                    b.endtime = (float)(cl.time + 0.2);
+                    b.endtime = (float)(Cl.time + 0.2);
                     b.start = start;
                     b.end = end;
                     return;

@@ -478,8 +478,8 @@ namespace SharpQuake
         {
             if (Key.Destination != keydest_t.key_menu)
             {
-                _SaveDemoNum = Client.cls.demonum;
-                Client.cls.demonum = -1;
+                _SaveDemoNum = Client.Cls.demonum;
+                Client.Cls.demonum = -1;
             }
 
             base.Show();
@@ -495,8 +495,8 @@ namespace SharpQuake
                 case Key.K_ESCAPE:
                     //Key.Destination = keydest_t.key_game;
                     MenuBase.Hide();
-                    Client.cls.demonum = _SaveDemoNum;
-                    if (Client.cls.demonum != -1 && !Client.cls.demoplayback && Client.cls.state != cactive_t.ca_connected)
+                    Client.Cls.demonum = _SaveDemoNum;
+                    if (Client.Cls.demonum != -1 && !Client.Cls.demoplayback && Client.Cls.state != ClientActivityState.Connected)
                     {
                         Client.NextDemo();
                     }
@@ -780,7 +780,7 @@ namespace SharpQuake
                 return;
             }
 
-            if (Client.cl.intermission != 0)
+            if (Client.Cl.intermission != 0)
             {
                 return;
             }
@@ -2732,7 +2732,7 @@ namespace SharpQuake
             {
                 if (Net.HostCacheCount > 1)
                 {
-                    Comparison<hostcache_t> cmp = delegate(hostcache_t a, hostcache_t b)
+                    Comparison<Hostcache_t> cmp = delegate(Hostcache_t a, Hostcache_t b)
                     {
                         return String.Compare(a.cname, b.cname);
                     };
@@ -2746,7 +2746,7 @@ namespace SharpQuake
             Menu.DrawPic((320 - p.width) / 2, 4, p);
             for (int n = 0; n < Net.HostCacheCount; n++)
             {
-                hostcache_t hc = Net.HostCache[n];
+                Hostcache_t hc = Net.HostCache[n];
                 string tmp;
                 if (hc.maxusers > 0)
                 {

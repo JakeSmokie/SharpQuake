@@ -99,7 +99,7 @@ namespace SharpQuake
                 Con.Print("------------------\n");
             }
 
-            cl.onground = false;	// unless the server says otherwise	
+            Cl.onground = false;	// unless the server says otherwise	
 
             //
             // parse the message
@@ -141,8 +141,8 @@ namespace SharpQuake
                         break;
 
                     case Protocol.svc_time:
-                        cl.mtime[1] = cl.mtime[0];
-                        cl.mtime[0] = Net.Reader.ReadFloat();
+                        Cl.mtime[1] = Cl.mtime[0];
+                        Cl.mtime[0] = Net.Reader.ReadFloat();
                         break;
 
                     case Protocol.svc_clientdata:
@@ -185,13 +185,13 @@ namespace SharpQuake
                         break;
 
                     case Protocol.svc_setangle:
-                        cl.viewangles.X = Net.Reader.ReadAngle();
-                        cl.viewangles.Y = Net.Reader.ReadAngle();
-                        cl.viewangles.Z = Net.Reader.ReadAngle();
+                        Cl.viewangles.X = Net.Reader.ReadAngle();
+                        Cl.viewangles.Y = Net.Reader.ReadAngle();
+                        Cl.viewangles.Z = Net.Reader.ReadAngle();
                         break;
 
                     case Protocol.svc_setview:
-                        cl.viewentity = Net.Reader.ReadShort();
+                        Cl.viewentity = Net.Reader.ReadShort();
                         break;
 
                     case Protocol.svc_lightstyle:
@@ -216,34 +216,34 @@ namespace SharpQuake
                     case Protocol.svc_updatename:
                         Sbar.Changed();
                         i = Net.Reader.ReadByte();
-                        if (i >= cl.maxclients)
+                        if (i >= Cl.maxclients)
                         {
                             Host.Error("CL_ParseServerMessage: svc_updatename > MAX_SCOREBOARD");
                         }
 
-                        cl.scores[i].name = Net.Reader.ReadString();
+                        Cl.scores[i].name = Net.Reader.ReadString();
                         break;
 
                     case Protocol.svc_updatefrags:
                         Sbar.Changed();
                         i = Net.Reader.ReadByte();
-                        if (i >= cl.maxclients)
+                        if (i >= Cl.maxclients)
                         {
                             Host.Error("CL_ParseServerMessage: svc_updatefrags > MAX_SCOREBOARD");
                         }
 
-                        cl.scores[i].frags = Net.Reader.ReadShort();
+                        Cl.scores[i].frags = Net.Reader.ReadShort();
                         break;
 
                     case Protocol.svc_updatecolors:
                         Sbar.Changed();
                         i = Net.Reader.ReadByte();
-                        if (i >= cl.maxclients)
+                        if (i >= Cl.maxclients)
                         {
                             Host.Error("CL_ParseServerMessage: svc_updatecolors > MAX_SCOREBOARD");
                         }
 
-                        cl.scores[i].colors = Net.Reader.ReadByte();
+                        Cl.scores[i].colors = Net.Reader.ReadByte();
                         NewTranslation(i);
                         break;
 
@@ -267,9 +267,9 @@ namespace SharpQuake
 
                     case Protocol.svc_setpause:
                         {
-                            cl.paused = Net.Reader.ReadByte() != 0;
+                            Cl.paused = Net.Reader.ReadByte() != 0;
 
-                            if (cl.paused)
+                            if (Cl.paused)
                             {
                                 CDAudio.Pause();
                             }
@@ -282,21 +282,21 @@ namespace SharpQuake
 
                     case Protocol.svc_signonnum:
                         i = Net.Reader.ReadByte();
-                        if (i <= cls.signon)
+                        if (i <= Cls.signon)
                         {
-                            Host.Error("Received signon {0} when at {1}", i, cls.signon);
+                            Host.Error("Received signon {0} when at {1}", i, Cls.signon);
                         }
 
-                        cls.signon = i;
+                        Cls.signon = i;
                         SignonReply();
                         break;
 
                     case Protocol.svc_killedmonster:
-                        cl.stats[QStats.STAT_MONSTERS]++;
+                        Cl.stats[QStats.STAT_MONSTERS]++;
                         break;
 
                     case Protocol.svc_foundsecret:
-                        cl.stats[QStats.STAT_SECRETS]++;
+                        Cl.stats[QStats.STAT_SECRETS]++;
                         break;
 
                     case Protocol.svc_updatestat:
@@ -306,7 +306,7 @@ namespace SharpQuake
                             Sys.Error("svc_updatestat: {0} is invalid", i);
                         }
 
-                        cl.stats[i] = Net.Reader.ReadLong();
+                        Cl.stats[i] = Net.Reader.ReadLong();
                         break;
 
                     case Protocol.svc_spawnstaticsound:
@@ -314,35 +314,35 @@ namespace SharpQuake
                         break;
 
                     case Protocol.svc_cdtrack:
-                        cl.cdtrack = Net.Reader.ReadByte();
-                        cl.looptrack = Net.Reader.ReadByte();
-                        if ((cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1))
+                        Cl.cdtrack = Net.Reader.ReadByte();
+                        Cl.looptrack = Net.Reader.ReadByte();
+                        if ((Cls.demoplayback || Cls.demorecording) && (Cls.forcetrack != -1))
                         {
-                            CDAudio.Play((byte)cls.forcetrack, true);
+                            CDAudio.Play((byte)Cls.forcetrack, true);
                         }
                         else
                         {
-                            CDAudio.Play((byte)cl.cdtrack, true);
+                            CDAudio.Play((byte)Cl.cdtrack, true);
                         }
 
                         break;
 
                     case Protocol.svc_intermission:
-                        cl.intermission = 1;
-                        cl.completed_time = (int)cl.time;
+                        Cl.intermission = 1;
+                        Cl.completed_time = (int)Cl.time;
                         Scr.vid.recalc_refdef = true;	// go to full screen
                         break;
 
                     case Protocol.svc_finale:
-                        cl.intermission = 2;
-                        cl.completed_time = (int)cl.time;
+                        Cl.intermission = 2;
+                        Cl.completed_time = (int)Cl.time;
                         Scr.vid.recalc_refdef = true;	// go to full screen
                         Scr.CenterPrint(Net.Reader.ReadString());
                         break;
 
                     case Protocol.svc_cutscene:
-                        cl.intermission = 3;
-                        cl.completed_time = (int)cl.time;
+                        Cl.intermission = 3;
+                        Cl.completed_time = (int)Cl.time;
                         Scr.vid.recalc_refdef = true;	// go to full screen
                         Scr.CenterPrint(Net.Reader.ReadString());
                         break;
@@ -373,10 +373,10 @@ namespace SharpQuake
         {
             int i;
 
-            if (cls.signon == SIGNONS - 1)
+            if (Cls.signon == SIGNONS - 1)
             {
                 // first update is the final signon stage
-                cls.signon = SIGNONS;
+                Cls.signon = SIGNONS;
                 SignonReply();
             }
 
@@ -397,7 +397,7 @@ namespace SharpQuake
                 num = Net.Reader.ReadByte();
             }
 
-            entity_t ent = EntityNum(num);
+            Entity ent = EntityNum(num);
             for (i = 0; i < 16; i++)
             {
                 if ((bits & (1 << i)) != 0)
@@ -407,12 +407,12 @@ namespace SharpQuake
             }
 
             bool forcelink = false;
-            if (ent.msgtime != cl.mtime[1])
+            if (ent.msgtime != Cl.mtime[1])
             {
                 forcelink = true;  // no previous frame to lerp from
             }
 
-            ent.msgtime = cl.mtime[0];
+            ent.msgtime = Cl.mtime[0];
             int modnum;
             if ((bits & Protocol.U_MODEL) != 0)
             {
@@ -427,7 +427,7 @@ namespace SharpQuake
                 modnum = ent.baseline.modelindex;
             }
 
-            model_t model = cl.model_precache[modnum];
+            Model model = Cl.model_precache[modnum];
             if (model != ent.model)
             {
                 ent.model = model;
@@ -449,7 +449,7 @@ namespace SharpQuake
                     forcelink = true;  // hack to make null model players work
                 }
 
-                if (num > 0 && num <= cl.maxclients)
+                if (num > 0 && num <= Cl.maxclients)
                 {
                     Render.TranslatePlayerSkin(num - 1);
                 }
@@ -479,12 +479,12 @@ namespace SharpQuake
             }
             else
             {
-                if (i > cl.maxclients)
+                if (i > Cl.maxclients)
                 {
                     Sys.Error("i >= cl.maxclients");
                 }
 
-                ent.colormap = cl.scores[i - 1].translations;
+                ent.colormap = Cl.scores[i - 1].translations;
             }
 
             int skin;
@@ -500,7 +500,7 @@ namespace SharpQuake
             if (skin != ent.skinnum)
             {
                 ent.skinnum = skin;
-                if (num > 0 && num <= cl.maxclients)
+                if (num > 0 && num <= Cl.maxclients)
                 {
                     Render.TranslatePlayerSkin(num - 1);
                 }
@@ -597,71 +597,71 @@ namespace SharpQuake
         {
             if ((bits & Protocol.SU_VIEWHEIGHT) != 0)
             {
-                cl.viewheight = Net.Reader.ReadChar();
+                Cl.viewheight = Net.Reader.ReadChar();
             }
             else
             {
-                cl.viewheight = Protocol.DEFAULT_VIEWHEIGHT;
+                Cl.viewheight = Protocol.DEFAULT_VIEWHEIGHT;
             }
 
             if ((bits & Protocol.SU_IDEALPITCH) != 0)
             {
-                cl.idealpitch = Net.Reader.ReadChar();
+                Cl.idealpitch = Net.Reader.ReadChar();
             }
             else
             {
-                cl.idealpitch = 0;
+                Cl.idealpitch = 0;
             }
 
-            cl.mvelocity[1] = cl.mvelocity[0];
+            Cl.mvelocity[1] = Cl.mvelocity[0];
             for (int i = 0; i < 3; i++)
             {
                 if ((bits & (Protocol.SU_PUNCH1 << i)) != 0)
                 {
-                    Mathlib.SetComp(ref cl.punchangle, i, Net.Reader.ReadChar());
+                    Mathlib.SetComp(ref Cl.punchangle, i, Net.Reader.ReadChar());
                 }
                 else
                 {
-                    Mathlib.SetComp(ref cl.punchangle, i, 0);
+                    Mathlib.SetComp(ref Cl.punchangle, i, 0);
                 }
 
                 if ((bits & (Protocol.SU_VELOCITY1 << i)) != 0)
                 {
-                    Mathlib.SetComp(ref cl.mvelocity[0], i, Net.Reader.ReadChar() * 16);
+                    Mathlib.SetComp(ref Cl.mvelocity[0], i, Net.Reader.ReadChar() * 16);
                 }
                 else
                 {
-                    Mathlib.SetComp(ref cl.mvelocity[0], i, 0);
+                    Mathlib.SetComp(ref Cl.mvelocity[0], i, 0);
                 }
             }
 
             // [always sent]	if (bits & SU_ITEMS)
             int i2 = Net.Reader.ReadLong();
 
-            if (cl.items != i2)
+            if (Cl.items != i2)
             {	// set flash times
                 Sbar.Changed();
                 for (int j = 0; j < 32; j++)
                 {
-                    if ((i2 & (1 << j)) != 0 && (cl.items & (1 << j)) == 0)
+                    if ((i2 & (1 << j)) != 0 && (Cl.items & (1 << j)) == 0)
                     {
-                        cl.item_gettime[j] = (float)cl.time;
+                        Cl.item_gettime[j] = (float)Cl.time;
                     }
                 }
 
-                cl.items = i2;
+                Cl.items = i2;
             }
 
-            cl.onground = (bits & Protocol.SU_ONGROUND) != 0;
-            cl.inwater = (bits & Protocol.SU_INWATER) != 0;
+            Cl.onground = (bits & Protocol.SU_ONGROUND) != 0;
+            Cl.inwater = (bits & Protocol.SU_INWATER) != 0;
 
             if ((bits & Protocol.SU_WEAPONFRAME) != 0)
             {
-                cl.stats[QStats.STAT_WEAPONFRAME] = Net.Reader.ReadByte();
+                Cl.stats[QStats.STAT_WEAPONFRAME] = Net.Reader.ReadByte();
             }
             else
             {
-                cl.stats[QStats.STAT_WEAPONFRAME] = 0;
+                Cl.stats[QStats.STAT_WEAPONFRAME] = 0;
             }
 
             if ((bits & Protocol.SU_ARMOR) != 0)
@@ -673,9 +673,9 @@ namespace SharpQuake
                 i2 = 0;
             }
 
-            if (cl.stats[QStats.STAT_ARMOR] != i2)
+            if (Cl.stats[QStats.STAT_ARMOR] != i2)
             {
-                cl.stats[QStats.STAT_ARMOR] = i2;
+                Cl.stats[QStats.STAT_ARMOR] = i2;
                 Sbar.Changed();
             }
 
@@ -688,32 +688,32 @@ namespace SharpQuake
                 i2 = 0;
             }
 
-            if (cl.stats[QStats.STAT_WEAPON] != i2)
+            if (Cl.stats[QStats.STAT_WEAPON] != i2)
             {
-                cl.stats[QStats.STAT_WEAPON] = i2;
+                Cl.stats[QStats.STAT_WEAPON] = i2;
                 Sbar.Changed();
             }
 
             i2 = Net.Reader.ReadShort();
-            if (cl.stats[QStats.STAT_HEALTH] != i2)
+            if (Cl.stats[QStats.STAT_HEALTH] != i2)
             {
-                cl.stats[QStats.STAT_HEALTH] = i2;
+                Cl.stats[QStats.STAT_HEALTH] = i2;
                 Sbar.Changed();
             }
 
             i2 = Net.Reader.ReadByte();
-            if (cl.stats[QStats.STAT_AMMO] != i2)
+            if (Cl.stats[QStats.STAT_AMMO] != i2)
             {
-                cl.stats[QStats.STAT_AMMO] = i2;
+                Cl.stats[QStats.STAT_AMMO] = i2;
                 Sbar.Changed();
             }
 
             for (i2 = 0; i2 < 4; i2++)
             {
                 int j = Net.Reader.ReadByte();
-                if (cl.stats[QStats.STAT_SHELLS + i2] != j)
+                if (Cl.stats[QStats.STAT_SHELLS + i2] != j)
                 {
-                    cl.stats[QStats.STAT_SHELLS + i2] = j;
+                    Cl.stats[QStats.STAT_SHELLS + i2] = j;
                     Sbar.Changed();
                 }
             }
@@ -722,17 +722,17 @@ namespace SharpQuake
 
             if (Common.GameKind == GameKind.StandardQuake)
             {
-                if (cl.stats[QStats.STAT_ACTIVEWEAPON] != i2)
+                if (Cl.stats[QStats.STAT_ACTIVEWEAPON] != i2)
                 {
-                    cl.stats[QStats.STAT_ACTIVEWEAPON] = i2;
+                    Cl.stats[QStats.STAT_ACTIVEWEAPON] = i2;
                     Sbar.Changed();
                 }
             }
             else
             {
-                if (cl.stats[QStats.STAT_ACTIVEWEAPON] != (1 << i2))
+                if (Cl.stats[QStats.STAT_ACTIVEWEAPON] != (1 << i2))
                 {
-                    cl.stats[QStats.STAT_ACTIVEWEAPON] = (1 << i2);
+                    Cl.stats[QStats.STAT_ACTIVEWEAPON] = (1 << i2);
                     Sbar.Changed();
                 }
             }
@@ -760,24 +760,24 @@ namespace SharpQuake
             }
 
             // parse maxclients
-            cl.maxclients = Net.Reader.ReadByte();
-            if (cl.maxclients < 1 || cl.maxclients > QDef.MAX_SCOREBOARD)
+            Cl.maxclients = Net.Reader.ReadByte();
+            if (Cl.maxclients < 1 || Cl.maxclients > QDef.MAX_SCOREBOARD)
             {
-                Con.Print("Bad maxclients ({0}) from server\n", cl.maxclients);
+                Con.Print("Bad maxclients ({0}) from server\n", Cl.maxclients);
                 return;
             }
-            cl.scores = new scoreboard_t[cl.maxclients];// Hunk_AllocName (cl.maxclients*sizeof(*cl.scores), "scores");
-            for (i = 0; i < cl.scores.Length; i++)
+            Cl.scores = new Scoreboard[Cl.maxclients];// Hunk_AllocName (cl.maxclients*sizeof(*cl.scores), "scores");
+            for (i = 0; i < Cl.scores.Length; i++)
             {
-                cl.scores[i] = new scoreboard_t();
+                Cl.scores[i] = new Scoreboard();
             }
 
             // parse gametype
-            cl.gametype = Net.Reader.ReadByte();
+            Cl.gametype = Net.Reader.ReadByte();
 
             // parse signon message
             string str = Net.Reader.ReadString();
-            cl.levelname = Common.Copy(str, 40);
+            Cl.levelname = Common.Copy(str, 40);
 
             // seperate the printfs so the server message can have a color
             Con.Print(ConsoleBar);
@@ -790,7 +790,7 @@ namespace SharpQuake
             //
 
             // precache models
-            Array.Clear(cl.model_precache, 0, cl.model_precache.Length);
+            Array.Clear(Cl.model_precache, 0, Cl.model_precache.Length);
             int nummodels;
             string[] model_precache = new string[QDef.MAX_MODELS];
             for (nummodels = 1; ; nummodels++)
@@ -811,7 +811,7 @@ namespace SharpQuake
             }
 
             // precache sounds
-            Array.Clear(cl.sound_precache, 0, cl.sound_precache.Length);
+            Array.Clear(Cl.sound_precache, 0, Cl.sound_precache.Length);
             int numsounds;
             string[] sound_precache = new string[QDef.MAX_SOUNDS];
             for (numsounds = 1; ; numsounds++)
@@ -836,8 +836,8 @@ namespace SharpQuake
             //
             for (i = 1; i < nummodels; i++)
             {
-                cl.model_precache[i] = Mod.ForName(model_precache[i], false);
-                if (cl.model_precache[i] == null)
+                Cl.model_precache[i] = Mod.ForName(model_precache[i], false);
+                if (Cl.model_precache[i] == null)
                 {
                     Con.Print("Model {0} not found\n", model_precache[i]);
                     return;
@@ -848,13 +848,13 @@ namespace SharpQuake
             Sound.BeginPrecaching();
             for (i = 1; i < numsounds; i++)
             {
-                cl.sound_precache[i] = Sound.PrecacheSound(sound_precache[i]);
+                Cl.sound_precache[i] = Sound.PrecacheSound(sound_precache[i]);
                 KeepaliveMessage();
             }
             Sound.EndPrecaching();
 
             // local state
-            _Entities[0].model = cl.worldmodel = cl.model_precache[1];
+            _Entities[0].model = Cl.worldmodel = Cl.model_precache[1];
 
             Render.NewMap();
 
@@ -900,24 +900,24 @@ namespace SharpQuake
             }
 
             Vector3 pos = Net.Reader.ReadCoords();
-            Sound.StartSound(ent, channel, cl.sound_precache[sound_num], ref pos, volume / 255.0f, attenuation);
+            Sound.StartSound(ent, channel, Cl.sound_precache[sound_num], ref pos, volume / 255.0f, attenuation);
         }
 
 
         // CL_NewTranslation
         static void NewTranslation(int slot)
         {
-            if (slot > cl.maxclients)
+            if (slot > Cl.maxclients)
             {
                 Sys.Error("CL_NewTranslation: slot > cl.maxclients");
             }
 
-            byte[] dest = cl.scores[slot].translations;
+            byte[] dest = Cl.scores[slot].translations;
             byte[] source = Scr.vid.colormap;
             Array.Copy(source, dest, dest.Length);
 
-            int top = cl.scores[slot].colors & 0xf0;
-            int bottom = (cl.scores[slot].colors & 15) << 4;
+            int top = Cl.scores[slot].colors & 0xf0;
+            int bottom = (Cl.scores[slot].colors & 15) << 4;
 
             Render.TranslatePlayerSkin(slot);
 
@@ -959,19 +959,19 @@ namespace SharpQuake
         /// </summary>
         /// <param name="num"></param>
         /// <returns></returns>
-        static entity_t EntityNum(int num)
+        static Entity EntityNum(int num)
         {
-            if (num >= cl.num_entities)
+            if (num >= Cl.num_entities)
             {
                 if (num >= QDef.MAX_EDICTS)
                 {
                     Host.Error("CL_EntityNum: %i is an invalid number", num);
                 }
 
-                while (cl.num_entities <= num)
+                while (Cl.num_entities <= num)
                 {
-                    _Entities[cl.num_entities].colormap = Scr.vid.colormap;
-                    cl.num_entities++;
+                    _Entities[Cl.num_entities].colormap = Scr.vid.colormap;
+                    Cl.num_entities++;
                 }
             }
 
@@ -983,7 +983,7 @@ namespace SharpQuake
         /// CL_ParseBaseline
         /// </summary>
         /// <param name="ent"></param>
-        static void ParseBaseline(entity_t ent)
+        static void ParseBaseline(Entity ent)
         {
             ent.baseline.modelindex = Net.Reader.ReadByte();
             ent.baseline.frame = Net.Reader.ReadByte();
@@ -1002,18 +1002,18 @@ namespace SharpQuake
         /// </summary>
         static void ParseStatic()
         {
-            int i = cl.num_statics;
+            int i = Cl.num_statics;
             if (i >= MAX_STATIC_ENTITIES)
             {
                 Host.Error("Too many static entities");
             }
 
-            entity_t ent = _StaticEntities[i];
-            cl.num_statics++;
+            Entity ent = _StaticEntities[i];
+            Cl.num_statics++;
             ParseBaseline(ent);
 
             // copy it to the current state
-            ent.model = cl.model_precache[ent.baseline.modelindex];
+            ent.model = Cl.model_precache[ent.baseline.modelindex];
             ent.frame = ent.baseline.frame;
             ent.colormap = Scr.vid.colormap;
             ent.skinnum = ent.baseline.skin;
@@ -1033,7 +1033,7 @@ namespace SharpQuake
             int vol = Net.Reader.ReadByte();
             int atten = Net.Reader.ReadByte();
 
-            Sound.StaticSound(cl.sound_precache[sound_num], ref org, vol, atten);
+            Sound.StaticSound(Cl.sound_precache[sound_num], ref org, vol, atten);
         }
 
         /// <summary>
@@ -1048,7 +1048,7 @@ namespace SharpQuake
                 return; // no need if server is local
             }
 
-            if (cls.demoplayback)
+            if (Cls.demoplayback)
             {
                 return;
             }
@@ -1097,9 +1097,9 @@ namespace SharpQuake
             // write out a nop
             Con.Print("--> client to server keepalive\n");
 
-            cls.message.WriteByte(Protocol.clc_nop);
-            Net.SendMessage(cls.netcon, cls.message);
-            cls.message.Clear();
+            Cls.message.WriteByte(Protocol.clc_nop);
+            Net.SendMessage(Cls.netcon, Cls.message);
+            Cls.message.Clear();
         }
 
     }

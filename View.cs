@@ -80,10 +80,10 @@ namespace SharpQuake
         static Cvar _CenterSpeed;// = { "v_centerspeed", "500" };
 
         static byte[] _GammaTable; // [256];	// palette is sent through this
-        static cshift_t _CShift_empty;// = { { 130, 80, 50 }, 0 };
-        static cshift_t _CShift_water;// = { { 130, 80, 50 }, 128 };
-        static cshift_t _CShift_slime;// = { { 0, 25, 5 }, 150 };
-        static cshift_t _CShift_lava;// = { { 255, 80, 0 }, 150 };
+        static CShift _CShift_empty;// = { { 130, 80, 50 }, 0 };
+        static CShift _CShift_water;// = { { 130, 80, 50 }, 128 };
+        static CShift _CShift_slime;// = { { 0, 25, 5 }, 150 };
+        static CShift _CShift_lava;// = { { 255, 80, 0 }, 150 };
         
         public static Color4 Blend; // v_blend[4]		// rgba 0.0 - 1.0
         static byte[,] _Ramps = new byte[3, 256]; // ramps[3][256]
@@ -114,10 +114,10 @@ namespace SharpQuake
         {
             _GammaTable = new byte[256];
 
-            _CShift_empty = new cshift_t(new[] { 130, 80, 50 }, 0);
-            _CShift_water = new cshift_t(new[] { 130, 80, 50 }, 128);
-            _CShift_slime = new cshift_t(new[] { 0, 25, 5 }, 150);
-            _CShift_lava = new cshift_t(new[] { 255, 80, 0 }, 150);
+            _CShift_empty = new CShift(new[] { 130, 80, 50 }, 0);
+            _CShift_water = new CShift(new[] { 130, 80, 50 }, 128);
+            _CShift_slime = new CShift(new[] { 0, 25, 5 }, 150);
+            _CShift_lava = new CShift(new[] { 255, 80, 0 }, 150);
         }
 
         // V_Init
@@ -183,19 +183,19 @@ namespace SharpQuake
             }
 
             // don't allow cheats in multiplayer
-            if (Client.cl.maxclients > 1)
+            if (Client.Cl.maxclients > 1)
             {
                 Cvar.Set("scr_ofsx", "0");
                 Cvar.Set("scr_ofsy", "0");
                 Cvar.Set("scr_ofsz", "0");
             }
 
-            if (Client.cl.intermission > 0)
+            if (Client.Cl.intermission > 0)
             {
                 // intermission / finale rendering
                 CalcIntermissionRefDef();
             }
-            else if (!Client.cl.paused)
+            else if (!Client.Cl.paused)
             {
                 CalcRefDef();
             }
@@ -208,7 +208,7 @@ namespace SharpQuake
                 // render two interleaved views
                 //
                 viddef_t vid = Scr.vid;
-                refdef_t rdef = Render.RefDef;
+                Refdef_t rdef = Render.RefDef;
 
                 vid.rowbytes <<= 1;
                 vid.aspect *= 0.5f;
@@ -271,7 +271,7 @@ namespace SharpQuake
 
             bool isnew = false;
 
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             for (int i = 0; i < ColorShift.NUM_CSHIFTS; i++)
             {
                 if (cl.cshifts[i].percent != cl.prev_cshifts[i].percent)
@@ -395,7 +395,7 @@ namespace SharpQuake
         // V_StartPitchDrift
         public static void StartPitchDrift()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
 	        if (cl.laststop == cl.time)
 	        {
 		        return;	// something else is keeping it from drifting
@@ -411,7 +411,7 @@ namespace SharpQuake
         // V_StopPitchDrift
         public static void StopPitchDrift()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             cl.laststop = cl.time;
             cl.nodrift = true;
             cl.pitchvel = 0;
@@ -433,7 +433,7 @@ namespace SharpQuake
         // When you run over an item, the server sends this command
         static void BonusFlash_f()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             cl.cshifts[ColorShift.CSHIFT_BONUS].destcolor[0] = 215;
             cl.cshifts[ColorShift.CSHIFT_BONUS].destcolor[1] = 186;
             cl.cshifts[ColorShift.CSHIFT_BONUS].destcolor[2] = 69;
@@ -445,12 +445,12 @@ namespace SharpQuake
         static void CalcIntermissionRefDef()
         {
             // ent is the player model (visible when out of body)
-	        entity_t ent = Client.ViewEntity;
+	        Entity ent = Client.ViewEntity;
 
             // view is the weapon model (only visible from inside body)
-	        entity_t view = Client.ViewEnt;
+	        Entity view = Client.ViewEnt;
             
-            refdef_t rdef = Render.RefDef;
+            Refdef_t rdef = Render.RefDef;
 	        rdef.vieworg = ent.origin;
             rdef.viewangles = ent.angles;
 	        view.model = null;
@@ -466,19 +466,19 @@ namespace SharpQuake
             DriftPitch();
 
             // ent is the player model (visible when out of body)
-            entity_t ent = Client.ViewEntity;
+            Entity ent = Client.ViewEntity;
             // view is the weapon model (only visible from inside body)
-            entity_t view = Client.ViewEnt;
+            Entity view = Client.ViewEnt;
 
             // transform the view offset by the model's matrix to get the offset from
             // model origin for the view
-            ent.angles.Y = Client.cl.viewangles.Y;	// the model should face the view dir
-            ent.angles.X = -Client.cl.viewangles.X;	// the model should face the view dir
+            ent.angles.Y = Client.Cl.viewangles.Y;	// the model should face the view dir
+            ent.angles.X = -Client.Cl.viewangles.X;	// the model should face the view dir
 
             float bob = CalcBob();
 
-            refdef_t rdef = Render.RefDef;
-            client_state_t cl = Client.cl;
+            Refdef_t rdef = Render.RefDef;
+            ClientState cl = Client.Cl;
 
             // refresh position
             rdef.vieworg = ent.origin;
@@ -582,7 +582,7 @@ namespace SharpQuake
         // Idle swaying
         static void AddIdle(float idleScale)
         {
-            double time = Client.cl.time;
+            double time = Client.Cl.time;
             Vector3 v = new Vector3(
                 (float)(Math.Sin(time * _IPitchCycle.Value) * _IPitchLevel.Value),
                 (float)(Math.Sin(time * _IYawCycle.Value) * _IYawLevel.Value),
@@ -602,8 +602,8 @@ namespace SharpQuake
         // lookspring is non 0, or when 
         static void DriftPitch()
         {
-            client_state_t cl = Client.cl;
-            if (Host.NoClipAngleHack || !cl.onground || Client.cls.demoplayback)
+            ClientState cl = Client.Cl;
+            if (Host.NoClipAngleHack || !cl.onground || Client.Cls.demoplayback)
             {
                 cl.driftmove = 0;
                 cl.pitchvel = 0;
@@ -663,7 +663,7 @@ namespace SharpQuake
         // V_CalcBob
         static float CalcBob()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             float bobCycle = _ClBobCycle.Value;
             float bobUp = _ClBobUp.Value;
             float cycle = (float)(cl.time - (int)(cl.time / bobCycle) * bobCycle);
@@ -699,8 +699,8 @@ namespace SharpQuake
         // Roll is induced by movement and damage
         static void CalcViewRoll()
         {
-            client_state_t cl = Client.cl;
-            refdef_t rdef = Render.RefDef;
+            ClientState cl = Client.Cl;
+            Refdef_t rdef = Render.RefDef;
             float side = CalcRoll(ref Client.ViewEntity.angles, ref cl.velocity);
             rdef.viewangles.Z += side;
 
@@ -722,11 +722,11 @@ namespace SharpQuake
         // V_BoundOffsets
         static void BoundOffsets()
         {
-            entity_t ent = Client.ViewEntity;
+            Entity ent = Client.ViewEntity;
 
             // absolutely bound refresh reletive to entity clipping hull
             // so the view can never be inside a solid wall
-            refdef_t rdef = Render.RefDef;
+            Refdef_t rdef = Render.RefDef;
             if (rdef.vieworg.X < ent.origin.X - 14)
             {
                 rdef.vieworg.X = ent.origin.X - 14;
@@ -761,7 +761,7 @@ namespace SharpQuake
         /// </summary>
         static void CalcGunAngle()
         {
-            refdef_t rdef = Render.RefDef;
+            Refdef_t rdef = Render.RefDef;
             float yaw = rdef.viewangles.Y;
             float pitch = -rdef.viewangles.X;
 
@@ -821,7 +821,7 @@ namespace SharpQuake
             _OldYaw = yaw;
             _OldPitch = pitch;
 
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             cl.viewent.angles.Y = rdef.viewangles.Y +yaw;
             cl.viewent.angles.X = -(rdef.viewangles.X + pitch);
 
@@ -846,7 +846,7 @@ namespace SharpQuake
         // V_CalcPowerupCshift
         static void CalcPowerupCshift()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             if (cl.HasItems(QItems.IT_QUAD))
             {
                 cl.cshifts[ColorShift.CSHIFT_POWERUP].destcolor[0] = 0;
@@ -907,7 +907,7 @@ namespace SharpQuake
             float b = 0;
             float a = 0;
 
-            cshift_t[] cshifts = Client.cl.cshifts;
+            CShift[] cshifts = Client.Cl.cshifts;
 
             if (_glCShiftPercent.Value != 0)
             {
@@ -965,7 +965,7 @@ namespace SharpQuake
                 count = 10;
             }
 
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             cl.faceanimtime = (float)cl.time + 0.2f; // put sbar face into pain frame
 
             cl.cshifts[ColorShift.CSHIFT_DAMAGE].percent += (int)(3 * count);
@@ -1001,7 +1001,7 @@ namespace SharpQuake
             //
             // calculate view angle kicks
             //
-            entity_t ent = Client.Entities[cl.viewentity];
+            Entity ent = Client.Entities[cl.viewentity];
 
             from -= ent.origin; //  VectorSubtract (from, ent->origin, from);
             Mathlib.Normalize(ref from);
@@ -1029,19 +1029,19 @@ namespace SharpQuake
             {
                 case Contents.CONTENTS_EMPTY:
                 case Contents.CONTENTS_SOLID:
-                    Client.cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_empty;
+                    Client.Cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_empty;
                     break;
                 
                 case Contents.CONTENTS_LAVA:
-                    Client.cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_lava;
+                    Client.Cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_lava;
                     break;
                 
                 case Contents.CONTENTS_SLIME:
-                    Client.cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_slime;
+                    Client.Cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_slime;
                     break;
                 
                 default:
-                    Client.cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_water;
+                    Client.Cl.cshifts[ColorShift.CSHIFT_CONTENTS] = _CShift_water;
                     break;
             }
         }

@@ -1029,16 +1029,16 @@ namespace SharpQuake
 
 
     [StructLayout(LayoutKind.Sequential, Pack=1)]
-    class link_t
+    class LinkList
     {
-	    link_t _Prev, _Next;
+	    LinkList _Prev, _Next;
         object _Owner;
 
-        public link_t Prev
+        public LinkList Prev
         {
             get { return _Prev; }
         }
-        public link_t Next
+        public LinkList Next
         {
             get { return _Next; }
         }
@@ -1047,7 +1047,7 @@ namespace SharpQuake
             get { return _Owner; }
         }
 
-        public link_t(object owner)
+        public LinkList(object owner)
         {
             _Owner = owner;
         }
@@ -1070,7 +1070,7 @@ namespace SharpQuake
             _Prev = null;
         }
 
-        public void InsertBefore(link_t before)
+        public void InsertBefore(LinkList before)
         {
             _Next = before;
             _Prev = before._Prev;
@@ -1078,7 +1078,7 @@ namespace SharpQuake
             _Next._Prev = this;
         }
 
-        public void InsertAfter(link_t after)
+        public void InsertAfter(LinkList after)
         {
             _Next = after.Next;
             _Prev = after;
@@ -1089,7 +1089,7 @@ namespace SharpQuake
 
 
      // MSG_WriteXxx() functions
-    class MsgWriter
+    class MessageWriter
     {
         class State
         {
@@ -1143,12 +1143,12 @@ namespace SharpQuake
             }
         }
         
-        public MsgWriter()
+        public MessageWriter()
             : this(0)
         {
         }
 
-        public MsgWriter(int capacity)
+        public MessageWriter(int capacity)
         {
             SetBufferSize(capacity);
             AllowOverflow = false;
@@ -1372,7 +1372,7 @@ namespace SharpQuake
     // MSG_ReadXxx() functions
     class MsgReader
     {
-        MsgWriter _Source;
+        MessageWriter _Source;
         bool _IsBadRead;
         int _Count;
         Union4b _Val;
@@ -1393,7 +1393,7 @@ namespace SharpQuake
             get { return _Count; }
         }
 
-        public MsgReader(MsgWriter source)
+        public MsgReader(MessageWriter source)
         {
             _Source = source;
             _Val = Union4b.Empty;

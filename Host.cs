@@ -161,9 +161,9 @@ namespace SharpQuake
             Con.DPrint("Clearing memory\n");
 
             Mod.ClearAll();
-            Client.cls.signon = 0;
+            Client.Cls.signon = 0;
             Server.sv.Clear();
-            Client.cl.Clear();
+            Client.Cl.Clear();
         }
         
         /// <summary>
@@ -220,7 +220,7 @@ namespace SharpQuake
 	
 	        Render.InitTextures();		// needed even for dedicated servers
 
-            if (Client.cls.state != cactive_t.ca_dedicated)
+            if (Client.Cls.state != ClientActivityState.Dedicated)
 	        {
 		        _BasePal = Common.LoadFile("gfx/palette.lmp");
 		        if (_BasePal == null)
@@ -289,7 +289,7 @@ namespace SharpQuake
                     _VcrReader = null;
                 }
 
-                if (Client.cls.state != cactive_t.ca_dedicated)
+                if (Client.Cls.state != ClientActivityState.Dedicated)
                 {
                     Vid.Shutdown();
                 }
@@ -348,13 +348,13 @@ namespace SharpQuake
                     ShutdownServer(false);
                 }
 
-                if (Client.cls.state == cactive_t.ca_dedicated)
+                if (Client.Cls.state == ClientActivityState.Dedicated)
                 {
                     Sys.Error("Host_Error: {0}\n", message);   // dedicated servers exit
                 }
 
                 Client.Disconnect();
-                Client.cls.demonum = -1;
+                Client.Cls.demonum = -1;
 
                 throw new EndGameException(); // longjmp (host_abortserver, 1);
             }
@@ -377,12 +377,12 @@ namespace SharpQuake
                 Host.ShutdownServer(false);
             }
 
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 Sys.Error("Host_EndGame: {0}\n", str); // dedicated servers exit
             }
 
-            if (Client.cls.demonum != -1)
+            if (Client.Cls.demonum != -1)
             {
                 Client.NextDemo();
             }
@@ -455,7 +455,7 @@ namespace SharpQuake
             Server.sv.active = false;
 
             // stop all client sounds immediately
-            if (Client.cls.state == cactive_t.ca_connected)
+            if (Client.Cls.state == ClientActivityState.Connected)
             {
                 Client.Disconnect();
             }
@@ -491,7 +491,7 @@ namespace SharpQuake
             while (count > 0);
 
             // make sure all the clients know we're disconnecting
-            MsgWriter writer = new MsgWriter(4);
+            MessageWriter writer = new MessageWriter(4);
             writer.WriteByte(Protocol.svc_disconnect);
             count = Net.SendToAll(writer, 5);
             if (count != 0)
@@ -553,14 +553,14 @@ namespace SharpQuake
         static void FindMaxClients()
         {
             server_static_t svs = Server.svs;
-            client_static_t cls = Client.cls;
+            ClientStatic cls = Client.Cls;
 
             svs.maxclients = 1;
 
             int i = Common.CheckParm("-dedicated");
             if (i > 0)
             {
-                cls.state = cactive_t.ca_dedicated;
+                cls.state = ClientActivityState.Dedicated;
                 if (i != (Common.Argc - 1))
                 {
                     svs.maxclients = Common.atoi(Common.Argv(i + 1));
@@ -572,13 +572,13 @@ namespace SharpQuake
             }
             else
             {
-                cls.state = cactive_t.ca_disconnected;
+                cls.state = ClientActivityState.Disconnected;
             }
 
             i = Common.CheckParm("-listen");
             if (i > 0)
             {
-                if (cls.state == cactive_t.ca_dedicated)
+                if (cls.state == ClientActivityState.Dedicated)
                 {
                     Sys.Error("Only one of -dedicated or -listen can be specified");
                 }
@@ -738,7 +738,7 @@ namespace SharpQuake
             _Time += FrameTime;
 
             // fetch results from server
-            if (Client.cls.state == cactive_t.ca_connected)
+            if (Client.Cls.state == ClientActivityState.Connected)
             {
                 Client.ReadFromServer();
             }
@@ -757,7 +757,7 @@ namespace SharpQuake
             }
 
             // update audio
-            if (Client.cls.signon == Client.SIGNONS)
+            if (Client.Cls.signon == Client.SIGNONS)
             {
                 Sound.Update(ref Render.Origin, ref Render.ViewPn, ref Render.ViewRight, ref Render.ViewUp);
                 Client.DecayLights();
@@ -789,7 +789,7 @@ namespace SharpQuake
         {
             Host.RealTime += time;
 
-            if (!Client.cls.timedemo && RealTime - _OldRealTime < 1.0 / 72.0)
+            if (!Client.Cls.timedemo && RealTime - _OldRealTime < 1.0 / 72.0)
             {
                 return false;  // framerate is too high
             }

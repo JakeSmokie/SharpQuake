@@ -57,7 +57,7 @@ namespace SharpQuake
         static areanode_t[] _AreaNodes = new areanode_t[AREA_NODES]; // sv_areanodes
         static int _NumAreaNodes; // sv_numareanodes
         static hull_t _BoxHull = new hull_t(); // box_hull
-        static dclipnode_t[] _BoxClipNodes = new dclipnode_t[6];
+        static DClipNode[] _BoxClipNodes = new DClipNode[6];
         static mplane_t[] _BoxPlanes = new mplane_t[6];
 
         
@@ -396,7 +396,7 @@ namespace SharpQuake
                     Sys.Error("SOLID_BSP without MOVETYPE_PUSH");
                 }
 
-                model_t model = sv.models[(int)ent.v.modelindex];
+                Model model = sv.models[(int)ent.v.modelindex];
 
                 if (model == null || model.type != modtype_t.mod_brush)
                 {
@@ -624,8 +624,8 @@ namespace SharpQuake
         static void TouchLinks(edict_t ent, areanode_t node)
         {
             // touch linked edicts
-            link_t next;
-            for (link_t l = node.trigger_edicts.Next; l != node.trigger_edicts; l = next)
+            LinkList next;
+            for (LinkList l = node.trigger_edicts.Next; l != node.trigger_edicts; l = next)
             {
                 next = l.Next;
                 edict_t touch = (edict_t)l.Owner;// EDICT_FROM_AREA(l);
@@ -728,11 +728,11 @@ namespace SharpQuake
         /// </summary>
         static void ClipToLinks(areanode_t node, moveclip_t clip)
         {
-            link_t next;
+            LinkList next;
             trace_t trace;
 
             // touch linked edicts
-            for (link_t l = node.solid_edicts.Next; l != node.solid_edicts; l = next)
+            for (LinkList l = node.solid_edicts.Next; l != node.solid_edicts; l = next)
             {
                 next = l.Next;
                 edict_t touch = (edict_t)l.Owner;// EDICT_FROM_AREA(l);

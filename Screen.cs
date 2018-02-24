@@ -236,11 +236,11 @@ namespace SharpQuake
                     DrawLoading();
                     Sbar.Draw();
                 }
-                else if (Client.cl.intermission == 1 && Key.Destination == keydest_t.key_game)
+                else if (Client.Cl.intermission == 1 && Key.Destination == keydest_t.key_game)
                 {
                     Sbar.IntermissionOverlay();
                 }
-                else if (Client.cl.intermission == 2 && Key.Destination == keydest_t.key_game)
+                else if (Client.Cl.intermission == 2 && Key.Destination == keydest_t.key_game)
                 {
                     Sbar.FinaleOverlay();
                     CheckDrawCenterString();
@@ -397,7 +397,7 @@ namespace SharpQuake
             {
                 _IsMouseWindowed = true;
                 if (Key.Destination == keydest_t.key_game && !Input.IsMouseActive &&
-                    Client.cls.state != cactive_t.ca_disconnected)// && ActiveApp)
+                    Client.Cls.state != ClientActivityState.Disconnected)// && ActiveApp)
                 {
                     Input.ActivateMouse();
                     Input.HideMouse();
@@ -452,7 +452,7 @@ namespace SharpQuake
 
             // intermission is always full screen	
             float size;
-	        if (Client.cl.intermission > 0)
+	        if (Client.Cl.intermission > 0)
             {
                 size = 120;
             }
@@ -484,7 +484,7 @@ namespace SharpQuake
                 size = _ViewSize.Value;
             }
 
-            if (Client.cl.intermission > 0)
+            if (Client.Cl.intermission > 0)
 	        {
 		        full = true;
 		        size = 100;
@@ -494,7 +494,7 @@ namespace SharpQuake
 
             int h = _VidDef.height - Sbar.Lines;
 
-            refdef_t rdef = Render.RefDef;
+            Refdef_t rdef = Render.RefDef;
 	        rdef.vrect.width = (int)(_VidDef.width * size);
 	        if (rdef.vrect.width < 96)
 	        {
@@ -558,7 +558,7 @@ namespace SharpQuake
             }
 
             // decide on the height of the console
-            Con.ForcedUp = (Client.cl.worldmodel == null) || (Client.cls.signon != Client.SIGNONS);
+            Con.ForcedUp = (Client.Cl.worldmodel == null) || (Client.Cls.signon != Client.SIGNONS);
 
             if (Con.ForcedUp)
 	        {
@@ -608,7 +608,7 @@ namespace SharpQuake
         // SCR_TileClear
         static void TileClear()
         {
-            refdef_t rdef = Render.RefDef;
+            Refdef_t rdef = Render.RefDef;
 	        if (rdef.vrect.x > 0)
             {
 		        // left
@@ -689,7 +689,7 @@ namespace SharpQuake
 
             CenterTimeOff -= (float)Host.FrameTime;
 
-            if (CenterTimeOff <= 0 && Client.cl.intermission == 0)
+            if (CenterTimeOff <= 0 && Client.Cl.intermission == 0)
             {
                 return;
             }
@@ -746,12 +746,12 @@ namespace SharpQuake
         // SCR_DrawNet
         static void DrawNet()
         {
-            if (Host.RealTime - Client.cl.last_received_message < 0.3)
+            if (Host.RealTime - Client.Cl.last_received_message < 0.3)
             {
                 return;
             }
 
-            if (Client.cls.demoplayback)
+            if (Client.Cls.demoplayback)
             {
                 return;
             }
@@ -767,7 +767,7 @@ namespace SharpQuake
                 return;
             }
 
-            if (!Client.cl.paused)
+            if (!Client.Cl.paused)
             {
                 return;
             }
@@ -799,9 +799,9 @@ namespace SharpQuake
             int remaining;
 
             // the finale prints the characters one at a time
-            if (Client.cl.intermission > 0)
+            if (Client.Cl.intermission > 0)
             {
-                remaining = (int)(_PrintSpeed.Value * (Client.cl.time - _CenterTimeStart));
+                remaining = (int)(_PrintSpeed.Value * (Client.Cl.time - _CenterTimeStart));
             }
             else
             {
@@ -840,7 +840,7 @@ namespace SharpQuake
         {
             _CenterString = str;
             CenterTimeOff = _CenterTime.Value;
-            _CenterTimeStart = (float)Client.cl.time;
+            _CenterTimeStart = (float)Client.Cl.time;
 
             // count the number of lines for centering
             _CenterLines = 1;
@@ -870,12 +870,12 @@ namespace SharpQuake
         {
             Sound.StopAllSounds(true);
 
-            if (Client.cls.state != cactive_t.ca_connected)
+            if (Client.Cls.state != ClientActivityState.Connected)
             {
                 return;
             }
 
-            if (Client.cls.signon != Client.SIGNONS)
+            if (Client.Cls.signon != Client.SIGNONS)
             {
                 return;
             }
@@ -902,7 +902,7 @@ namespace SharpQuake
         /// </summary>
         public static bool ModalMessage(string text)
         {
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 return true;
             }

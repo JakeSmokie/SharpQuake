@@ -226,7 +226,7 @@ namespace SharpQuake
                 return;
             }
 
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 return;     // no graphics mode
             }
@@ -235,7 +235,7 @@ namespace SharpQuake
             Print(msg);
 	
             // update the screen if the console is displayed
-            if (Client.cls.signon != Client.SIGNONS && !Scr.IsDisabledForLoading)
+            if (Client.Cls.signon != Client.SIGNONS && !Scr.IsDisabledForLoading)
             {
                 Scr.UpdateScreen();
             }
@@ -467,7 +467,7 @@ namespace SharpQuake
         {
             if (Key.Destination == keydest_t.key_console)
             {
-                if (Client.cls.state == cactive_t. ca_connected)
+                if (Client.Cls.state == ClientActivityState. Connected)
                 {
                     Key.Destination = keydest_t.key_game;
                     Key.Lines[Key.EditLine][1] = '\0';	// clear any typing

@@ -58,9 +58,9 @@ namespace SharpQuake
         static ISoundController _Controller = new OpenALController();// NullSoundController();
         static bool _IsInitialized; // snd_initialized
         
-        static sfx_t[] _KnownSfx = new sfx_t[MAX_SFX]; // hunk allocated [MAX_SFX]
+        static SFX[] _KnownSfx = new SFX[MAX_SFX]; // hunk allocated [MAX_SFX]
         static int _NumSfx; // num_sfx
-        static sfx_t[] _AmbientSfx = new sfx_t[Ambients.NUM_AMBIENTS]; // *ambient_sfx[NUM_AMBIENTS]
+        static SFX[] _AmbientSfx = new SFX[Ambients.NUM_AMBIENTS]; // *ambient_sfx[NUM_AMBIENTS]
         static bool _Ambient = true; // snd_ambient
         static dma_t _shm = new dma_t(); // shm
         
@@ -107,7 +107,7 @@ namespace SharpQuake
         {
             for (int i = 0; i < _KnownSfx.Length; i++)
             {
-                _KnownSfx[i] = new sfx_t();
+                _KnownSfx[i] = new SFX();
             }
         }
 
@@ -186,7 +186,7 @@ namespace SharpQuake
                 return;
             }
 
-            sfx_t sfx = FindName(sample);
+            SFX sfx = FindName(sample);
             Cache.Check(sfx.cache);
         }
 
@@ -202,7 +202,7 @@ namespace SharpQuake
         }
 
         // S_StaticSound (sfx_t *sfx, vec3_t origin, float vol, float attenuation)
-        public static void StaticSound(sfx_t sfx, ref Vector3 origin, float vol, float attenuation)
+        public static void StaticSound(SFX sfx, ref Vector3 origin, float vol, float attenuation)
         {
             if (sfx == null)
             {
@@ -240,7 +240,7 @@ namespace SharpQuake
         }
 
         // S_StartSound (int entnum, int entchannel, sfx_t *sfx, vec3_t origin, float fvol,  float attenuation)
-        public static void StartSound(int entnum, int entchannel, sfx_t sfx, ref Vector3 origin, float fvol, float attenuation)
+        public static void StartSound(int entnum, int entchannel, SFX sfx, ref Vector3 origin, float fvol, float attenuation)
         {
             if (!_SoundStarted || sfx == null)
             {
@@ -328,14 +328,14 @@ namespace SharpQuake
         }
 
         // sfx_t *S_PrecacheSound (char *sample)
-        public static sfx_t PrecacheSound(string sample)
+        public static SFX PrecacheSound(string sample)
         {
             if (!_IsInitialized || _NoSound.Value != 0)
             {
                 return null;
             }
 
-            sfx_t sfx = FindName(sample);
+            SFX sfx = FindName(sample);
 
             // cache it in
             if (_Precache.Value != 0)
@@ -518,13 +518,13 @@ namespace SharpQuake
                 return;
             }
 
-            sfx_t sfx = PrecacheSound(sound);
+            SFX sfx = PrecacheSound(sound);
             if (sfx == null)
             {
                 Con.Print("S_LocalSound: can't cache {0}\n", sound);
                 return;
             }
-            StartSound(Client.cl.viewentity, -1, sfx, ref Common.ZeroVector, 1, 1);
+            StartSound(Client.Cl.viewentity, -1, sfx, ref Common.ZeroVector, 1, 1);
         }
 
         // S_Play
@@ -539,7 +539,7 @@ namespace SharpQuake
                     name += ".wav";
                 }
 
-                sfx_t sfx = PrecacheSound(name);
+                SFX sfx = PrecacheSound(name);
                 StartSound(_PlayHash++, 0, sfx, ref _ListenerOrigin, 1.0f, 1.0f);
             }
         }
@@ -556,7 +556,7 @@ namespace SharpQuake
                     name += ".wav";
                 }
 
-                sfx_t sfx = PrecacheSound(name);
+                SFX sfx = PrecacheSound(name);
                 float vol = float.Parse(Cmd.Argv(i + 1));
                 StartSound(_PlayVolHash++, 0, sfx, ref _ListenerOrigin, vol, 1.0f);
             }
@@ -568,7 +568,7 @@ namespace SharpQuake
             int total = 0;
             for (int i = 0; i < _NumSfx; i++ )
             {
-                sfx_t sfx = _KnownSfx[i];
+                SFX sfx = _KnownSfx[i];
                 sfxcache_t sc = (sfxcache_t)Cache.Check(sfx.cache);
                 if (sc == null)
                 {
@@ -627,7 +627,7 @@ namespace SharpQuake
         }
 
         // S_FindName
-        static sfx_t FindName(string name)
+        static SFX FindName(string name)
         {
             if (String.IsNullOrEmpty(name))
             {
@@ -653,7 +653,7 @@ namespace SharpQuake
                 Sys.Error("S_FindName: out of sfx_t");
             }
 
-            sfx_t sfx = _KnownSfx[_NumSfx];
+            SFX sfx = _KnownSfx[_NumSfx];
             sfx.name = name;
 
             _NumSfx++;
@@ -665,7 +665,7 @@ namespace SharpQuake
         static void Spatialize(channel_t ch)
         {
             // anything coming from the view entity will allways be full volume
-            if (ch.entnum == Client.cl.viewentity)
+            if (ch.entnum == Client.Cl.viewentity)
             {
                 ch.leftvol = ch.master_vol;
                 ch.rightvol = ch.master_vol;
@@ -673,7 +673,7 @@ namespace SharpQuake
             }
 
             // calculate stereo seperation and distance attenuation
-            sfx_t snd = ch.sfx;
+            SFX snd = ch.sfx;
             Vector3 source_vec = ch.origin - _ListenerOrigin;
 
             float dist = Mathlib.Normalize(ref source_vec) * ch.dist_mult;
@@ -709,7 +709,7 @@ namespace SharpQuake
 
         
         // S_LoadSound
-        static sfxcache_t LoadSound(sfx_t s)
+        static sfxcache_t LoadSound(SFX s)
         {
             // see if still in memory
             sfxcache_t sc = (sfxcache_t)Cache.Check(s.cache);
@@ -777,7 +777,7 @@ namespace SharpQuake
                 }
 
                 // don't let monster sounds override player sounds
-                if (_Channels[ch_idx].entnum == Client.cl.viewentity && entnum != Client.cl.viewentity && _Channels[ch_idx].sfx != null)
+                if (_Channels[ch_idx].entnum == Client.Cl.viewentity && entnum != Client.Cl.viewentity && _Channels[ch_idx].sfx != null)
                 {
                     continue;
                 }
@@ -812,12 +812,12 @@ namespace SharpQuake
             }
 
             // calc ambient sound levels
-            if (Client.cl.worldmodel == null)
+            if (Client.Cl.worldmodel == null)
             {
                 return;
             }
 
-            mleaf_t l = Mod.PointInLeaf(ref _ListenerOrigin, Client.cl.worldmodel);
+            mleaf_t l = Mod.PointInLeaf(ref _ListenerOrigin, Client.Cl.worldmodel);
             if (l == null || _AmbientLevel.Value == 0)
             {
                 for (int i = 0; i < Ambients.NUM_AMBIENTS; i++)
@@ -946,7 +946,7 @@ namespace SharpQuake
         }
     } // portable_samplepair_t;
 
-    class sfx_t
+    class SFX
     {
 	    public string name; // char[MAX_QPATH];
         public cache_user_t cache; // cache_user_t
@@ -987,7 +987,7 @@ namespace SharpQuake
     [StructLayout(LayoutKind.Sequential)]
     class channel_t
     {
-        public sfx_t sfx;			// sfx number
+        public SFX sfx;			// sfx number
         public int leftvol;		// 0-255 volume
         public int rightvol;		// 0-255 volume
         public int end;			// end time in global paintsamples

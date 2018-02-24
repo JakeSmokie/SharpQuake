@@ -41,7 +41,7 @@ namespace SharpQuake
         /// </summary>
         public static bool Init()
         {
-            if (Client.cls.state == cactive_t.ca_dedicated)
+            if (Client.Cls.state == ClientActivityState.Dedicated)
             {
                 return false;
             }

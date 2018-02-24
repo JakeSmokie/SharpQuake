@@ -220,7 +220,7 @@ namespace SharpQuake
 
                 // add it
                 Net.HostCacheCount++;
-                hostcache_t hc = Net.HostCache[n];
+                Hostcache_t hc = Net.HostCache[n];
                 hc.name = Net.Reader.ReadString();
                 hc.map = Net.Reader.ReadString();
                 hc.users = Net.Reader.ReadByte();
@@ -244,7 +244,7 @@ namespace SharpQuake
                         continue;
                     }
 
-                    hostcache_t hc2 = Net.HostCache[i];
+                    Hostcache_t hc2 = Net.HostCache[i];
                     if (hc.name == hc2.name)
                     {
                         i = hc.name.Length;
@@ -266,9 +266,9 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_Connect
         /// </summary>
-        public qsocket_t Connect(string host)
+        public QSocket Connect(string host)
         {
-            qsocket_t ret = null;
+            QSocket ret = null;
 
             for (Net.LanDriverLevel = 0; Net.LanDriverLevel < Net.LanDrivers.Length; Net.LanDriverLevel++)
             {
@@ -288,7 +288,7 @@ namespace SharpQuake
         /// <summary>
         /// _Datagram_Connect
         /// </summary>
-        qsocket_t InternalConnect(string host)
+        QSocket InternalConnect(string host)
         {
             // see if we can resolve the host name
             EndPoint sendaddr = Net.LanDriver.GetAddrFromName(host);
@@ -303,7 +303,7 @@ namespace SharpQuake
                 return null;
             }
 
-            qsocket_t sock = Net.NewSocket();
+            QSocket sock = Net.NewSocket();
             if (sock == null)
             {
                 goto ErrorReturn2;
@@ -466,9 +466,9 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_CheckNewConnections
         /// </summary>
-        public qsocket_t CheckNewConnections()
+        public QSocket CheckNewConnections()
         {
-            qsocket_t ret = null;
+            QSocket ret = null;
 
             for (Net.LanDriverLevel = 0; Net.LanDriverLevel < Net.LanDrivers.Length; Net.LanDriverLevel++)
             {
@@ -488,7 +488,7 @@ namespace SharpQuake
         /// <summary>
         /// _Datagram_CheckNewConnections
         /// </summary>
-        public qsocket_t InternalCheckNewConnections()
+        public QSocket InternalCheckNewConnections()
         {
             Socket acceptsock = Net.LanDriver.CheckNewConnections();
             if (acceptsock == null)
@@ -685,7 +685,7 @@ namespace SharpQuake
 #endif
 
             // see if this guy is already connected
-            foreach (qsocket_t s in Net.ActiveSockets)
+            foreach (QSocket s in Net.ActiveSockets)
             {
                 if (s.driver != Net.DriverLevel)
                 {
@@ -719,7 +719,7 @@ namespace SharpQuake
             }
 
             // allocate a QSocket
-            qsocket_t sock = Net.NewSocket();
+            QSocket sock = Net.NewSocket();
             if (sock == null)
             {
                 // no room; try to let him know
@@ -772,7 +772,7 @@ namespace SharpQuake
             return sock;
         }
 
-        public int GetMessage(qsocket_t sock)
+        public int GetMessage(QSocket sock)
         {
             if (!sock.canSend)
             {
@@ -931,7 +931,7 @@ namespace SharpQuake
         /// <summary>
         /// SendMessageNext
         /// </summary>
-        int SendMessageNext(qsocket_t sock)
+        int SendMessageNext(QSocket sock)
         {
             int dataLen;
             int eom;
@@ -968,7 +968,7 @@ namespace SharpQuake
         /// <summary>
         /// ReSendMessage
         /// </summary>
-        int ReSendMessage(qsocket_t sock)
+        int ReSendMessage(QSocket sock)
         {
             int dataLen, eom;
             if (sock.sendMessageLength <= QDef.MAX_DATAGRAM)
@@ -1004,7 +1004,7 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_SendMessage
         /// </summary>
-        public int SendMessage(qsocket_t sock, MsgWriter data)
+        public int SendMessage(QSocket sock, MessageWriter data)
         {
 #if DEBUG
             if (data.IsEmpty)
@@ -1059,7 +1059,7 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_SendUnreliableMessage
         /// </summary>
-        public int SendUnreliableMessage(qsocket_t sock, MsgWriter data)
+        public int SendUnreliableMessage(QSocket sock, MessageWriter data)
         {
             int packetLen;
 
@@ -1095,7 +1095,7 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_CanSendMessage
         /// </summary>
-        public bool CanSendMessage(qsocket_t sock)
+        public bool CanSendMessage(QSocket sock)
         {
             if (sock.sendNext)
             {
@@ -1108,7 +1108,7 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_CanSendUnreliableMessage
         /// </summary>
-        public bool CanSendUnreliableMessage(qsocket_t sock)
+        public bool CanSendUnreliableMessage(QSocket sock)
         {
             return true;
         }
@@ -1116,7 +1116,7 @@ namespace SharpQuake
         /// <summary>
         /// Datagram_Close
         /// </summary>
-        public void Close(qsocket_t sock)
+        public void Close(QSocket sock)
         {
             sock.LanDriver.CloseSocket(sock.socket);
         }
@@ -1160,22 +1160,22 @@ namespace SharpQuake
 	        }
 	        else if (Cmd.Argv(1) == "*")
 	        {
-                foreach (qsocket_t s in Net.ActiveSockets)
+                foreach (QSocket s in Net.ActiveSockets)
                 {
                     PrintStats(s);
                 }
 
-                foreach (qsocket_t s in Net.FreeSockets)
+                foreach (QSocket s in Net.FreeSockets)
                 {
                     PrintStats(s);
                 }
             }
 	        else
 	        {
-                qsocket_t sock = null;
+                QSocket sock = null;
                 string cmdAddr = Cmd.Argv(1);
                 
-                foreach (qsocket_t s in Net.ActiveSockets)
+                foreach (QSocket s in Net.ActiveSockets)
                 {
                     if (Common.SameText(s.address, cmdAddr))
                     {
@@ -1186,7 +1186,7 @@ namespace SharpQuake
 
                 if (sock == null)
                 {
-                    foreach (qsocket_t s in Net.FreeSockets)
+                    foreach (QSocket s in Net.FreeSockets)
                     {
                         if (Common.SameText(s.address, cmdAddr))
                         {
@@ -1206,7 +1206,7 @@ namespace SharpQuake
         }
 
         // PrintStats(qsocket_t* s)
-        void PrintStats(qsocket_t s)
+        void PrintStats(QSocket s)
         {
             Con.Print("canSend = {0:4}   \n", s.canSend);
             Con.Print("sendSeq = {0:4}   ", s.sendSequence);

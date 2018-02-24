@@ -71,7 +71,7 @@ namespace SharpQuake
 
 
     [StructLayout(LayoutKind.Sequential, Pack=1)]
-    struct lump_t
+    struct Lump
     {
 	    public int fileofs, filelen;
     } // lump_t;
@@ -96,7 +96,7 @@ namespace SharpQuake
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dmodel_t
+    struct DModel
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         public float[] mins; // [3];
@@ -109,31 +109,31 @@ namespace SharpQuake
         public int visleafs;		// not including the solid leaf 0
         public int firstface, numfaces;
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dmodel_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DModel));
     } // dmodel_t;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dheader_t
+    struct Dheader_t
     {
         public int version;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = BspFile.HEADER_LUMPS)]
-        public lump_t[] lumps; //[HEADER_LUMPS];
+        public Lump[] lumps; //[HEADER_LUMPS];
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dheader_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(Dheader_t));
     } // dheader_t;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dmiptexlump_t
+    struct DMipTextureLump
     {
 	    public int nummiptex;
         //[MarshalAs(UnmanagedType.ByValArray, SizeConst=4)]
 	    //public int[] dataofs; // [nummiptex]
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dmiptexlump_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DMipTextureLump));
     } // dmiptexlump_t;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    struct miptex_t
+    struct MipTexture
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=16)]
 	    public byte[] name; //[16];
@@ -141,16 +141,16 @@ namespace SharpQuake
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=BspFile.MIPLEVELS)]
 	    public uint[] offsets; //[MIPLEVELS];		// four mip maps stored
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(miptex_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(MipTexture));
     } // miptex_t;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dvertex_t
+    struct DVertex
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=3)]
 	    public float[] point; //[3];
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dvertex_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DVertex));
     } // dvertex_t;
 
 
@@ -168,14 +168,14 @@ namespace SharpQuake
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dplane_t
+    struct DPlane
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=3)]
 	    public float[] normal; //[3];
 	    public float dist;
 	    public int type;		// PLANE_X - PLANE_ANYZ ?remove? trivial to regenerate
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dplane_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DPlane));
     } // dplane_t;
 
 
@@ -200,7 +200,7 @@ namespace SharpQuake
 
     // !!! if this is changed, it must be changed in asm_i386.h too !!!
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dnode_t
+    struct DNode
     {
         public int planenum;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
@@ -212,46 +212,46 @@ namespace SharpQuake
         public ushort firstface;
         public ushort numfaces;	// counting both sides
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dnode_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DNode));
     } // dnode_t;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dclipnode_t
+    struct DClipNode
     {
 	    public int planenum;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=2)]
 	    public short[] children; //[2];	// negative numbers are contents
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dclipnode_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DClipNode));
     } // dclipnode_t;
 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct texinfo_t
+    struct TextureInfo
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=8)]
 	    public float[] vecs; //[2][4];		// [s/t][xyz offset]
 	    public int miptex;
 	    public int flags;
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(texinfo_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(TextureInfo));
     } //texinfo_t;
     
 
     // note that edge 0 is never used, because negative edge nums are used for
     // counterclockwise use of the edge in a face
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dedge_t
+    struct DEdge
     {
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=2)]
 	    public ushort[] v; //[2];		// vertex numbers
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dedge_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DEdge));
     } // dedge_t;
 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dface_t
+    struct DFace
     {
         public short planenum;
         public short side;
@@ -265,7 +265,7 @@ namespace SharpQuake
         public byte[] styles; //[MAXLIGHTMAPS];
         public int lightofs;		// start of [numstyles*surfsize] samples
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dface_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DFace));
     } // dface_t;
 
 
@@ -282,7 +282,7 @@ namespace SharpQuake
     // leaf 0 is the generic CONTENTS_SOLID leaf, used for all solid areas
     // all other leafs need visibility info
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    struct dleaf_t
+    struct DLeaf
     {
 	    public int contents;
 	    public int visofs;				// -1 = no visibility info
@@ -298,7 +298,7 @@ namespace SharpQuake
         [MarshalAs(UnmanagedType.ByValArray, SizeConst=Ambients.NUM_AMBIENTS)]
 	    public byte[] ambient_level; // [NUM_AMBIENTS];
 
-        public static int SizeInBytes = Marshal.SizeOf(typeof(dleaf_t));
+        public static int SizeInBytes = Marshal.SizeOf(typeof(DLeaf));
     } //dleaf_t;
 
 }

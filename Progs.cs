@@ -67,7 +67,7 @@ namespace SharpQuake
     class edict_t
     {
         public bool free;
-        public link_t area; // linked to a division node or leaf
+        public LinkList area; // linked to a division node or leaf
 
         public int num_leafs;
         public short[] leafnums; // [MAX_ENT_LEAFS];
@@ -80,7 +80,7 @@ namespace SharpQuake
 
         public edict_t()
         {
-            area = new link_t(this);
+            area = new LinkList(this);
             leafnums = new short[Progs.MAX_ENT_LEAFS];
             fields = new float[(Progs.EdictSize - entvars_t.SizeInBytes) >> 2];
         }

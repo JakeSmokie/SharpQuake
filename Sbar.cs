@@ -263,13 +263,13 @@ namespace SharpQuake
             if (Sbar.Lines > 24)
             {
                 DrawInventory();
-                if (Client.cl.maxclients != 1)
+                if (Client.Cl.maxclients != 1)
                 {
                     DrawFrags();
                 }
             }
 
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             if (_ShowScores || cl.stats[QStats.STAT_HEALTH] <= 0)
             {
                 DrawPic(0, 0, _ScoreBar);
@@ -399,7 +399,7 @@ namespace SharpQuake
 
             if (vid.width > 320)
             {
-                if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+                if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
                 {
                     MiniDeathmatchOverlay();
                 }
@@ -415,7 +415,7 @@ namespace SharpQuake
             Scr.CopyEverithing = true;
             Scr.FullUpdate = 0;
 
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 Sbar.DeathmatchOverlay();
                 return;
@@ -428,20 +428,20 @@ namespace SharpQuake
             Drawer.DrawTransPic(0, 56, pic);
 
             // time
-            int dig = Client.cl.completed_time / 60;
+            int dig = Client.Cl.completed_time / 60;
             IntermissionNumber(160, 64, dig, 3, 0);
-            int num = Client.cl.completed_time - dig * 60;
+            int num = Client.Cl.completed_time - dig * 60;
             Drawer.DrawTransPic(234, 64, _Colon);
             Drawer.DrawTransPic(246, 64, _Nums[0, num / 10]);
             Drawer.DrawTransPic(266, 64, _Nums[0, num % 10]);
 
-            IntermissionNumber(160, 104, Client.cl.stats[QStats.STAT_SECRETS], 3, 0);
+            IntermissionNumber(160, 104, Client.Cl.stats[QStats.STAT_SECRETS], 3, 0);
             Drawer.DrawTransPic(232, 104, _Slash);
-            IntermissionNumber(240, 104, Client.cl.stats[QStats.STAT_TOTALSECRETS], 3, 0);
+            IntermissionNumber(240, 104, Client.Cl.stats[QStats.STAT_TOTALSECRETS], 3, 0);
 
-            IntermissionNumber(160, 144, Client.cl.stats[QStats.STAT_MONSTERS], 3, 0);
+            IntermissionNumber(160, 144, Client.Cl.stats[QStats.STAT_MONSTERS], 3, 0);
             Drawer.DrawTransPic(232, 144, _Slash);
-            IntermissionNumber(240, 144, Client.cl.stats[QStats.STAT_TOTALMONSTERS], 3, 0);
+            IntermissionNumber(240, 144, Client.Cl.stats[QStats.STAT_TOTALMONSTERS], 3, 0);
         }
 
         /// <summary>
@@ -484,7 +484,7 @@ namespace SharpQuake
         {
             int flashon;
 
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
             if (Common.GameKind == GameKind.Rogue)
             {
                 if (cl.stats[QStats.STAT_ACTIVEWEAPON] >= QItems.RIT_LAVA_NAILGUN)
@@ -751,7 +751,7 @@ namespace SharpQuake
             // draw the text
             int l = _ScoreBoardLines <= 4 ? _ScoreBoardLines : 4;
             int xofs, x = 23;
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
 
             if (cl.gametype == Protocol.GAME_DEATHMATCH)
             {
@@ -767,7 +767,7 @@ namespace SharpQuake
             for (int i = 0; i < l; i++)
             {
                 int k = _FragSort[i];
-                scoreboard_t s = cl.scores[k];
+                Scoreboard s = cl.scores[k];
                 if (String.IsNullOrEmpty(s.name))
                 {
                     continue;
@@ -803,7 +803,7 @@ namespace SharpQuake
         // Sbar_DrawPic
         static void DrawPic(int x, int y, glpic_t pic)
         {
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 Drawer.DrawPic(x, y + (Scr.vid.height - SBAR_HEIGHT), pic);
             }
@@ -818,7 +818,7 @@ namespace SharpQuake
         static void DrawScoreboard()
         {
             SoloScoreboard();
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 DeathmatchOverlay();
             }
@@ -860,16 +860,16 @@ namespace SharpQuake
         // Sbar_DrawFace
         static void DrawFace()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
 
             // PGM 01/19/97 - team color drawing
             // PGM 03/02/97 - fixed so color swatch only appears in CTF modes
             if (Common.GameKind == GameKind.Rogue &&
-                (Client.cl.maxclients != 1) &&
+                (Client.Cl.maxclients != 1) &&
                 (Host.TeamPlay > 3) &&
                 (Host.TeamPlay < 7))
             {
-                scoreboard_t s = cl.scores[cl.viewentity - 1];
+                Scoreboard s = cl.scores[cl.viewentity - 1];
 
                 // draw background
                 int top = s.colors & 0xf0;
@@ -994,7 +994,7 @@ namespace SharpQuake
             int i;
             for (i = 0; i < _ScoreBoardLines; i++)
             {
-                if (_FragSort[i] == Client.cl.viewentity - 1)
+                if (_FragSort[i] == Client.Cl.viewentity - 1)
                 {
                     break;
                 }
@@ -1023,7 +1023,7 @@ namespace SharpQuake
             for (; i < _ScoreBoardLines && y < Scr.vid.height - 8; i++)
             {
                 int k = _FragSort[i];
-                scoreboard_t s = Client.cl.scores[k];
+                Scoreboard s = Client.Cl.scores[k];
                 if (String.IsNullOrEmpty(s.name))
                 {
                     continue;
@@ -1044,7 +1044,7 @@ namespace SharpQuake
                 Drawer.DrawCharacter(x + 16, y, num[1]);
                 Drawer.DrawCharacter(x + 24, y, num[2]);
 
-                if (k == Client.cl.viewentity - 1)
+                if (k == Client.Cl.viewentity - 1)
                 {
                     Drawer.DrawCharacter(x, y, 16);
                     Drawer.DrawCharacter(x + 32, y, 17);
@@ -1061,7 +1061,7 @@ namespace SharpQuake
         // Sbar_SortFrags
         static void SortFrags()
         {
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
 
             // sort by frags
             _ScoreBoardLines = 0;
@@ -1094,7 +1094,7 @@ namespace SharpQuake
         // Draws one solid graphics character
         static void DrawCharacter(int x, int y, int num)
         {
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 Drawer.DrawCharacter(x + 4, y + Scr.vid.height - SBAR_HEIGHT, num);
             }
@@ -1114,9 +1114,9 @@ namespace SharpQuake
         static void SoloScoreboard()
         {
             StringBuilder sb = new StringBuilder(80);
-            client_state_t cl = Client.cl;
+            ClientState cl = Client.Cl;
 
-            sb.AppendFormat("Monsters:{0,3:d} /{1,3:d}", cl.stats[QStats.STAT_MONSTERS], Client.cl.stats[QStats.STAT_TOTALMONSTERS]);
+            sb.AppendFormat("Monsters:{0,3:d} /{1,3:d}", cl.stats[QStats.STAT_MONSTERS], Client.Cl.stats[QStats.STAT_TOTALMONSTERS]);
             DrawString(8, 4, sb.ToString());
 
             sb.Length = 0;
@@ -1158,7 +1158,7 @@ namespace SharpQuake
             for (int i = 0; i < l; i++)
             {
                 int k = _FragSort[i];
-                scoreboard_t s = Client.cl.scores[k];
+                Scoreboard s = Client.Cl.scores[k];
                 if (String.IsNullOrEmpty(s.name))
                 {
                     continue;
@@ -1180,7 +1180,7 @@ namespace SharpQuake
                 Drawer.DrawCharacter(x + 16, y, num[1]);
                 Drawer.DrawCharacter(x + 24, y, num[2]);
 
-                if (k == Client.cl.viewentity - 1)
+                if (k == Client.Cl.viewentity - 1)
                 {
                     Drawer.DrawCharacter(x - 8, y, 12);
                 }
@@ -1195,7 +1195,7 @@ namespace SharpQuake
         // Sbar_DrawTransPic
         static void DrawTransPic(int x, int y, glpic_t pic)
         {
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 Drawer.DrawTransPic(x, y + (Scr.vid.height - SBAR_HEIGHT), pic);
             }
@@ -1208,7 +1208,7 @@ namespace SharpQuake
          // Sbar_DrawString
         static void DrawString(int x, int y, string str)
         {
-            if (Client.cl.gametype == Protocol.GAME_DEATHMATCH)
+            if (Client.Cl.gametype == Protocol.GAME_DEATHMATCH)
             {
                 Drawer.DrawString(x, y + Scr.vid.height - SBAR_HEIGHT, str);
             }

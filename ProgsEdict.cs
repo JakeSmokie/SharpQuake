@@ -117,7 +117,7 @@ namespace SharpQuake
 
         static void Test5_f()
         {
-            entity_t p = Client.ViewEntity;
+            Entity p = Client.ViewEntity;
             if (p == null)
             {
                 return;

@@ -135,7 +135,7 @@ namespace SharpQuake
         }
 
         // ResampleSfx
-        static void ResampleSfx(sfx_t sfx, int inrate, int inwidth, ByteArraySegment data)
+        static void ResampleSfx(SFX sfx, int inrate, int inwidth, ByteArraySegment data)
         {
             sfxcache_t sc = (sfxcache_t)Cache.Check(sfx.cache);
             if (sc == null)

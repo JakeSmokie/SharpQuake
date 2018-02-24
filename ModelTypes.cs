@@ -260,7 +260,7 @@ namespace SharpQuake
         /// </summary>
         public byte[] compressed_vis; // byte*
         public int visofs; // added by Uze
-        public efrag_t efrags;
+        public EFrag efrags;
 
         /// <summary>
         /// loadmodel->marksurfaces
@@ -280,7 +280,7 @@ namespace SharpQuake
     // !!! if this is changed, it must be changed in asm_i386.h too !!!
     class hull_t
     {
-        public dclipnode_t[] clipnodes;
+        public DClipNode[] clipnodes;
         public mplane_t[] planes;
         public int firstclipnode;
         public int lastclipnode;
@@ -433,7 +433,7 @@ namespace SharpQuake
         public const int EF_TRACER3 = 128;			// purple trail
     }
 
-    class model_t
+    class Model
     {
         public string name; // char		name[MAX_QPATH];
         public bool needload;		// bmodels and sprites don't cache normally
@@ -462,7 +462,7 @@ namespace SharpQuake
         public int firstmodelsurface, nummodelsurfaces;
 
         public int numsubmodels;
-        public dmodel_t[] submodels;
+        public DModel[] submodels;
 
         public int numplanes;
         public mplane_t[] planes; // mplane_t*
@@ -489,7 +489,7 @@ namespace SharpQuake
         public int[] surfedges; // int *surfedges;
 
         public int numclipnodes;
-        public dclipnode_t[] clipnodes; // public dclipnode_t* clipnodes;
+        public DClipNode[] clipnodes; // public dclipnode_t* clipnodes;
 
         public int nummarksurfaces;
         public msurface_t[] marksurfaces; // msurface_t **marksurfaces;
@@ -508,7 +508,7 @@ namespace SharpQuake
         //
         public cache_user_t cache; // cache_user_t	cache		// only access through Mod_Extradata
 
-        public model_t()
+        public Model()
         {
             hulls = new hull_t[BspFile.MAX_MAP_HULLS];
             for (int i = 0; i < hulls.Length; i++)
@@ -582,7 +582,7 @@ namespace SharpQuake
             cache = null;
         }
 
-        public void CopyFrom(model_t src)
+        public void CopyFrom(Model src)
         {
             name = src.name;
             needload = src.needload;

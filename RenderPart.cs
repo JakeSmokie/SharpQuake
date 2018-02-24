@@ -171,7 +171,7 @@ namespace SharpQuake
                 }
 
                 p.vel = Vector3.Zero;
-                p.die = (float)Client.cl.time + 2;
+                p.die = (float)Client.Cl.time + 2;
 
                 switch (type)
                 {
@@ -200,7 +200,7 @@ namespace SharpQuake
 
                     case 3:
                     case 5:	// tracer
-                        p.die = (float)Client.cl.time + 0.5f;
+                        p.die = (float)Client.Cl.time + 0.5f;
                         p.type = ptype_t.pt_static;
                         if (type == 3)
                         {
@@ -237,7 +237,7 @@ namespace SharpQuake
                     case 6:	// voor trail
                         p.color = 9 * 16 + 8 + (Sys.Random() & 3);
                         p.type = ptype_t.pt_static;
-                        p.die = (float)Client.cl.time + 0.3f;
+                        p.die = (float)Client.Cl.time + 0.3f;
                         p.org = new Vector3(start.X + ((Sys.Random() % 15) - 8),
                             start.Y + ((Sys.Random() % 15) - 8), start.Z + ((Sys.Random() % 15) - 8));
                         break;
@@ -259,7 +259,7 @@ namespace SharpQuake
 
             Vector3 up = Render.ViewUp * 1.5f;
             Vector3 right = Render.ViewRight * 1.5f;
-            float frametime = (float)(Client.cl.time - Client.cl.oldtime);
+            float frametime = (float)(Client.Cl.time - Client.Cl.oldtime);
             float time3 = frametime * 15;
             float time2 = frametime * 10;
             float time1 = frametime * 5;
@@ -269,7 +269,7 @@ namespace SharpQuake
             while (true)
             {
                 particle_t kill = _ActiveParticles;
-                if (kill != null && kill.die < Client.cl.time)
+                if (kill != null && kill.die < Client.Cl.time)
                 {
                     _ActiveParticles = kill.next;
                     kill.next = _FreeParticles;
@@ -284,7 +284,7 @@ namespace SharpQuake
                 while (true)
                 {
                     particle_t kill = p.next;
-                    if (kill != null && kill.die < Client.cl.time)
+                    if (kill != null && kill.die < Client.Cl.time)
                     {
                         p.next = kill.next;
                         kill.next = _FreeParticles;
@@ -402,7 +402,7 @@ namespace SharpQuake
                     return;
                 }
 
-                p.die = (float)Client.cl.time + 5;
+                p.die = (float)Client.Cl.time + 5;
                 p.color = _Ramp1[0];
                 p.ramp = Sys.Random() & 3;
                 if ((i & 1) != 0)
@@ -434,7 +434,7 @@ namespace SharpQuake
 
                 if (count == 1024)
                 {	// rocket explosion
-                    p.die = (float)Client.cl.time + 5;
+                    p.die = (float)Client.Cl.time + 5;
                     p.color = _Ramp1[0];
                     p.ramp = Sys.Random() & 3;
                     if ((i & 1) != 0)
@@ -451,7 +451,7 @@ namespace SharpQuake
                 }
                 else
                 {
-                    p.die = (float)Client.cl.time + 0.1f * (Sys.Random() % 5);
+                    p.die = (float)Client.Cl.time + 0.1f * (Sys.Random() % 5);
                     p.color = (color & ~7) + (Sys.Random() & 7);
                     p.type = ptype_t.pt_slowgrav;
                     p.org = org + new Vector3((Sys.Random() & 15) - 8, (Sys.Random() & 15) - 8, (Sys.Random() & 15) - 8);
@@ -513,7 +513,7 @@ namespace SharpQuake
                             return;
                         }
 
-                        p.die = (float)(Client.cl.time + 0.2 + (Sys.Random() & 7) * 0.02);
+                        p.die = (float)(Client.Cl.time + 0.2 + (Sys.Random() & 7) * 0.02);
                         p.color = 7 + (Sys.Random() & 7);
                         p.type = ptype_t.pt_slowgrav;
 
@@ -548,7 +548,7 @@ namespace SharpQuake
                             return;
                         }
 
-                        p.die = (float)(Client.cl.time + 2 + (Sys.Random() & 31) * 0.02);
+                        p.die = (float)(Client.Cl.time + 2 + (Sys.Random() & 31) * 0.02);
                         p.color = 224 + (Sys.Random() & 7);
                         p.type = ptype_t.pt_slowgrav;
 
@@ -582,7 +582,7 @@ namespace SharpQuake
                     return;
                 }
 
-                p.die = (float)(Client.cl.time + 0.3);
+                p.die = (float)(Client.Cl.time + 0.3);
                 p.color = colorStart + (colorMod % colorLength);
                 colorMod++;
 
@@ -605,7 +605,7 @@ namespace SharpQuake
                     return;
                 }
 
-                p.die = (float)(Client.cl.time + 1 + (Sys.Random() & 8) * 0.05);
+                p.die = (float)(Client.Cl.time + 1 + (Sys.Random() & 8) * 0.05);
 
                 if ((i & 1) != 0)
                 {
@@ -625,7 +625,7 @@ namespace SharpQuake
         /// <summary>
         /// R_EntityParticles
         /// </summary>
-        public static void EntityParticles(entity_t ent)
+        public static void EntityParticles(Entity ent)
         {
             float dist = 64;
 
@@ -641,13 +641,13 @@ namespace SharpQuake
 
             for (int i = 0; i < NUMVERTEXNORMALS; i++)
             {
-                double angle = Client.cl.time * _AVelocities[i].X;
+                double angle = Client.Cl.time * _AVelocities[i].X;
                 double sy = Math.Sin(angle);
                 double cy = Math.Cos(angle);
-                angle = Client.cl.time * _AVelocities[i].Y;
+                angle = Client.Cl.time * _AVelocities[i].Y;
                 double sp = Math.Sin(angle);
                 double cp = Math.Cos(angle);
-                angle = Client.cl.time * _AVelocities[i].Z;
+                angle = Client.Cl.time * _AVelocities[i].Z;
                 double sr = Math.Sin(angle);
                 double cr = Math.Cos(angle);
 
@@ -658,7 +658,7 @@ namespace SharpQuake
                     return;
                 }
 
-                p.die = (float)(Client.cl.time + 0.01);
+                p.die = (float)(Client.Cl.time + 0.01);
                 p.color = 0x6f;
                 p.type = ptype_t.pt_explode;
 

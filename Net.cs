@@ -55,12 +55,12 @@ namespace SharpQuake
         static int _DefHostPort = 26000; // int	DEFAULTnet_hostport = 26000;
         public static int HostPort; // net_hostport;
         static bool _IsListening; // static qboolean	listening = false;
-        static List<qsocket_t> _FreeSockets; // net_freeSockets
-        static List<qsocket_t> _ActiveSockets; // net_activeSockets
+        static List<QSocket> _FreeSockets; // net_freeSockets
+        static List<QSocket> _ActiveSockets; // net_activeSockets
         public static int ActiveConnections; // net_activeconnections
         static double _Time; // net_time
         
-        public static MsgWriter Message; // sizebuf_t net_message
+        public static MessageWriter Message; // sizebuf_t net_message
         public static MsgReader Reader; // reads from net_message
         
         static string _MyTcpIpAddress; // char my_tcpip_address[NET_NAMELEN];
@@ -74,7 +74,7 @@ namespace SharpQuake
 
         static PollProcedure _PollProcedureList; // pollProcedureList
 
-        static hostcache_t[] _HostCache = new hostcache_t[HOSTCACHESIZE]; // hostcache
+        static Hostcache_t[] _HostCache = new Hostcache_t[HOSTCACHESIZE]; // hostcache
         public static int HostCacheCount; // hostCacheCount
 
         static bool _SlistInProgress; // slistInProgress
@@ -100,11 +100,11 @@ namespace SharpQuake
             get { return _LanDrivers; }
         }
         
-        public static IEnumerable<qsocket_t> ActiveSockets
+        public static IEnumerable<QSocket> ActiveSockets
         {
             get { return _ActiveSockets; }
         }
-        public static IEnumerable<qsocket_t> FreeSockets
+        public static IEnumerable<QSocket> FreeSockets
         {
             get { return _ActiveSockets; }
         }
@@ -142,7 +142,7 @@ namespace SharpQuake
         {
             get { return NetTcpIp.Instance.IsInitialized; }
         }
-        public static hostcache_t[] HostCache
+        public static Hostcache_t[] HostCache
         {
             get { return _HostCache; }
         }
@@ -173,7 +173,7 @@ namespace SharpQuake
         {
             for (int i2 = 0; i2 < _HostCache.Length; i2++)
             {
-                _HostCache[i2] = new hostcache_t();
+                _HostCache[i2] = new Hostcache_t();
             }
 
             if (_Drivers == null)
@@ -232,29 +232,29 @@ namespace SharpQuake
             }
 	        HostPort = _DefHostPort;
 
-	        if (Common.HasParam("-listen") || Client.cls.state == cactive_t.ca_dedicated)
+	        if (Common.HasParam("-listen") || Client.Cls.state == ClientActivityState.Dedicated)
             {
                 _IsListening = true;
             }
 
             int numsockets = Server.svs.maxclientslimit;
-	        if (Client.cls.state != cactive_t.ca_dedicated)
+	        if (Client.Cls.state != ClientActivityState.Dedicated)
             {
                 numsockets++;
             }
 
-            _FreeSockets = new List<qsocket_t>(numsockets);
-            _ActiveSockets = new List<qsocket_t>(numsockets);
+            _FreeSockets = new List<QSocket>(numsockets);
+            _ActiveSockets = new List<QSocket>(numsockets);
 
             for (i = 0; i < numsockets; i++)
             {
-                _FreeSockets.Add(new qsocket_t());
+                _FreeSockets.Add(new QSocket());
             }
 
             SetNetTime();
 
 	        // allocate space for network message buffer
-            Message = new MsgWriter(NET_MAXMESSAGE); // SZ_Alloc (&net_message, NET_MAXMESSAGE);
+            Message = new MessageWriter(NET_MAXMESSAGE); // SZ_Alloc (&net_message, NET_MAXMESSAGE);
             Reader = new MsgReader(Net.Message);
 
             if (_MessageTimeout == null)
@@ -297,8 +297,8 @@ namespace SharpQuake
 
             if (_ActiveSockets != null)
             {
-                qsocket_t[] tmp = _ActiveSockets.ToArray();
-                foreach (qsocket_t sock in tmp)
+                QSocket[] tmp = _ActiveSockets.ToArray();
+                foreach (QSocket sock in tmp)
                 {
                     Close(sock);
                 }
@@ -323,7 +323,7 @@ namespace SharpQuake
         /// NET_CheckNewConnections
         /// </summary>
         /// <returns></returns>
-        public static qsocket_t CheckNewConnections()
+        public static QSocket CheckNewConnections()
         {
             SetNetTime();
 
@@ -339,7 +339,7 @@ namespace SharpQuake
                     continue;
                 }
 
-                qsocket_t ret = Net.Driver.CheckNewConnections();
+                QSocket ret = Net.Driver.CheckNewConnections();
                 if (ret != null)
                 {
                     if (_IsRecording)
@@ -378,7 +378,7 @@ namespace SharpQuake
         /// NET_Connect
         /// called by client to connect to a host.  Returns -1 if not able to connect
         /// </summary>
-        public static qsocket_t Connect(string host)
+        public static QSocket Connect(string host)
         {
             int numdrivers = _Drivers.Length;// net_numdrivers;
 
@@ -399,7 +399,7 @@ namespace SharpQuake
 
                 if (HostCacheCount > 0)
                 {
-                    foreach (hostcache_t hc in _HostCache)
+                    foreach (Hostcache_t hc in _HostCache)
                     {
                         if (Common.SameText(hc.name, host))
                         {
@@ -430,7 +430,7 @@ namespace SharpQuake
             }
 
             _DriverLevel = 0;
-            foreach (hostcache_t hc in _HostCache)
+            foreach (Hostcache_t hc in _HostCache)
             {
                 if (Common.SameText(host, hc.name))
                 {
@@ -449,7 +449,7 @@ namespace SharpQuake
                     continue;
                 }
 
-                qsocket_t ret = drv.Connect(host);
+                QSocket ret = drv.Connect(host);
                 if (ret != null)
                 {
                     return ret;
@@ -482,7 +482,7 @@ namespace SharpQuake
 	        int i;
 	        for (i = _SlistLastShown; i < HostCacheCount; i++)
 	        {
-                hostcache_t hc = _HostCache[i];
+                Hostcache_t hc = _HostCache[i];
 		        if (hc.maxusers != 0)
                 {
                     Con.Print("{0,-15} {1,-15}\n {2,2}/{3,2}\n", Common.Copy(hc.name, 15), Common.Copy(hc.map, 15), hc.users, hc.maxusers);
@@ -513,7 +513,7 @@ namespace SharpQuake
         /// Returns true or false if the given qsocket can currently accept a
         /// message to be transmitted.
         /// </summary>
-        public static bool CanSendMessage(qsocket_t sock)
+        public static bool CanSendMessage(QSocket sock)
         {
             if (sock == null)
             {
@@ -550,7 +550,7 @@ namespace SharpQuake
         /// returns 2 if an unreliable message was received
         /// returns -1 if the connection died
         /// </summary>
-        public static int GetMessage (qsocket_t sock)
+        public static int GetMessage (QSocket sock)
         {
             //int ret;
 
@@ -630,7 +630,7 @@ namespace SharpQuake
         /// returns 1 if the message was sent properly
         /// returns -1 if the connection died
         /// </summary>
-        public static int SendMessage(qsocket_t sock, MsgWriter data)
+        public static int SendMessage(QSocket sock, MessageWriter data)
         {
             if (sock == null)
             {
@@ -672,7 +672,7 @@ namespace SharpQuake
         /// returns 1 if the message was sent properly
         /// returns -1 if the connection died
         /// </summary>
-        public static int SendUnreliableMessage(qsocket_t sock, MsgWriter data)
+        public static int SendUnreliableMessage(QSocket sock, MessageWriter data)
         {
             if (sock == null)
             {
@@ -710,7 +710,7 @@ namespace SharpQuake
         /// NET_SendToAll
         /// This is a reliable *blocking* send to all attached clients.
         /// </summary>
-        public static int SendToAll(MsgWriter data, int blocktime)
+        public static int SendToAll(MessageWriter data, int blocktime)
         {
             bool[] state1 = new bool[QDef.MAX_SCOREBOARD];
             bool[] state2 = new bool[QDef.MAX_SCOREBOARD];
@@ -791,7 +791,7 @@ namespace SharpQuake
         /// <summary>
         /// NET_Close
         /// </summary>
-        public static void Close (qsocket_t sock)
+        public static void Close (QSocket sock)
         {
             if (sock == null)
             {
@@ -814,7 +814,7 @@ namespace SharpQuake
         /// <summary>
         /// NET_FreeQSocket
         /// </summary>
-        public static void FreeSocket(qsocket_t sock)
+        public static void FreeSocket(QSocket sock)
         {
             // remove it from active list
             if (!_ActiveSockets.Remove(sock))
@@ -1007,7 +1007,7 @@ namespace SharpQuake
         /// Called by drivers when a new communications endpoint is required
         /// The sequence and buffer fields will be filled in properly
         /// </summary>
-        public static qsocket_t NewSocket()
+        public static QSocket NewSocket()
         {
             if (_FreeSockets.Count == 0)
             {
@@ -1021,7 +1021,7 @@ namespace SharpQuake
 
             // get one from free list
             int i = _FreeSockets.Count - 1;
-            qsocket_t sock = _FreeSockets[i];
+            QSocket sock = _FreeSockets[i];
             _FreeSockets.RemoveAt(i);
 
             // add it to active list
@@ -1117,7 +1117,7 @@ namespace SharpQuake
     }
 
     // qsocket_t
-    class qsocket_t
+    class QSocket
     {
 	    public double connecttime;
 	    public double lastMessageTime;
@@ -1148,7 +1148,7 @@ namespace SharpQuake
 	    public EndPoint addr; // qsockaddr	addr
 	    public string address; // char address[NET_NAMELEN]
 
-        public qsocket_t()
+        public QSocket()
         {
             sendMessage = new byte[Net.NET_MAXMESSAGE];
             receiveMessage = new byte[Net.NET_MAXMESSAGE];
@@ -1166,15 +1166,9 @@ namespace SharpQuake
             get { return Net.LanDrivers[landriver]; }
         }
 
-        public int Read(byte[] buf, int len, ref EndPoint ep)
-        {
-            return LanDriver.Read(socket, buf, len, ref ep);
-        }
+        public int Read(byte[] buf, int len, ref EndPoint ep) => LanDriver.Read(socket, buf, len, ref ep);
 
-        public int Write(byte[] buf, int len, EndPoint ep)
-        {
-            return LanDriver.Write(socket, buf, len, ep);
-        }
+        public int Write(byte[] buf, int len, EndPoint ep) => LanDriver.Write(socket, buf, len, ep);
     }
 
     // struct net_driver_t
@@ -1185,14 +1179,14 @@ namespace SharpQuake
 	    void Init();
 	    void Listen(bool state);
 	    void SearchForHosts(bool xmit);
-	    qsocket_t Connect(string host);
-	    qsocket_t CheckNewConnections();
-	    int GetMessage(qsocket_t sock);
-	    int SendMessage(qsocket_t sock, MsgWriter data);
-	    int SendUnreliableMessage(qsocket_t sock, MsgWriter data);
-	    bool CanSendMessage(qsocket_t sock);
-	    bool CanSendUnreliableMessage(qsocket_t sock);
-	    void Close(qsocket_t sock);
+	    QSocket Connect(string host);
+	    QSocket CheckNewConnections();
+	    int GetMessage(QSocket sock);
+	    int SendMessage(QSocket sock, MessageWriter data);
+	    int SendUnreliableMessage(QSocket sock, MessageWriter data);
+	    bool CanSendMessage(QSocket sock);
+	    bool CanSendUnreliableMessage(QSocket sock);
+	    void Close(QSocket sock);
 	    void Shutdown();
     } //net_driver_t;
 
@@ -1237,7 +1231,7 @@ namespace SharpQuake
         }
     } // PollProcedure;
 
-    class hostcache_t
+    class Hostcache_t
     {
         public string name; //[16];
         public string map; //[16];

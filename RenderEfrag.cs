@@ -28,7 +28,7 @@ namespace SharpQuake
 {
     partial class Render
     {
-        static entity_t _AddEnt; // r_addent
+        static Entity _AddEnt; // r_addent
         static mnode_t _EfragTopNode; // r_pefragtopnode
         static Vector3 _EMins; // r_emins
         static Vector3 _EMaxs; // r_emaxs
@@ -42,7 +42,7 @@ namespace SharpQuake
         /// <summary>
         /// R_AddEfrags
         /// </summary>
-        public static void AddEfrags(entity_t ent)
+        public static void AddEfrags(Entity ent)
         {
             if (ent.model == null)
             {
@@ -53,11 +53,11 @@ namespace SharpQuake
             _LastObj = ent; //  lastlink = &ent->efrag;
             _EfragTopNode = null;
 
-            model_t entmodel = ent.model;
+            Model entmodel = ent.model;
             _EMins = ent.origin + entmodel.mins;
             _EMaxs = ent.origin + entmodel.maxs;
 
-            SplitEntityOnNode(Client.cl.worldmodel.nodes[0]);
+            SplitEntityOnNode(Client.Cl.worldmodel.nodes[0]);
             ent.topnode = _EfragTopNode;
         }
 
@@ -82,25 +82,25 @@ namespace SharpQuake
                 mleaf_t leaf = (mleaf_t)(object)node;
 
                 // grab an efrag off the free list
-                efrag_t ef = Client.cl.free_efrags;
+                EFrag ef = Client.Cl.free_efrags;
                 if (ef == null)
                 {
                     Con.Print("Too many efrags!\n");
                     return;	// no free fragments...
                 }
-                Client.cl.free_efrags = Client.cl.free_efrags.entnext;
+                Client.Cl.free_efrags = Client.Cl.free_efrags.entnext;
 
                 ef.entity = _AddEnt;
 
                 // add the entity link
                 // *lastlink = ef;
-                if (_LastObj is entity_t)
+                if (_LastObj is Entity)
                 {
-                    ((entity_t)_LastObj).efrag = ef;
+                    ((Entity)_LastObj).efrag = ef;
                 }
                 else
                 {
-                    ((efrag_t)_LastObj).entnext = ef;
+                    ((EFrag)_LastObj).entnext = ef;
                 }
                 _LastObj = ef; // lastlink = &ef->entnext;
                 ef.entnext = null;
@@ -149,12 +149,12 @@ namespace SharpQuake
         /// R_StoreEfrags
         /// FIXME: a lot of this goes away with edge-based
         /// </summary>
-        static void StoreEfrags(efrag_t ef)
+        static void StoreEfrags(EFrag ef)
         {
             while (ef != null)
             {
-                entity_t pent = ef.entity;
-                model_t clmodel = pent.model;
+                Entity pent = ef.entity;
+                Model clmodel = pent.model;
 
                 switch (clmodel.type)
                 {

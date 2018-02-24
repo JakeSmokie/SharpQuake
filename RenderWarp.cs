@@ -163,7 +163,7 @@ namespace SharpQuake
             //
             int numverts = 0;
             Vector3[] verts = new Vector3[fa.numedges + 1]; // + 1 for wrap case
-            model_t loadmodel = Mod.Model;
+            Model loadmodel = Mod.Model;
             for (int i = 0; i < fa.numedges; i++)
             {
                 int lindex = loadmodel.surfedges[fa.firstedge + i];

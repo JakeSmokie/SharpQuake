@@ -143,7 +143,7 @@ namespace SharpQuake
         /// <summary>
         /// WriteDest()
         /// </summary>
-        static MsgWriter WriteDest
+        static MessageWriter WriteDest
         {
             get
             {
@@ -517,7 +517,7 @@ namespace SharpQuake
                     e.v.model = m_idx; // m - pr_strings;
                     e.v.modelindex = i;
 
-                    model_t mod = Server.sv.models[(int)e.v.modelindex];
+                    Model mod = Server.sv.models[(int)e.v.modelindex];
 
                     if (mod != null)
                     {
@@ -760,7 +760,7 @@ namespace SharpQuake
                 if (samp == Server.sv.sound_precache[i])
                 {
                     // add an svc_spawnambient command to the level signon packet
-                    MsgWriter msg = Server.sv.signon;
+                    MessageWriter msg = Server.sv.signon;
 
                     msg.WriteByte(Protocol.svc_spawnstaticsound);
                     for (int i2 = 0; i2 < 3; i2++)
@@ -1623,7 +1623,7 @@ namespace SharpQuake
         static void PF_makestatic()
         {
             edict_t ent = GetEdict(OFS. OFS_PARM0);
-            MsgWriter msg = Server.sv.signon;
+            MessageWriter msg = Server.sv.signon;
             
             msg.WriteByte(Protocol. svc_spawnstatic);
             msg.WriteByte(Server.ModelIndex(Progs.GetString(ent.v.model)));

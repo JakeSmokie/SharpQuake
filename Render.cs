@@ -46,7 +46,7 @@ namespace SharpQuake
         const int BLOCK_WIDTH = 128;
         const int BLOCK_HEIGHT = 128;
 
-        static refdef_t _RefDef = new refdef_t(); // refdef_t	r_refdef;
+        static Refdef_t _RefDef = new Refdef_t(); // refdef_t	r_refdef;
         static texture_t _NoTextureMip; // r_notexture_mip
 
         static Cvar _NoRefresh;// = { "r_norefresh", "0" };
@@ -87,8 +87,8 @@ namespace SharpQuake
         public static Vector3 Origin; // r_origin
 
         static int[] _LightStyleValue = new int[256]; // d_lightstylevalue  // 8.8 fraction of base light value
-        static entity_t _WorldEntity = new entity_t(); // r_worldentity
-        static entity_t _CurrentEntity; // currententity
+        static Entity _WorldEntity = new Entity(); // r_worldentity
+        static Entity _CurrentEntity; // currententity
 
         static mleaf_t _ViewLeaf; // r_viewleaf
         static mleaf_t _OldViewLeaf; // r_oldviewleaf
@@ -122,7 +122,7 @@ namespace SharpQuake
         static int _LastPoseNum; // lastposenum
         static Vector3 _LightSpot; // lightspot
         
-        public static refdef_t RefDef
+        public static Refdef_t RefDef
         {
             get { return _RefDef; }
         }
@@ -240,7 +240,7 @@ namespace SharpQuake
                 return;
             }
 
-            if (_WorldEntity.model == null || Client.cl.worldmodel == null)
+            if (_WorldEntity.model == null || Client.Cl.worldmodel == null)
             {
                 Sys.Error("R_RenderView: NULL worldmodel");
             }
@@ -343,7 +343,7 @@ namespace SharpQuake
                 (float)(Math.Atan2(Render.ViewPn.Y, Render.ViewPn.X) / Math.PI * 180.0),
                 -_RefDef.viewangles.Z);
 
-            entity_t ent = Client.ViewEntity;
+            Entity ent = Client.ViewEntity;
             if (Client.NumVisEdicts < Client.MAX_VISEDICTS)
             {
                 Client.VisEdicts[Client.NumVisEdicts] = ent;
@@ -381,13 +381,13 @@ namespace SharpQuake
             GL.LoadMatrix(ref _BaseWorldMatrix);
 
             GL.Color4(1, 1, 1, _MirrorAlpha.Value);
-            msurface_t s = Client.cl.worldmodel.textures[_MirrorTextureNum].texturechain;
+            msurface_t s = Client.Cl.worldmodel.textures[_MirrorTextureNum].texturechain;
             for (; s != null; s = s.texturechain)
             {
                 RenderBrushPoly(s);
             }
 
-            Client.cl.worldmodel.textures[_MirrorTextureNum].texturechain = null;
+            Client.Cl.worldmodel.textures[_MirrorTextureNum].texturechain = null;
             GL.Disable(EnableCap.Blend);
             GL.Color4(1f, 1, 1, 1);
         }
@@ -417,12 +417,12 @@ namespace SharpQuake
                 return;
             }
 
-            if (Client.cl.HasItems(QItems.IT_INVISIBILITY))
+            if (Client.Cl.HasItems(QItems.IT_INVISIBILITY))
             {
                 return;
             }
 
-            if (Client.cl.stats[QStats.STAT_HEALTH] <= 0)
+            if (Client.Cl.stats[QStats.STAT_HEALTH] <= 0)
             {
                 return;
             }
@@ -446,13 +446,13 @@ namespace SharpQuake
             // add dynamic lights		
             for (int lnum = 0; lnum < Client.MAX_DLIGHTS; lnum++)
             {
-                dlight_t dl = Client.DLights[lnum];
+                DynamicLight dl = Client.DLights[lnum];
                 if (dl.radius == 0)
                 {
                     continue;
                 }
 
-                if (dl.die < Client.cl.time)
+                if (dl.die < Client.Cl.time)
                 {
                     continue;
                 }
@@ -548,23 +548,23 @@ namespace SharpQuake
         /// <summary>
         /// R_DrawSpriteModel
         /// </summary>
-        private static void DrawSpriteModel(entity_t e)
+        private static void DrawSpriteModel(Entity e)
         {
             // don't even bother culling, because it's just a single
             // polygon without a surface cache
             mspriteframe_t frame = GetSpriteFrame(e);
             msprite_t psprite = (msprite_t)e.model.cache.data; // Uze: changed from _CurrentEntity to e
 
-            Vector3 v_forward, right, up;
+            Vector3 right, up;
             if (psprite.type == SPR.SPR_ORIENTED)
             {
                 // bullet marks on walls
-                Mathlib.AngleVectors(ref e.angles, out v_forward, out right, out up); // Uze: changed from _CurrentEntity to e
+                Mathlib.AngleVectors(ref e.angles, out Vector3 v_forward, out right, out up); // Uze: changed from _CurrentEntity to e
             }
             else
             {	// normal sprite
-                up = Render.ViewUp;// vup;
-                right = Render.ViewRight;// vright;
+                up = ViewUp;// vup;
+                right = ViewRight;// vright;
             }
 
             GL.Color3(1f, 1, 1);
@@ -599,7 +599,7 @@ namespace SharpQuake
         /// <summary>
         /// R_GetSpriteFrame
         /// </summary>
-        static mspriteframe_t GetSpriteFrame(entity_t currententity)
+        static mspriteframe_t GetSpriteFrame(Entity currententity)
         {
             msprite_t psprite = (msprite_t)currententity.model.cache.data;
             int frame = currententity.frame;
@@ -621,7 +621,7 @@ namespace SharpQuake
                 float[] pintervals = pspritegroup.intervals;
                 int numframes = pspritegroup.numframes;
                 float fullinterval = pintervals[numframes - 1];
-                float time = (float)Client.cl.time + currententity.syncbase;
+                float time = (float)Client.Cl.time + currententity.syncbase;
 
                 // when loading in Mod_LoadSpriteGroup, we guaranteed all interval values
                 // are positive, so we don't have to worry about division by 0
@@ -643,9 +643,9 @@ namespace SharpQuake
         /// <summary>
         /// R_DrawAliasModel
         /// </summary>
-        private static void DrawAliasModel(entity_t e)
+        private static void DrawAliasModel(Entity e)
         {
-            model_t clmodel = _CurrentEntity.model;
+            Model clmodel = _CurrentEntity.model;
             Vector3 mins = _CurrentEntity.origin + clmodel.mins;
             Vector3 maxs = _CurrentEntity.origin + clmodel.maxs;
 
@@ -664,14 +664,14 @@ namespace SharpQuake
             _AmbientLight = _ShadeLight = LightPoint(ref _CurrentEntity.origin);
 
             // allways give the gun some light
-            if (e == Client.cl.viewent && _AmbientLight < 24)
+            if (e == Client.Cl.viewent && _AmbientLight < 24)
             {
                 _AmbientLight = _ShadeLight = 24;
             }
 
             for (int lnum = 0; lnum < Client.MAX_DLIGHTS; lnum++)
             {
-                if (Client.DLights[lnum].die >= Client.cl.time)
+                if (Client.DLights[lnum].die >= Client.Cl.time)
                 {
                     Vector3 dist = _CurrentEntity.origin - Client.DLights[lnum].origin;
                     float add = Client.DLights[lnum].radius - dist.Length;
@@ -696,7 +696,7 @@ namespace SharpQuake
             }
 
             // ZOID: never allow players to go totally black
-            int playernum = Array.IndexOf(Client.Entities, _CurrentEntity, 0, Client.cl.maxclients);
+            int playernum = Array.IndexOf(Client.Entities, _CurrentEntity, 0, Client.Cl.maxclients);
             if (playernum >= 1)// && i <= cl.maxclients)
             {
                 if (_AmbientLight < 8)
@@ -749,7 +749,7 @@ namespace SharpQuake
                 GL.Scale(paliashdr.scale);
             }
 
-            int anim = (int)(Client.cl.time * 10) & 3;
+            int anim = (int)(Client.Cl.time * 10) & 3;
             Drawer.Bind(paliashdr.gl_texturenum[_CurrentEntity.skinnum, anim]);
 
             // we can't dynamically colormap textures, so they are cached
@@ -874,7 +874,7 @@ namespace SharpQuake
             if (numposes > 1)
             {
                 float interval = paliashdr.frames[frame].interval;
-                pose += (int)(Client.cl.time / interval) % numposes;
+                pose += (int)(Client.Cl.time / interval) % numposes;
             }
 
             DrawAliasFrame(paliashdr, pose);
@@ -933,7 +933,7 @@ namespace SharpQuake
         /// <summary>
         /// R_RotateForEntity
         /// </summary>
-        static void RotateForEntity(entity_t e)
+        static void RotateForEntity(Entity e)
         {
             GL.Translate(e.origin);
 
@@ -1111,7 +1111,7 @@ namespace SharpQuake
         static void SetupFrame()
         {
             // don't allow cheats in multiplayer
-            if (Client.cl.maxclients > 1)
+            if (Client.Cl.maxclients > 1)
             {
                 Cvar.Set("r_fullbright", "0");
             }
@@ -1127,7 +1127,7 @@ namespace SharpQuake
 
             // current viewleaf
             _OldViewLeaf = _ViewLeaf;
-            _ViewLeaf = Mod.PointInLeaf(ref Render.Origin, Client.cl.worldmodel);
+            _ViewLeaf = Mod.PointInLeaf(ref Render.Origin, Client.Cl.worldmodel);
 
             View.SetContentsColor(_ViewLeaf.contents);
             View.CalcBlend();
@@ -1203,16 +1203,16 @@ namespace SharpQuake
         /// R_RemoveEfrags
         /// Call when removing an object from the world or moving it to another position
         /// </summary>
-        public static void RemoveEfrags(entity_t ent)
+        public static void RemoveEfrags(Entity ent)
         {
-            efrag_t ef = ent.efrag;
+            EFrag ef = ent.efrag;
 
             while (ef != null)
             {
                 mleaf_t leaf = ef.leaf;
                 while (true)
                 {
-                    efrag_t walk = leaf.efrags;
+                    EFrag walk = leaf.efrags;
                     if (walk == null)
                     {
                         break;
@@ -1230,12 +1230,12 @@ namespace SharpQuake
                     }
                 }
 
-                efrag_t old = ef;
+                EFrag old = ef;
                 ef = ef.entnext;
 
                 // put it on the free list
-                old.entnext = Client.cl.free_efrags;
-                Client.cl.free_efrags = old;
+                old.entnext = Client.Cl.free_efrags;
+                Client.Cl.free_efrags = old;
             }
 
             ent.efrag = null;
@@ -1275,8 +1275,8 @@ namespace SharpQuake
         {
             DisableMultitexture();
 
-            int top = Client.cl.scores[playernum].colors & 0xf0;
-            int bottom = (Client.cl.scores[playernum].colors & 15) << 4;
+            int top = Client.Cl.scores[playernum].colors & 0xf0;
+            int bottom = (Client.Cl.scores[playernum].colors & 15) << 4;
 
             byte[] translate = new byte[256];
             for (int i = 0; i < 256; i++)
@@ -1309,7 +1309,7 @@ namespace SharpQuake
             // locate the original skin pixels
             //
             _CurrentEntity = Client.Entities[1 + playernum];
-            model_t model = _CurrentEntity.model;
+            Model model = _CurrentEntity.model;
             if (model == null)
             {
                 return;     // player doesn't have a model yet
@@ -1431,13 +1431,13 @@ namespace SharpQuake
             }
 
             _WorldEntity.Clear();
-            _WorldEntity.model = Client.cl.worldmodel;
+            _WorldEntity.model = Client.Cl.worldmodel;
 
             // clear out efrags in case the level hasn't been reloaded
             // FIXME: is this one short?
-            for (int i = 0; i < Client.cl.worldmodel.numleafs; i++)
+            for (int i = 0; i < Client.Cl.worldmodel.numleafs; i++)
             {
-                Client.cl.worldmodel.leafs[i].efrags = null;
+                Client.Cl.worldmodel.leafs[i].efrags = null;
             }
 
             _ViewLeaf = null;
@@ -1448,7 +1448,7 @@ namespace SharpQuake
             // identify sky texture
             _SkyTextureNum = -1;
             _MirrorTextureNum = -1;
-            model_t world = Client.cl.worldmodel;
+            Model world = Client.Cl.worldmodel;
             for (int i = 0; i < world.numtextures; i++)
             {
                 if (world.textures[i] == null)
@@ -1490,12 +1490,12 @@ namespace SharpQuake
     }
 
     
-    class efrag_t
+    class EFrag
     {
 	    public mleaf_t leaf;
-	    public efrag_t leafnext;
-	    public entity_t entity;
-	    public efrag_t entnext;
+	    public EFrag leafnext;
+	    public Entity entity;
+	    public EFrag entnext;
 
         public void Clear()
         {
@@ -1507,7 +1507,7 @@ namespace SharpQuake
     } // efrag_t;
 
 
-    class entity_t
+    class Entity
     {
         public bool forcelink;		// model changed
         public int update_type;
@@ -1517,8 +1517,8 @@ namespace SharpQuake
         public Vector3 origin;
         public Vector3[] msg_angles; //[2];	// last two updates (0 is newest)
         public Vector3 angles;
-        public model_t model;			// NULL = no model
-        public efrag_t efrag;			// linked list of efrags
+        public Model model;			// NULL = no model
+        public EFrag efrag;			// linked list of efrags
         public int frame;
         public float syncbase;		// for client-side animations
         public byte[] colormap;
@@ -1536,7 +1536,7 @@ namespace SharpQuake
         //  that splits bmodel, or NULL if
         //  not split
 
-        public entity_t()
+        public Entity()
         {
             msg_origins = new Vector3[2];
             msg_angles = new Vector3[2];
@@ -1576,7 +1576,7 @@ namespace SharpQuake
     } // entity_t;
 
     // !!! if this is changed, it must be changed in asm_draw.h too !!!
-    class refdef_t
+    class Refdef_t
     {
         public vrect_t vrect;				// subwindow in video for refresh
         public Vector3 vieworg;

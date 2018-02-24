@@ -36,7 +36,7 @@ namespace SharpQuake
         static int _LightMapTextures; // lightmap_textures
         static int _LightMapBytes; // lightmap_bytes		// 1, 2, or 4
         static mvertex_t[] _CurrentVertBase; // r_pcurrentvertbase
-        static model_t _CurrentModel; // currentmodel
+        static Model _CurrentModel; // currentmodel
         static bool[] _LightMapModified = new bool[MAX_LIGHTMAPS]; // lightmap_modified
         static glpoly_t[] _LightMapPolys = new glpoly_t[MAX_LIGHTMAPS]; // lightmap_polys
         static glRect_t[] _LightMapRectChange = new glRect_t[MAX_LIGHTMAPS]; // lightmap_rectchange
@@ -44,7 +44,7 @@ namespace SharpQuake
         static int _ColinElim; // nColinElim
         static msurface_t _SkyChain; // skychain
         static msurface_t _WaterChain; // waterchain
-        static entity_t _TempEnt = new entity_t(); // for DrawWorld
+        static Entity _TempEnt = new Entity(); // for DrawWorld
 
         // the lightmap texture data needs to be kept in
         // main memory so texsubimage can update properly
@@ -114,7 +114,7 @@ namespace SharpQuake
 
             for (int j = 1; j < QDef.MAX_MODELS; j++)
             {
-                model_t m = Client.cl.model_precache[j];
+                Model m = Client.Cl.model_precache[j];
                 if (m == null)
                 {
                     break;
@@ -380,7 +380,7 @@ namespace SharpQuake
             byte[] lightmap = surf.sample_base;// surf.samples;
 
             // set to full bright if no light data
-            if (_FullBright.Value != 0 || Client.cl.worldmodel.lightdata == null)
+            if (_FullBright.Value != 0 || Client.Cl.worldmodel.lightdata == null)
             {
                 for (int i = 0; i < size; i++)
                 {
@@ -476,7 +476,7 @@ namespace SharpQuake
             int smax = (surf.extents[0] >> 4) + 1;
             int tmax = (surf.extents[1] >> 4) + 1;
             mtexinfo_t tex = surf.texinfo;
-            dlight_t[] dlights = Client.DLights;
+            DynamicLight[] dlights = Client.DLights;
             
             for (int lnum = 0; lnum < Client.MAX_DLIGHTS; lnum++)
             {
@@ -576,9 +576,9 @@ namespace SharpQuake
             }
             else
             {
-                for (int i = 0; i < Client.cl.worldmodel.numtextures; i++)
+                for (int i = 0; i < Client.Cl.worldmodel.numtextures; i++)
                 {
-                    texture_t t = Client.cl.worldmodel.textures[i];
+                    texture_t t = Client.Cl.worldmodel.textures[i];
                     if (t == null)
                     {
                         continue;
@@ -643,10 +643,10 @@ namespace SharpQuake
             }
             else
             {
-                vis = Mod.LeafPVS(_ViewLeaf, Client.cl.worldmodel);
+                vis = Mod.LeafPVS(_ViewLeaf, Client.Cl.worldmodel);
             }
 
-            model_t world = Client.cl.worldmodel;
+            Model world = Client.Cl.worldmodel;
             for (int i = 0; i < world.numleafs; i++)
             {
                 if (vis[i >> 3] != 0 & (1 << (i & 7)) != 0)
@@ -672,7 +672,7 @@ namespace SharpQuake
         private static void DrawWorld()
         {
             _TempEnt.Clear();
-            _TempEnt.model = Client.cl.worldmodel;
+            _TempEnt.model = Client.Cl.worldmodel;
 
             _ModelOrg = _RefDef.vieworg;
             _CurrentEntity = _TempEnt;
@@ -785,7 +785,7 @@ namespace SharpQuake
                 }
                 return;
             }
-            model_t world = Client.cl.worldmodel;
+            Model world = Client.Cl.worldmodel;
             for (int i = 0; i < world.numtextures; i++)
             {
                 texture_t t = world.textures[i];
@@ -1032,7 +1032,7 @@ namespace SharpQuake
 
             if (c != 0)
             {
-                msurface_t[] surf = Client.cl.worldmodel.surfaces;
+                msurface_t[] surf = Client.Cl.worldmodel.surfaces;
                 int offset = n.firstsurface;
 
                 if (dot < 0 - QDef.BACKFACE_EPSILON)
@@ -1060,7 +1060,7 @@ namespace SharpQuake
                     // if sorting by texture, just store it out
                     if (_glTexSort.Value != 0)
                     {
-                        if (!_IsMirror || surf[offset].texinfo.texture != Client.cl.worldmodel.textures[_MirrorTextureNum])
+                        if (!_IsMirror || surf[offset].texinfo.texture != Client.Cl.worldmodel.textures[_MirrorTextureNum])
                         {
                             surf[offset].texturechain = surf[offset].texinfo.texture.texturechain;
                             surf[offset].texinfo.texture.texturechain = surf[offset];
@@ -1330,7 +1330,7 @@ namespace SharpQuake
                 return t;
             }
 
-            int reletive = (int)(Client.cl.time * 10) % t.anim_total;
+            int reletive = (int)(Client.Cl.time * 10) % t.anim_total;
             int count = 0;
             while (t.anim_min > reletive || t.anim_max <= reletive)
             {
@@ -1394,12 +1394,12 @@ namespace SharpQuake
         /// <summary>
         /// R_DrawBrushModel
         /// </summary>
-        private static void DrawBrushModel(entity_t e)
+        private static void DrawBrushModel(Entity e)
         {
             _CurrentEntity = e;
             Drawer.CurrentTexture = -1;
 
-            model_t clmodel = e.model;
+            Model clmodel = e.model;
             bool rotated = false;
             Vector3 mins, maxs;
             if (e.angles.X != 0 || e.angles.Y != 0 || e.angles.Z != 0)
@@ -1444,7 +1444,7 @@ namespace SharpQuake
             {
                 for (int k = 0; k < Client.MAX_DLIGHTS; k++)
                 {
-                    if ((Client.DLights[k].die < Client.cl.time) || (Client.DLights[k].radius == 0))
+                    if ((Client.DLights[k].die < Client.Cl.time) || (Client.DLights[k].radius == 0))
                     {
                         continue;
                     }

@@ -37,7 +37,7 @@ namespace SharpQuake
         //static v3f origin  - this must be a reference to _Player.v.origin
         //static Vector3 velocity - this must be a reference to _Player.v.velocity
         
-        static usercmd_t _Cmd; // cmd
+        static UserCommand _Cmd; // cmd
 
         static Vector3 _Forward; // forward
         static Vector3 _Right; // right
@@ -263,7 +263,7 @@ namespace SharpQuake
         /// <summary>
         /// SV_ReadClientMove
         /// </summary>
-        static void ReadClientMove(ref usercmd_t move)
+        static void ReadClientMove(ref UserCommand move)
         {
             client_t client = Host.HostClient;
 

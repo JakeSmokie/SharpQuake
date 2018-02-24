@@ -153,7 +153,7 @@ namespace SharpQuake
 
         // IN_Move
         // add additional movement on top of the keyboard move cmd
-        public static void Move(usercmd_t cmd)
+        public static void Move(UserCommand cmd)
         {
             if (!MainForm.Instance.Focused)
             {
@@ -208,7 +208,7 @@ namespace SharpQuake
         /// <summary>
         /// IN_MouseMove
         /// </summary>
-        static void MouseMove(usercmd_t cmd)
+        static void MouseMove(UserCommand cmd)
         {
             if (!_IsMouseActive)
             {
@@ -248,7 +248,7 @@ namespace SharpQuake
             }
             else
             {
-                Client.cl.viewangles.Y -= Client.MYaw * _Mouse.X;
+                Client.Cl.viewangles.Y -= Client.MYaw * _Mouse.X;
             }
 
             if (ClientInput.MLookBtn.IsDown)
@@ -258,15 +258,15 @@ namespace SharpQuake
 
             if (ClientInput.MLookBtn.IsDown && !ClientInput.StrafeBtn.IsDown)
             {
-                Client.cl.viewangles.X += Client.MPitch * _Mouse.Y;
-                if (Client.cl.viewangles.X > 80)
+                Client.Cl.viewangles.X += Client.MPitch * _Mouse.Y;
+                if (Client.Cl.viewangles.X > 80)
                 {
-                    Client.cl.viewangles.X = 80;
+                    Client.Cl.viewangles.X = 80;
                 }
 
-                if (Client.cl.viewangles.X < -70)
+                if (Client.Cl.viewangles.X < -70)
                 {
-                    Client.cl.viewangles.X = -70;
+                    Client.Cl.viewangles.X = -70;
                 }
             }
             else
